@@ -39,7 +39,7 @@ index 581f1ba9a24f5c5267dea29c892c6dfe03468f0c..e3ad8f9d995b93ab670904726b8f2cdd
 +        // as they change their bounding box while peeking.
 +        // Hanging entities have their own logic and never require a bounding box update.
 +        if ((changedPosition || this instanceof net.minecraft.world.entity.Shulker)
-+            && !(this instanceof net.minecraft.world.entity.decoration.HangingEntity) {
++            && !(this instanceof net.minecraft.world.entity.decoration.HangingEntity)) {
 +            this.setBoundingBox(this.makeBoundingBox());
 +        }
 
