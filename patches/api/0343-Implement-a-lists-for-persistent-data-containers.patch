@@ -1,0 +1,175 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Fri, 5 Nov 2021 17:20:50 +0100
+Subject: [PATCH] Implement a lists for persistent data containers
+
+Introduces the concepts of lists to the persistent data container and
+its persistent data container types. To properly represent lists, two
+new list types are introduced, one that is properly typed using the
+persistent data type framework and one that remains untyped.
+
+diff --git a/src/main/java/org/bukkit/persistence/PersistentDataAdapterContext.java b/src/main/java/org/bukkit/persistence/PersistentDataAdapterContext.java
+index 8face93f333533abd28d2065fa4aa2ab589ee0ab..a44c5fc1e34e15341bbeecca4b24cb72cc9ed2c2 100644
+--- a/src/main/java/org/bukkit/persistence/PersistentDataAdapterContext.java
++++ b/src/main/java/org/bukkit/persistence/PersistentDataAdapterContext.java
+@@ -15,4 +15,45 @@ public interface PersistentDataAdapterContext {
+      */
+     @NotNull
+     PersistentDataContainer newPersistentDataContainer();
++
++    // Paper start - pdc list type
++    /**
++     * Creates a new persistent data list for the passed data type
++     *
++     * @param dataType the data type the values in the list will match
++     * @param <T> the primitive type of the values in the list
++     * @param <Z> the actual type of the values in the list
++     *
++     * @return the fresh empty list instance
++     */
++    @NotNull
++    <T, Z> org.bukkit.persistence.list.PersistentDataList<Z> newPersistentDataList(@NotNull PersistentDataType<T, Z> dataType);
++
++    /**
++     * Creates a new persistent data list for the passed data type that wraps the given list. The returned data list is
++     * backed by the list passed here so any changes to the list will be reflected in the returned {@link
++     * org.bukkit.persistence.list.PersistentDataList}.
++     *
++     * @param dataType the data type the values in the list will match.
++     * @param list the list the returned {@link org.bukkit.persistence.list.PersistentDataList} is backed by.
++     * @param <T> the primitive type of the values in the list.
++     * @param <Z> the actual type of the values in the list.
++     *
++     * @return the fresh empty list instance.
++     */
++    @NotNull
++    <T, Z> org.bukkit.persistence.list.PersistentDataList<Z> newPersistentDataList(@NotNull java.util.List<Z> list,
++                                                                                   @NotNull PersistentDataType<T, Z> dataType);
++
++    /**
++     * Creates a new untyped persistent data list.
++     * <p>
++     * The returned {@link org.bukkit.persistence.list.UntypedPersistentDataList} is empty, therefore it can by typed to any {@link
++     * PersistentDataType} using {@link org.bukkit.persistence.list.UntypedPersistentDataList#type(PersistentDataType)} later.
++     *
++     * @return the fresh empty untyped list instance
++     */
++    @NotNull
++    org.bukkit.persistence.list.UntypedPersistentDataList newPersistentDataList();
++    // Paper end - pdc list type
+ }
+diff --git a/src/main/java/org/bukkit/persistence/PersistentDataType.java b/src/main/java/org/bukkit/persistence/PersistentDataType.java
+index 0af00a2485cbb3fccd689dea56f0a705d0034782..c909e6a8a13976a553b6cc1046d64dea7cd98b53 100644
+--- a/src/main/java/org/bukkit/persistence/PersistentDataType.java
++++ b/src/main/java/org/bukkit/persistence/PersistentDataType.java
+@@ -77,6 +77,13 @@ public interface PersistentDataType<T, Z> {
+      */
+     PersistentDataType<PersistentDataContainer, PersistentDataContainer> TAG_CONTAINER = new PrimitivePersistentDataType<>(PersistentDataContainer.class);
+ 
++    // Paper start - pdc list type
++    /*
++        Lists of persistent data types.
++     */
++    PersistentDataType<org.bukkit.persistence.list.UntypedPersistentDataList, org.bukkit.persistence.list.UntypedPersistentDataList> LIST = new PrimitivePersistentDataType<>(org.bukkit.persistence.list.UntypedPersistentDataList.class);
++    // Paper end - pdc list type
++
+     /**
+      * Returns the primitive data type of this tag.
+      *
+diff --git a/src/main/java/org/bukkit/persistence/list/PersistentDataList.java b/src/main/java/org/bukkit/persistence/list/PersistentDataList.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..6e1cea3fd854946570394ce5ee473d30dec3cb09
+--- /dev/null
++++ b/src/main/java/org/bukkit/persistence/list/PersistentDataList.java
+@@ -0,0 +1,35 @@
++package org.bukkit.persistence.list;
++
++import java.util.List;
++import org.bukkit.persistence.PersistentDataContainer;
++import org.bukkit.persistence.PersistentDataType;
++import org.jetbrains.annotations.NotNull;
++
++/**
++ * Represents a typed list of persistent data. This list is only a copy of the original list and any modification have
++ * to be fed back to the {@link PersistentDataContainer} to be effective
++ *
++ * @param <E> the generic type of the persistent data stored within
++ */
++public interface PersistentDataList<E> extends UntypedPersistentDataList, List<E> {
++
++    /**
++     * Returns this list instanced typed by the provided data type. As this list instance is already typed, the only
++     * acceptable data type that can be passed is the one used to create this list instance from the {@link
++     * UntypedPersistentDataList}.
++     *
++     * @param dataType the type this list is supposed to be
++     * @param <T> the primitive type the values are stored in before
++     * @param <Z> the generic type of the returned list
++     *
++     * @return this list instance, as it is already typed.
++     *
++     * @throws IllegalArgumentException if the passed dataType is not the same as the one used to create this list
++     * @deprecated as this list is already typed. The only acceptable call to this is the one used to type this list in
++     * the first place. An instance of any other {@link PersistentDataType}, even when transforming to the same complex
++     * type, will throw an {@link IllegalArgumentException}
++     */
++    @NotNull
++    @Override
++    <T, Z> PersistentDataList<Z> type(@NotNull PersistentDataType<T, Z> dataType);
++}
+diff --git a/src/main/java/org/bukkit/persistence/list/UntypedPersistentDataList.java b/src/main/java/org/bukkit/persistence/list/UntypedPersistentDataList.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..50e266b0e969347cff0404e279ba317b03defbf7
+--- /dev/null
++++ b/src/main/java/org/bukkit/persistence/list/UntypedPersistentDataList.java
+@@ -0,0 +1,50 @@
++package org.bukkit.persistence.list;
++
++import org.bukkit.persistence.PersistentDataType;
++import org.jetbrains.annotations.NotNull;
++
++/**
++ * The {@link UntypedPersistentDataList} interface defines an untyped list instance without any specific values. This
++ * instance can not be iterated over yet nor is any access to data granted.
++ */
++public interface UntypedPersistentDataList {
++
++    /**
++     * Returns the size of the list
++     *
++     * @return the size
++     */
++    int size();
++
++    /**
++     * Returns a copy of this list but now with a specific list type. This method will attempt to parse the previously
++     * known list and will fail with an {@link IllegalArgumentException} if either the {@link PersistentDataType} has no
++     * valid adapter or if the list type is not of the passed type.
++     *
++     * @param dataType the type this list is supposed to be
++     * @param <T> the primitive type the values are stored in
++     * @param <Z> the generic java type of the lists content
++     *
++     * @return the list instance
++     *
++     * @throws IllegalArgumentException if the passed dataType has no suitable adapter
++     * @throws IllegalArgumentException if the passed dataType does not match the untyped data stored in the list
++     */
++    @NotNull
++    <T, Z> PersistentDataList<Z> type(@NotNull PersistentDataType<T, Z> dataType);
++
++    /**
++     * Returns if the data stored in this data list matches the data accepted by the {@link
++     * PersistentDataType#getPrimitiveType()} and could technically be consumed be it. This method does not test if the
++     * complex data type can be created. If the list is empty, more specifically {@link
++     * UntypedPersistentDataList#size()} is 0, this value will always return true as the list is not typed at all and
++     * can simply by retyped to any primitive type.
++     *
++     * @param dataType the data type to check against
++     * @param <T> the generic java type of the primitive type to check against
++     * @param <Z> the generic java type of the data type
++     *
++     * @return {@code true} if the content in the list can be converted using this {@link PersistentDataType}
++     */
++    <T, Z> boolean isType(@NotNull PersistentDataType<T, Z> dataType);
++}
