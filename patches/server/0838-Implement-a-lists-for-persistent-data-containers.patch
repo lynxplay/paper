@@ -1,0 +1,417 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Fri, 5 Nov 2021 17:31:05 +0100
+Subject: [PATCH] Implement a lists for persistent data containers
+
+Introduces the concepts of lists to the persistent data container and
+its persistent data container types. To properly represent lists, two
+new list types are introduced, one that is properly typed using the
+persistent data type framework and one that remains untyped.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataAdapterContext.java b/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataAdapterContext.java
+index 6371f6836d89548bd12ca62ed2b4653c30393e3e..5744a6fccca978909d692b3e1827147af640abc1 100644
+--- a/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataAdapterContext.java
++++ b/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataAdapterContext.java
+@@ -19,4 +19,29 @@ public final class CraftPersistentDataAdapterContext implements PersistentDataAd
+     public CraftPersistentDataContainer newPersistentDataContainer() {
+         return new CraftPersistentDataContainer(this.registry);
+     }
++
++    // Paper start - pdc list type
++    @Override
++    public <T, Z> org.bukkit.persistence.list.PersistentDataList<Z> newPersistentDataList(
++        org.bukkit.persistence.PersistentDataType<T, Z> dataType
++    ) {
++        return this.newPersistentDataList(new java.util.ArrayList<>(), dataType);
++    }
++
++    @Override
++    public <T, Z> org.bukkit.persistence.list.PersistentDataList<Z> newPersistentDataList(
++        java.util.List<Z> list,
++        org.bukkit.persistence.PersistentDataType<T, Z> dataType
++    ) {
++        return new org.bukkit.craftbukkit.persistence.list.CraftPersistentDataList<>(list, dataType, this.registry);
++    }
++
++    @Override
++    public org.bukkit.persistence.list.UntypedPersistentDataList newPersistentDataList() {
++        return new org.bukkit.craftbukkit.persistence.list.CraftUntypedPersistentDataList(
++            new net.minecraft.nbt.ListTag(),
++            this.registry
++        );
++    }
++    // Paper end - pdc list type
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataTypeRegistry.java b/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataTypeRegistry.java
+index 355c9f79fd3132848a00eacde951d1e1bfa92737..edfec3068ac22dbfec8e8143c18ed8a9b5ac20a4 100644
+--- a/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataTypeRegistry.java
++++ b/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataTypeRegistry.java
+@@ -192,6 +192,16 @@ public final class CraftPersistentDataTypeRegistry {
+             });
+         }
+ 
++        // Paper start - pdc list type
++        if (Objects.equals(org.bukkit.persistence.list.UntypedPersistentDataList.class, type)) {
++            return createAdapter(
++                org.bukkit.craftbukkit.persistence.list.CraftPersistentDataListReference.class,
++                net.minecraft.nbt.ListTag.class,
++                org.bukkit.craftbukkit.persistence.list.CraftPersistentDataListReference::toTagList,
++                tag -> new org.bukkit.craftbukkit.persistence.list.CraftUntypedPersistentDataList(tag , this));
++        }
++        // Paper end - pdc list type
++
+         throw new IllegalArgumentException("Could not find a valid TagAdapter implementation for the requested type " + type.getSimpleName());
+     }
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/persistence/list/CraftPersistentDataList.java b/src/main/java/org/bukkit/craftbukkit/persistence/list/CraftPersistentDataList.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..a0a7be188ad9bbdea39db91288459a05a0ed6e12
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/persistence/list/CraftPersistentDataList.java
+@@ -0,0 +1,200 @@
++package org.bukkit.craftbukkit.persistence.list;
++
++import net.minecraft.nbt.ListTag;
++import org.apache.commons.lang.Validate;
++import org.bukkit.craftbukkit.persistence.CraftPersistentDataAdapterContext;
++import org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry;
++import org.bukkit.persistence.PersistentDataType;
++import org.bukkit.persistence.list.PersistentDataList;
++
++import java.util.Collection;
++import java.util.Comparator;
++import java.util.Iterator;
++import java.util.List;
++import java.util.ListIterator;
++import java.util.Objects;
++import java.util.Spliterator;
++import java.util.function.UnaryOperator;
++
++public class CraftPersistentDataList<E, R> implements PersistentDataList<E>, CraftPersistentDataListReference {
++
++    private final List<E> internal;
++    private final PersistentDataType<R, E> usedDataType;
++    private final CraftPersistentDataTypeRegistry registry;
++
++    public CraftPersistentDataList(List<E> internal,
++                                   PersistentDataType<R, E> usedDataType,
++                                   CraftPersistentDataTypeRegistry registry) {
++        this.internal = internal;
++        this.usedDataType = usedDataType;
++        this.registry = registry;
++    }
++
++    @Override
++    public <T, Z> PersistentDataList<Z> type(PersistentDataType<T, Z> dataType) {
++        Validate.isTrue(this.usedDataType.getClass().isInstance(dataType),
++                "The provided data type was not of the same type as the data type used to create this list");
++        Validate.isTrue(Objects.equals(this.usedDataType.getComplexType(), dataType.getComplexType()),
++                "The provided data type was not of the same complex type as the data type used to create this list");
++        //noinspection unchecked
++        return (PersistentDataList<Z>) this;
++    }
++
++    @Override
++    public <T, Z> boolean isType(PersistentDataType<T, Z> dataType) {
++        return this.usedDataType.getClass().isInstance(dataType) && Objects.equals(this.usedDataType.getComplexType(),
++                dataType.getComplexType());
++    }
++
++    @Override
++    public int size() {
++        return internal.size();
++    }
++
++    @Override
++    public boolean isEmpty() {
++        return internal.isEmpty();
++    }
++
++    @Override
++    public boolean contains(Object o) {
++        return internal.contains(o);
++    }
++
++    @Override
++    public Iterator<E> iterator() {
++        return internal.iterator();
++    }
++
++    @Override
++    public Object[] toArray() {
++        return internal.toArray();
++    }
++
++    @Override
++    public <T> T[] toArray(T[] a) {
++        return internal.toArray(a);
++    }
++
++    @Override
++    public boolean add(E e) {
++        return internal.add(e);
++    }
++
++    @Override
++    public boolean remove(Object o) {
++        return internal.remove(o);
++    }
++
++    @Override
++    public boolean containsAll(Collection<?> c) {
++        return internal.containsAll(c);
++    }
++
++    @Override
++    public boolean addAll(Collection<? extends E> c) {
++        return internal.addAll(c);
++    }
++
++    @Override
++    public boolean addAll(int index, Collection<? extends E> c) {
++        return internal.addAll(index, c);
++    }
++
++    @Override
++    public boolean removeAll(Collection<?> c) {
++        return internal.removeAll(c);
++    }
++
++    @Override
++    public boolean retainAll(Collection<?> c) {
++        return internal.retainAll(c);
++    }
++
++    @Override
++    public void replaceAll(UnaryOperator<E> operator) {
++        internal.replaceAll(operator);
++    }
++
++    @Override
++    public void sort(Comparator<? super E> c) {
++        internal.sort(c);
++    }
++
++    @Override
++    public void clear() {
++        internal.clear();
++    }
++
++    @Override
++    public boolean equals(Object o) {
++        return internal.equals(o);
++    }
++
++    @Override
++    public int hashCode() {
++        return internal.hashCode();
++    }
++
++    @Override
++    public E get(int index) {
++        return internal.get(index);
++    }
++
++    @Override
++    public E set(int index, E element) {
++        return internal.set(index, element);
++    }
++
++    @Override
++    public void add(int index, E element) {
++        internal.add(index, element);
++    }
++
++    @Override
++    public E remove(int index) {
++        return internal.remove(index);
++    }
++
++    @Override
++    public int indexOf(Object o) {
++        return internal.indexOf(o);
++    }
++
++    @Override
++    public int lastIndexOf(Object o) {
++        return internal.lastIndexOf(o);
++    }
++
++    @Override
++    public ListIterator<E> listIterator() {
++        return internal.listIterator();
++    }
++
++    @Override
++    public ListIterator<E> listIterator(int index) {
++        return internal.listIterator(index);
++    }
++
++    @Override
++    public List<E> subList(int fromIndex, int toIndex) {
++        return internal.subList(fromIndex, toIndex);
++    }
++
++    @Override
++    public Spliterator<E> spliterator() {
++        return internal.spliterator();
++    }
++
++    @Override
++    public ListTag toTagList() {
++        ListTag tagList = new ListTag();
++        CraftPersistentDataAdapterContext adapterContext = new CraftPersistentDataAdapterContext(this.registry);
++
++        for (E e : this.internal) {
++            tagList.add(this.registry.wrap(this.usedDataType.getPrimitiveType(),
++                    this.usedDataType.toPrimitive(e, adapterContext)));
++        }
++        return tagList;
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/persistence/list/CraftPersistentDataListReference.java b/src/main/java/org/bukkit/craftbukkit/persistence/list/CraftPersistentDataListReference.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..20b7ef6ada3f50aa42c924d1865a17f596198f09
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/persistence/list/CraftPersistentDataListReference.java
+@@ -0,0 +1,9 @@
++package org.bukkit.craftbukkit.persistence.list;
++
++import net.minecraft.nbt.ListTag;
++
++public interface CraftPersistentDataListReference {
++
++    ListTag toTagList();
++
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/persistence/list/CraftUntypedPersistentDataList.java b/src/main/java/org/bukkit/craftbukkit/persistence/list/CraftUntypedPersistentDataList.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c8bc80d019d8b69d8f9aea663397228b542287bd
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/persistence/list/CraftUntypedPersistentDataList.java
+@@ -0,0 +1,61 @@
++package org.bukkit.craftbukkit.persistence.list;
++
++import net.minecraft.nbt.ListTag;
++import net.minecraft.nbt.Tag;
++import org.bukkit.craftbukkit.persistence.CraftPersistentDataAdapterContext;
++import org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry;
++import org.bukkit.persistence.PersistentDataType;
++import org.bukkit.persistence.list.PersistentDataList;
++import org.bukkit.persistence.list.UntypedPersistentDataList;
++
++import java.util.ArrayList;
++import java.util.List;
++import java.util.Objects;
++import org.jetbrains.annotations.NotNull;
++
++public class CraftUntypedPersistentDataList implements UntypedPersistentDataList, CraftPersistentDataListReference {
++
++    private final ListTag list;
++    private final CraftPersistentDataTypeRegistry registry;
++
++    public CraftUntypedPersistentDataList(ListTag list,
++                                          CraftPersistentDataTypeRegistry registry) {
++        this.list = list;
++        this.registry = registry;
++    }
++
++    @Override
++    public int size() {
++        return list.size();
++    }
++
++    @Override
++    public <T, Z> @NotNull PersistentDataList<Z> type(@NotNull PersistentDataType<T, Z> dataType) {
++        List<Z> list = new ArrayList<>(this.list.size());
++        CraftPersistentDataAdapterContext adapterContext = new CraftPersistentDataAdapterContext(this.registry);
++
++        for (Tag base : this.list) {
++            list.add(dataType.fromPrimitive(this.registry.extract(dataType.getPrimitiveType(), base), adapterContext));
++        }
++
++        return new CraftPersistentDataList<>(list, dataType, registry);
++    }
++
++    @Override
++    public <T, Z> boolean isType(@NotNull PersistentDataType<T, Z> dataType) {
++        if (this.size() < 1) {
++            return true;
++        }
++
++        for (Tag tag : this.list) {
++            if (tag == null) continue; // List implementations might support null
++            if (!this.registry.isInstanceOf(dataType.getPrimitiveType(), tag)) return false;
++        }
++        return true;
++    }
++
++    @Override
++    public ListTag toTagList() {
++        return this.list;
++    }
++}
+diff --git a/src/test/java/org/bukkit/craftbukkit/inventory/PersistentDataContainerTest.java b/src/test/java/org/bukkit/craftbukkit/inventory/PersistentDataContainerTest.java
+index 9e84a0bddd7dc168d62be05675e73bfd49000125..14aca7107fbb373b99e34930fdafb9174ea99812 100644
+--- a/src/test/java/org/bukkit/craftbukkit/inventory/PersistentDataContainerTest.java
++++ b/src/test/java/org/bukkit/craftbukkit/inventory/PersistentDataContainerTest.java
+@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
+ import java.io.StringReader;
+ import java.lang.reflect.Array;
+ import java.nio.ByteBuffer;
++import java.util.Arrays;
+ import java.util.Map;
+ import java.util.UUID;
+ import net.minecraft.nbt.CompoundTag;
+@@ -326,4 +327,51 @@ public class PersistentDataContainerTest extends AbstractTestingBase {
+         clonedContainer.set(VALID_KEY, PersistentDataType.STRING, "dinnerbone");
+         assertNotEquals(container, clonedContainer);
+     }
++
++    // Paper start - pdc list type
++    @Test
++    public void testListData() {
++        ItemMeta meta = createNewItemMeta();
++        PersistentDataContainer container = meta.getPersistentDataContainer();
++        var strings = container.getAdapterContext().newPersistentDataList(PersistentDataType.STRING);
++
++        strings.add("a");
++        strings.add("b");
++        strings.add("c");
++
++        container.set(requestKey("list"), PersistentDataType.LIST, strings);
++
++        var list = container.get(requestKey("list"), PersistentDataType.LIST);
++
++        assertNotNull(list);
++        assertEquals(3, list.size());
++
++        var otherStrings = list.type(PersistentDataType.STRING);
++        assertEquals("a", otherStrings.get(0));
++        assertEquals("b", otherStrings.get(1));
++        assertEquals("c", otherStrings.get(2));
++    }
++
++    @Test(expected = IllegalArgumentException.class)
++    public void testWrongTypedList() {
++        PersistentDataContainer container = createNewItemMeta().getPersistentDataContainer();
++        var ints = container.getAdapterContext().newPersistentDataList(PersistentDataType.INTEGER);
++        ints.addAll(java.util.Arrays.asList(1, 2, 3, 4));
++
++        container.set(requestKey("list"), PersistentDataType.LIST, ints);
++
++        var list = container.get(requestKey("list"), PersistentDataType.LIST);
++        assertNotNull(list);
++        assertEquals(4, list.size());
++
++        list.type(PersistentDataType.STRING);
++    }
++
++    @Test
++    public void testNullOnlyList() {
++        PersistentDataContainer container = createNewItemMeta().getPersistentDataContainer();
++        var nulls = container.getAdapterContext().newPersistentDataList(Arrays.asList(null, null, null), PersistentDataType.STRING);
++        assertTrue(nulls.isType(PersistentDataType.STRING));
++    }
++    // Paper end - pdc list type
+ }
