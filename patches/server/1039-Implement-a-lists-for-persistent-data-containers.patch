@@ -1,0 +1,393 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Fri, 5 Nov 2021 17:31:05 +0100
+Subject: [PATCH] Implement a lists for persistent data containers
+
+Introduces the concepts of lists to the persistent data container and
+its persistent data container types. To properly represent lists, two
+new list types are introduced, one that is properly typed using the
+persistent data type framework and one that remains untyped.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataAdapterContext.java b/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataAdapterContext.java
+index 6371f6836d89548bd12ca62ed2b4653c30393e3e..0dbc661673cfa49fd108748714bf56efbb1ca6d9 100644
+--- a/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataAdapterContext.java
++++ b/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataAdapterContext.java
+@@ -19,4 +19,5 @@ public final class CraftPersistentDataAdapterContext implements PersistentDataAd
+     public CraftPersistentDataContainer newPersistentDataContainer() {
+         return new CraftPersistentDataContainer(this.registry);
+     }
++
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataContainer.java b/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataContainer.java
+index 91cb4a28afa5d83e6de10dab834ed63e2eb3b76f..e59ec512a4c8076037ecd3aafcd2d4f1f16ad0bf 100644
+--- a/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataContainer.java
++++ b/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataContainer.java
+@@ -38,7 +38,7 @@ public class CraftPersistentDataContainer implements PersistentDataContainer {
+         Preconditions.checkArgument(type != null, "The provided type cannot be null");
+         Preconditions.checkArgument(value != null, "The provided value cannot be null");
+ 
+-        this.customDataTags.put(key.toString(), this.registry.wrap(type.getPrimitiveType(), type.toPrimitive(value, adapterContext)));
++        this.customDataTags.put(key.toString(), this.registry.wrap(type, type.toPrimitive(value, adapterContext)));
+     }
+ 
+     @Override
+@@ -51,7 +51,7 @@ public class CraftPersistentDataContainer implements PersistentDataContainer {
+             return false;
+         }
+ 
+-        return this.registry.isInstanceOf(type.getPrimitiveType(), value);
++        return this.registry.isInstanceOf(type, value);
+     }
+ 
+     @Override
+@@ -64,7 +64,7 @@ public class CraftPersistentDataContainer implements PersistentDataContainer {
+             return null;
+         }
+ 
+-        return type.fromPrimitive(this.registry.extract(type.getPrimitiveType(), value), adapterContext);
++        return type.fromPrimitive(this.registry.extract(type, value), adapterContext);
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataTypeRegistry.java b/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataTypeRegistry.java
+index b851581103c72c9a9eb2b3cdd783fca1ee34bed3..8c67e85f64516c233e59074d77d75b8d2afd7e43 100644
+--- a/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataTypeRegistry.java
++++ b/src/main/java/org/bukkit/craftbukkit/persistence/CraftPersistentDataTypeRegistry.java
+@@ -2,10 +2,12 @@ package org.bukkit.craftbukkit.persistence;
+ 
+ import com.google.common.base.Preconditions;
+ import com.google.common.primitives.Primitives;
++import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+ import java.util.Arrays;
+-import java.util.HashMap;
++import java.util.List;
+ import java.util.Map;
+ import java.util.Objects;
++import java.util.function.BiFunction;
+ import java.util.function.Function;
+ import net.minecraft.nbt.ByteArrayTag;
+ import net.minecraft.nbt.ByteTag;
+@@ -21,6 +23,8 @@ import net.minecraft.nbt.ShortTag;
+ import net.minecraft.nbt.StringTag;
+ import net.minecraft.nbt.Tag;
+ import org.bukkit.persistence.PersistentDataContainer;
++import org.bukkit.persistence.PersistentDataType;
++import org.jetbrains.annotations.NotNull;
+ 
+ /**
+  * This class represents a registry that contains the used adapters for.
+@@ -29,59 +33,45 @@ public final class CraftPersistentDataTypeRegistry {
+ 
+     private final Function<Class, TagAdapter> CREATE_ADAPTER = this::createAdapter;
+ 
+-    private class TagAdapter<T, Z extends Tag> {
+-
+-        private final Function<T, Z> builder;
+-        private final Function<Z, T> extractor;
+-
+-        private final Class<T> primitiveType;
+-        private final Class<Z> nbtBaseType;
+-
+-        public TagAdapter(Class<T> primitiveType, Class<Z> nbtBaseType, Function<T, Z> builder, Function<Z, T> extractor) {
+-            this.primitiveType = primitiveType;
+-            this.nbtBaseType = nbtBaseType;
+-            this.builder = builder;
+-            this.extractor = extractor;
+-        }
+-
++    private record TagAdapter<T, Z extends Tag>(
++        Class<T> primitiveType,
++        Class<Z> nbtBaseType,
++        BiFunction<PersistentDataType<T, Z>, T, Z> builder,
++        BiFunction<PersistentDataType<T, Z>, Z, T> extractor
++    ) {
+         /**
+          * This method will extract the value stored in the tag, according to
+          * the expected primitive type.
+          *
+          * @param base the base to extract from
+-         *
+          * @return the value stored inside of the tag
+-         *
+          * @throws ClassCastException if the passed base is not an instanced of
+-         * the defined base type and therefore is not applicable to the
+-         * extractor function
++         *                            the defined base type and therefore is not applicable to the
++         *                            extractor function
+          */
+-        T extract(Tag base) {
++        T extract(PersistentDataType<T, Z> dataType, Tag base) {
+             Preconditions.checkArgument(this.nbtBaseType.isInstance(base), "The provided NBTBase was of the type %s. Expected type %s", base.getClass().getSimpleName(), this.nbtBaseType.getSimpleName());
+-            return this.extractor.apply(this.nbtBaseType.cast(base));
++            return this.extractor.apply(dataType, this.nbtBaseType.cast(base));
+         }
+ 
+         /**
+          * Builds a tag instance wrapping around the provided value object.
+          *
+          * @param value the value to store inside the created tag
+-         *
+          * @return the new tag instance
+-         *
+          * @throws ClassCastException if the passed value object is not of the
+-         * defined primitive type and therefore is not applicable to the builder
+-         * function
++         *                            defined primitive type and therefore is not applicable to the builder
++         *                            function
+          */
+-        Z build(Object value) {
++        Z build(PersistentDataType<T, Z> dataType, Object value) {
+             Preconditions.checkArgument(this.primitiveType.isInstance(value), "The provided value was of the type %s. Expected type %s", value.getClass().getSimpleName(), this.primitiveType.getSimpleName());
+-            return this.builder.apply(this.primitiveType.cast(value));
++            return this.builder.apply(dataType, this.primitiveType.cast(value));
+         }
+ 
+         /**
+          * Returns if the tag instance matches the adapters one.
+          *
+          * @param base the base to check
+-         *
+          * @return if the tag was an instance of the set type
+          */
+         boolean isInstance(Tag base) {
+@@ -95,12 +85,10 @@ public final class CraftPersistentDataTypeRegistry {
+      * Creates a suitable adapter instance for the primitive class type
+      *
+      * @param type the type to create an adapter for
+-     * @param <T> the generic type of that class
+-     *
++     * @param <T>  the generic type of that class
+      * @return the created adapter instance
+-     *
+      * @throws IllegalArgumentException if no suitable tag type adapter for this
+-     * type was found
++     *                                  type was found
+      */
+     private <T> TagAdapter createAdapter(Class<T> type) {
+         if (!Primitives.isWrapperType(type)) {
+@@ -154,25 +142,25 @@ public final class CraftPersistentDataTypeRegistry {
+          */
+         if (Objects.equals(PersistentDataContainer[].class, type)) {
+             return this.createAdapter(PersistentDataContainer[].class, ListTag.class,
+-                    (containerArray) -> {
+-                        ListTag list = new ListTag();
+-                        for (int i = 0; i < containerArray.length; i++) {
+-                            list.add(((CraftPersistentDataContainer) containerArray[i]).toTagCompound());
++                (containerArray) -> {
++                    ListTag list = new ListTag();
++                    for (int i = 0; i < containerArray.length; i++) {
++                        list.add(((CraftPersistentDataContainer) containerArray[i]).toTagCompound());
++                    }
++                    return list;
++                },
++                (tag) -> {
++                    PersistentDataContainer[] containerArray = new CraftPersistentDataContainer[tag.size()];
++                    for (int i = 0; i < tag.size(); i++) {
++                        CraftPersistentDataContainer container = new CraftPersistentDataContainer(this);
++                        CompoundTag compound = tag.getCompound(i);
++                        for (String key : compound.getAllKeys()) {
++                            container.put(key, compound.get(key));
+                         }
+-                        return list;
+-                    },
+-                    (tag) -> {
+-                        PersistentDataContainer[] containerArray = new CraftPersistentDataContainer[tag.size()];
+-                        for (int i = 0; i < tag.size(); i++) {
+-                            CraftPersistentDataContainer container = new CraftPersistentDataContainer(this);
+-                            CompoundTag compound = tag.getCompound(i);
+-                            for (String key : compound.getAllKeys()) {
+-                                container.put(key, compound.get(key));
+-                            }
+-                            containerArray[i] = container;
+-                        }
+-                        return containerArray;
+-                    });
++                        containerArray[i] = container;
++                    }
++                    return containerArray;
++                });
+         }
+ 
+         /*
+@@ -189,27 +177,51 @@ public final class CraftPersistentDataTypeRegistry {
+             });
+         }
+ 
++        // Paper start - pdc list type
++        if (Objects.equals(org.bukkit.persistence.PersistentDataType.TypedListWrapper.class, type)) {
++            return createAdapter(
++                org.bukkit.persistence.PersistentDataType.TypedListWrapper.class,
++                net.minecraft.nbt.ListTag.class,
++                (pdcType, primitive) -> wrapList(primitive),
++                this::extractList
++            );
++        }
++        // Paper end - pdc list type
++
+         throw new IllegalArgumentException("Could not find a valid TagAdapter implementation for the requested type " + type.getSimpleName());
+     }
+ 
+-    private <T, Z extends Tag> TagAdapter<T, Z> createAdapter(Class<T> primitiveType, Class<Z> nbtBaseType, Function<T, Z> builder, Function<Z, T> extractor) {
++    private <T, Z extends Tag> TagAdapter<T, Z> createAdapter(Class<T> primitiveType,
++                                                              Class<Z> nbtBaseType,
++                                                              Function<T, Z> builder,
++                                                              Function<Z, T> extractor) {
++        return createAdapter(
++            primitiveType,
++            nbtBaseType,
++            (type, t) -> builder.apply(t),
++            (type, z) -> extractor.apply(z)
++        );
++    }
++
++    private <T, Z extends Tag> TagAdapter<T, Z> createAdapter(Class<T> primitiveType,
++                                                              Class<Z> nbtBaseType,
++                                                              BiFunction<PersistentDataType<T, Z>, T, Z> builder,
++                                                              BiFunction<PersistentDataType<T, Z>, Z, T> extractor) {
+         return new TagAdapter<>(primitiveType, nbtBaseType, builder, extractor);
+     }
+ 
+     /**
+      * Wraps the passed value into a tag instance.
+      *
+-     * @param type the type of the passed value
++     * @param type  the type of the passed value
+      * @param value the value to be stored in the tag
+-     * @param <T> the generic type of the value
+-     *
++     * @param <T>   the generic type of the value
+      * @return the created tag instance
+-     *
+      * @throws IllegalArgumentException if no suitable tag type adapter for this
+-     * type was found
++     *                                  type was found
+      */
+-    public <T> Tag wrap(Class<T> type, T value) {
+-        return this.adapters.computeIfAbsent(type, CREATE_ADAPTER).build(value);
++    public <T> Tag wrap(PersistentDataType<T, ?> type, T value) {
++        return this.adapters.computeIfAbsent(type.getPrimitiveType(), CREATE_ADAPTER).build(type, value);
+     }
+ 
+     /**
+@@ -217,40 +229,59 @@ public final class CraftPersistentDataTypeRegistry {
+      *
+      * @param type the type of the primitive value
+      * @param base the base instance to check
+-     * @param <T> the generic type of the type
+-     *
++     * @param <T>  the generic type of the type
+      * @return if the base stores values of the primitive type passed
+-     *
+      * @throws IllegalArgumentException if no suitable tag type adapter for this
+-     * type was found
++     *                                  type was found
+      */
+-    public <T> boolean isInstanceOf(Class<T> type, Tag base) {
+-        return this.adapters.computeIfAbsent(type, CREATE_ADAPTER).isInstance(base);
++    public <T> boolean isInstanceOf(PersistentDataType<T, ?> type, Tag base) {
++        return this.adapters.computeIfAbsent(type.getPrimitiveType(), CREATE_ADAPTER).isInstance(base);
+     }
+ 
+     /**
+      * Extracts the value out of the provided tag.
+      *
+      * @param type the type of the value to extract
+-     * @param tag the tag to extract the value from
+-     * @param <T> the generic type of the value stored inside the tag
+-     *
++     * @param tag  the tag to extract the value from
++     * @param <T>  the generic type of the value stored inside the tag
+      * @return the extracted value
+-     *
+      * @throws IllegalArgumentException if the passed base is not an instanced
+-     * of the defined base type and therefore is not applicable to the extractor
+-     * function
++     *                                  of the defined base type and therefore is not applicable to the extractor
++     *                                  function
+      * @throws IllegalArgumentException if the found object is not of type
+-     * passed
++     *                                  passed
+      * @throws IllegalArgumentException if no suitable tag type adapter for this
+-     * type was found
++     *                                  type was found
+      */
+-    public <T> T extract(Class<T> type, Tag tag) throws ClassCastException, IllegalArgumentException {
+-        TagAdapter adapter = this.adapters.computeIfAbsent(type, CREATE_ADAPTER);
+-        Preconditions.checkArgument(adapter.isInstance(tag), "The found tag instance (%s) cannot store %s", tag.getClass().getSimpleName(), type.getSimpleName());
++    public <T> T extract(PersistentDataType<T, ?> type, Tag tag) throws ClassCastException, IllegalArgumentException {
++        final Class<T> primitiveType = type.getPrimitiveType();
++        TagAdapter adapter = this.adapters.computeIfAbsent(primitiveType, CREATE_ADAPTER);
++        Preconditions.checkArgument(adapter.isInstance(tag), "The found tag instance (%s) cannot store %s", tag.getClass().getSimpleName(), primitiveType.getSimpleName());
++
++        final Object foundValue = adapter.extract(type, tag);
++        Preconditions.checkArgument(primitiveType.isInstance(foundValue), "The found object is of the type %s. Expected type %s", foundValue.getClass().getSimpleName(), primitiveType.getSimpleName());
++        return primitiveType.cast(foundValue);
++    }
++
++    private <P> ListTag wrapList(@NotNull final org.bukkit.persistence.PersistentDataType.TypedListWrapper<P, ?> listWrapper) {
++        final ListTag listTag = new ListTag();
++        for (final P primitiveValue : listWrapper.primitiveList()) {
++            listTag.add(this.wrap(listWrapper.primitiveDataType(), primitiveValue));
++        }
++        return listTag;
++    }
++
++    private <P> org.bukkit.persistence.PersistentDataType.TypedListWrapper<P, ?> extractList(
++        @NotNull PersistentDataType<P, ?> type, @NotNull final ListTag listTag
++    ) {
++        Preconditions.checkArgument(type instanceof PersistentDataType.ListPersistentDataType<?,?>, "The found list tag cannot be read with a %s (expected a list data type)", type.getClass().getSimpleName());
++        final PersistentDataType.ListPersistentDataType<P, ?> listPersistentDataType = (PersistentDataType.ListPersistentDataType<P, ?>) type;
++
++        final List<P> output = new ObjectArrayList<>();
++        for (final Tag tag : listTag) {
++            output.add(this.extract(listPersistentDataType.innerType(), tag));
++        }
+ 
+-        Object foundValue = adapter.extract(tag);
+-        Preconditions.checkArgument(type.isInstance(foundValue), "The found object is of the type %s. Expected type %s", foundValue.getClass().getSimpleName(), type.getSimpleName());
+-        return type.cast(foundValue);
++        return new org.bukkit.persistence.PersistentDataType.TypedListWrapper<>(output, listPersistentDataType.innerType());
+     }
+ }
+diff --git a/src/test/java/org/bukkit/craftbukkit/inventory/PersistentDataContainerTest.java b/src/test/java/org/bukkit/craftbukkit/inventory/PersistentDataContainerTest.java
+index 5b42b4c61c1f44051b6ec32913c42558038697ff..19f77030a1a72751019d35abeef8a2b85055ca0a 100644
+--- a/src/test/java/org/bukkit/craftbukkit/inventory/PersistentDataContainerTest.java
++++ b/src/test/java/org/bukkit/craftbukkit/inventory/PersistentDataContainerTest.java
+@@ -5,6 +5,8 @@ import java.io.IOException;
+ import java.io.StringReader;
+ import java.lang.reflect.Array;
+ import java.nio.ByteBuffer;
++import java.util.ArrayList;
++import java.util.Arrays;
+ import java.util.Map;
+ import java.util.UUID;
+ import net.minecraft.nbt.CompoundTag;
+@@ -371,4 +373,28 @@ public class PersistentDataContainerTest extends AbstractTestingBase {
+         clonedContainer.set(VALID_KEY, PersistentDataType.STRING, "dinnerbone");
+         assertNotEquals(container, clonedContainer);
+     }
++
++    // Paper start - pdc list type
++    @Test
++    public void testListData() {
++        ItemMeta meta = createNewItemMeta();
++        PersistentDataContainer container = meta.getPersistentDataContainer();
++        var strings = new ArrayList<String>();
++
++        strings.add("a");
++        strings.add("b");
++        strings.add("c");
++
++        container.set(requestKey("list"), PersistentDataType.LIST.strings(), strings);
++
++        var list = container.get(requestKey("list"), PersistentDataType.LIST.strings());
++
++        assertNotNull(list);
++        assertEquals(3, list.size());
++
++        assertEquals("a", list.get(0));
++        assertEquals("b", list.get(1));
++        assertEquals("c", list.get(2));
++    }
++    // Paper end - pdc list type
+ }

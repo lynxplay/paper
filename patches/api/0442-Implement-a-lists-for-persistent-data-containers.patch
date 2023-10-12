@@ -8,61 +8,19 @@ its persistent data container types. To properly represent lists, two
 new list types are introduced, one that is properly typed using the
 persistent data type framework and one that remains untyped.
 
-diff --git a/src/main/java/org/bukkit/persistence/PersistentDataAdapterContext.java b/src/main/java/org/bukkit/persistence/PersistentDataAdapterContext.java
-index 8face93f333533abd28d2065fa4aa2ab589ee0ab..a44c5fc1e34e15341bbeecca4b24cb72cc9ed2c2 100644
---- a/src/main/java/org/bukkit/persistence/PersistentDataAdapterContext.java
-+++ b/src/main/java/org/bukkit/persistence/PersistentDataAdapterContext.java
-@@ -15,4 +15,45 @@ public interface PersistentDataAdapterContext {
-      */
-     @NotNull
-     PersistentDataContainer newPersistentDataContainer();
-+
-+    // Paper start - pdc list type
-+    /**
-+     * Creates a new persistent data list for the passed data type
-+     *
-+     * @param dataType the data type the values in the list will match
-+     * @param <T> the primitive type of the values in the list
-+     * @param <Z> the actual type of the values in the list
-+     *
-+     * @return the fresh empty list instance
-+     */
-+    @NotNull
-+    <T, Z> org.bukkit.persistence.list.PersistentDataList<Z> newPersistentDataList(@NotNull PersistentDataType<T, Z> dataType);
-+
-+    /**
-+     * Creates a new persistent data list for the passed data type that wraps the given list. The returned data list is
-+     * backed by the list passed here so any changes to the list will be reflected in the returned {@link
-+     * org.bukkit.persistence.list.PersistentDataList}.
-+     *
-+     * @param dataType the data type the values in the list will match.
-+     * @param list the list the returned {@link org.bukkit.persistence.list.PersistentDataList} is backed by.
-+     * @param <T> the primitive type of the values in the list.
-+     * @param <Z> the actual type of the values in the list.
-+     *
-+     * @return the fresh empty list instance.
-+     */
-+    @NotNull
-+    <T, Z> org.bukkit.persistence.list.PersistentDataList<Z> newPersistentDataList(@NotNull java.util.List<Z> list,
-+                                                                                   @NotNull PersistentDataType<T, Z> dataType);
-+
-+    /**
-+     * Creates a new untyped persistent data list.
-+     * <p>
-+     * The returned {@link org.bukkit.persistence.list.UntypedPersistentDataList} is empty, therefore it can by typed to any {@link
-+     * PersistentDataType} using {@link org.bukkit.persistence.list.UntypedPersistentDataList#type(PersistentDataType)} later.
-+     *
-+     * @return the fresh empty untyped list instance
-+     */
-+    @NotNull
-+    org.bukkit.persistence.list.UntypedPersistentDataList newPersistentDataList();
-+    // Paper end - pdc list type
- }
 diff --git a/src/main/java/org/bukkit/persistence/PersistentDataType.java b/src/main/java/org/bukkit/persistence/PersistentDataType.java
-index 0af00a2485cbb3fccd689dea56f0a705d0034782..c909e6a8a13976a553b6cc1046d64dea7cd98b53 100644
+index b27f4568c21d0f75bc10e76c104c749e81194794..8efcce38e3b322d0d985c6ce3c3deac764e27df7 100644
 --- a/src/main/java/org/bukkit/persistence/PersistentDataType.java
 +++ b/src/main/java/org/bukkit/persistence/PersistentDataType.java
-@@ -77,6 +77,13 @@ public interface PersistentDataType<T, Z> {
+@@ -1,6 +1,7 @@
+ package org.bukkit.persistence;
+ 
+ import org.jetbrains.annotations.NotNull;
++import java.util.List;
+ 
+ /**
+  * This class represents an enum with a generic content type. It defines the
+@@ -87,6 +88,13 @@ public interface PersistentDataType<T, Z> {
       */
      PersistentDataType<PersistentDataContainer, PersistentDataContainer> TAG_CONTAINER = new PrimitivePersistentDataType<>(PersistentDataContainer.class);
  
@@ -70,15 +28,93 @@ index 0af00a2485cbb3fccd689dea56f0a705d0034782..c909e6a8a13976a553b6cc1046d64dea
 +    /*
 +        Lists of persistent data types.
 +     */
-+    PersistentDataType<org.bukkit.persistence.list.UntypedPersistentDataList, org.bukkit.persistence.list.UntypedPersistentDataList> LIST = new PrimitivePersistentDataType<>(org.bukkit.persistence.list.UntypedPersistentDataList.class);
++    ListPersistentDataTypeFactory LIST = new ListPersistentDataTypeFactory();
 +    // Paper end - pdc list type
 +
      /**
       * Returns the primitive data type of this tag.
       *
+@@ -118,7 +126,7 @@ public interface PersistentDataType<T, Z> {
+      * Creates a complex object based of the passed primitive value
+      *
+      * @param primitive the primitive value
+-     * @param context the context this operation is running in
++     * @param context   the context this operation is running in
+      * @return the complex object instance
+      */
+     @NotNull
+@@ -197,4 +205,68 @@ public interface PersistentDataType<T, Z> {
+             return primitive != 0;
+         }
+     }
++
++    class ListPersistentDataTypeFactory {
++        private static final ListPersistentDataType<Byte, Byte> BYTE = new ListPersistentDataType<>(PersistentDataType.BYTE);
++        private static final ListPersistentDataType<Short, Short> SHORT = new ListPersistentDataType<>(PersistentDataType.SHORT);
++        private static final ListPersistentDataType<Integer, Integer> INTEGER = new ListPersistentDataType<>(PersistentDataType.INTEGER);
++        private static final ListPersistentDataType<Long, Long> LONG = new ListPersistentDataType<>(PersistentDataType.LONG);
++        private static final ListPersistentDataType<Float, Float> FLOAT = new ListPersistentDataType<>(PersistentDataType.FLOAT);
++        private static final ListPersistentDataType<Double, Double> DOUBLE = new ListPersistentDataType<>(PersistentDataType.DOUBLE);
++        private static final ListPersistentDataType<Byte, Boolean> BOOLEAN = new ListPersistentDataType<>(PersistentDataType.BOOLEAN);
++        private static final ListPersistentDataType<String, String> STRING = new ListPersistentDataType<>(PersistentDataType.STRING);
++        private static final ListPersistentDataType<byte[], byte[]> BYTE_ARRAY = new ListPersistentDataType<>(PersistentDataType.BYTE_ARRAY);
++        private static final ListPersistentDataType<int[], int[]> INTEGER_ARRAY = new ListPersistentDataType<>(PersistentDataType.INTEGER_ARRAY);
++        private static final ListPersistentDataType<long[], long[]> LONG_ARRAY = new ListPersistentDataType<>(PersistentDataType.LONG_ARRAY);
++        private static final ListPersistentDataType<PersistentDataContainer[], PersistentDataContainer[]> TAG_CONTAINER_ARRAY = new ListPersistentDataType<>(PersistentDataType.TAG_CONTAINER_ARRAY);
++        private static final ListPersistentDataType<PersistentDataContainer, PersistentDataContainer> TAG_CONTAINER = new ListPersistentDataType<>(PersistentDataType.TAG_CONTAINER);
++
++        public PersistentDataType<TypedListWrapper<Byte, Byte>, List<Byte>> bytes() {
++            return BYTE;
++        }
++
++        public PersistentDataType<TypedListWrapper<Short, Short>, List<Short>> shorts() {
++            return SHORT;
++        }
++
++        public PersistentDataType<TypedListWrapper<String, String>, List<String>> strings() {
++            return STRING;
++        }
++    }
++
++    record TypedListWrapper<P, C>(
++        List<P> primitiveList,
++        PersistentDataType<P,C> primitiveDataType
++    ) {
++
++    }
++
++    record ListPersistentDataType<P, C> (
++        PersistentDataType<P, C> innerType
++    )implements PersistentDataType<TypedListWrapper<P, C>, List<C>> {
++
++        @SuppressWarnings("unchecked")
++        @NotNull
++        @Override
++        public Class<TypedListWrapper<P, C>> getPrimitiveType() {
++            return (Class<TypedListWrapper<P, C>>) (Object) TypedListWrapper.class;
++        }
++
++        @SuppressWarnings("unchecked")
++        @NotNull
++        @Override
++        public Class<List<C>> getComplexType() {
++            return (Class<List<C>>) (Object) List.class;
++        }
++
++        @Override
++        public @NotNull TypedListWrapper<P, C> toPrimitive(@NotNull final List<C> complex, @NotNull final PersistentDataAdapterContext context) {
++            return new TypedListWrapper<>(com.google.common.collect.Lists.transform(complex, s -> innerType.toPrimitive(s, context)), this.innerType);
++        }
++
++        @Override
++        public @NotNull List<C> fromPrimitive(@NotNull final TypedListWrapper<P, C> primitive, @NotNull final PersistentDataAdapterContext context) {
++            return com.google.common.collect.Lists.transform(primitive.primitiveList(), s -> innerType.fromPrimitive(s, context));
++        }
++    }
+ }
 diff --git a/src/main/java/org/bukkit/persistence/list/PersistentDataList.java b/src/main/java/org/bukkit/persistence/list/PersistentDataList.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..6e1cea3fd854946570394ce5ee473d30dec3cb09
+index 0000000000000000000000000000000000000000..d235c8d84b41ba18217b53d1d01069ddd1cc9205
 --- /dev/null
 +++ b/src/main/java/org/bukkit/persistence/list/PersistentDataList.java
 @@ -0,0 +1,35 @@
@@ -108,7 +144,7 @@ index 0000000000000000000000000000000000000000..6e1cea3fd854946570394ce5ee473d30
 +     *
 +     * @return this list instance, as it is already typed.
 +     *
-+     * @throws IllegalArgumentException if the passed dataType is not the same as the one used to create this list
++     * @throws IllegalArgumentException if the passed primitiveDataType is not the same as the one used to create this list
 +     * @deprecated as this list is already typed. The only acceptable call to this is the one used to type this list in
 +     * the first place. An instance of any other {@link PersistentDataType}, even when transforming to the same complex
 +     * type, will throw an {@link IllegalArgumentException}
@@ -119,7 +155,7 @@ index 0000000000000000000000000000000000000000..6e1cea3fd854946570394ce5ee473d30
 +}
 diff --git a/src/main/java/org/bukkit/persistence/list/UntypedPersistentDataList.java b/src/main/java/org/bukkit/persistence/list/UntypedPersistentDataList.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..50e266b0e969347cff0404e279ba317b03defbf7
+index 0000000000000000000000000000000000000000..d30d3b65278fdfe2790e66aa214bb6c57e8db3ae
 --- /dev/null
 +++ b/src/main/java/org/bukkit/persistence/list/UntypedPersistentDataList.java
 @@ -0,0 +1,50 @@
@@ -152,8 +188,8 @@ index 0000000000000000000000000000000000000000..50e266b0e969347cff0404e279ba317b
 +     *
 +     * @return the list instance
 +     *
-+     * @throws IllegalArgumentException if the passed dataType has no suitable adapter
-+     * @throws IllegalArgumentException if the passed dataType does not match the untyped data stored in the list
++     * @throws IllegalArgumentException if the passed primitiveDataType has no suitable adapter
++     * @throws IllegalArgumentException if the passed primitiveDataType does not match the untyped data stored in the list
 +     */
 +    @NotNull
 +    <T, Z> PersistentDataList<Z> type(@NotNull PersistentDataType<T, Z> dataType);
