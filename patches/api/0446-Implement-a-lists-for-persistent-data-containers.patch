@@ -1,0 +1,354 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Fri, 5 Nov 2021 17:20:50 +0100
+Subject: [PATCH] Implement a lists for persistent data containers
+
+Introduces the concepts of lists to the persistent data container and
+its persistent data container types. To properly represent lists, two
+new list types are introduced, one that is properly typed using the
+persistent data type framework and one that remains untyped.
+
+diff --git a/src/main/java/org/bukkit/persistence/PersistentDataType.java b/src/main/java/org/bukkit/persistence/PersistentDataType.java
+index b27f4568c21d0f75bc10e76c104c749e81194794..32947ccc08454afd0c983db38216c97948cfcaa1 100644
+--- a/src/main/java/org/bukkit/persistence/PersistentDataType.java
++++ b/src/main/java/org/bukkit/persistence/PersistentDataType.java
+@@ -1,5 +1,7 @@
+ package org.bukkit.persistence;
+ 
++import org.bukkit.persistence.list.ListPersistentDataTypeFactory;
++import org.jetbrains.annotations.ApiStatus;
+ import org.jetbrains.annotations.NotNull;
+ 
+ /**
+@@ -80,6 +82,7 @@ public interface PersistentDataType<T, Z> {
+     /*
+         Complex Arrays.
+      */
++    @ApiStatus.Obsolete
+     PersistentDataType<PersistentDataContainer[], PersistentDataContainer[]> TAG_CONTAINER_ARRAY = new PrimitivePersistentDataType<>(PersistentDataContainer[].class);
+ 
+     /*
+@@ -87,6 +90,13 @@ public interface PersistentDataType<T, Z> {
+      */
+     PersistentDataType<PersistentDataContainer, PersistentDataContainer> TAG_CONTAINER = new PrimitivePersistentDataType<>(PersistentDataContainer.class);
+ 
++    // Paper start - pdc list type
++    /*
++        Lists of persistent data types.
++     */
++    ListPersistentDataTypeFactory LIST = new ListPersistentDataTypeFactory();
++    // Paper end - pdc list type
++
+     /**
+      * Returns the primitive data type of this tag.
+      *
+@@ -118,7 +128,7 @@ public interface PersistentDataType<T, Z> {
+      * Creates a complex object based of the passed primitive value
+      *
+      * @param primitive the primitive value
+-     * @param context the context this operation is running in
++     * @param context   the context this operation is running in
+      * @return the complex object instance
+      */
+     @NotNull
+diff --git a/src/main/java/org/bukkit/persistence/list/ListPersistentDataType.java b/src/main/java/org/bukkit/persistence/list/ListPersistentDataType.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..d2c7229cc150f9c26d2faa7cd10cb50ee3884ee7
+--- /dev/null
++++ b/src/main/java/org/bukkit/persistence/list/ListPersistentDataType.java
+@@ -0,0 +1,25 @@
++package org.bukkit.persistence.list;
++
++import java.util.List;
++import org.bukkit.persistence.PersistentDataContainer;
++import org.bukkit.persistence.PersistentDataType;
++import org.jetbrains.annotations.NotNull;
++
++/**
++ * The list persistent data represents a data type that is capable of storing a list of other data types in a
++ * {@link PersistentDataContainer}.
++ *
++ * @param <P> the primitive type of the list element.
++ * @param <C> the complex type of the list elements.
++ */
++public interface ListPersistentDataType<P, C> extends PersistentDataType<TypedListWrapper<P, C>, List<C>> {
++
++    /**
++     * Provides the persistent data type of the elements found in the list.
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    PersistentDataType<P, C> elementType();
++
++}
+diff --git a/src/main/java/org/bukkit/persistence/list/ListPersistentDataTypeFactory.java b/src/main/java/org/bukkit/persistence/list/ListPersistentDataTypeFactory.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..119707dc7f74f9d6115dbf5732e99a5447b12376
+--- /dev/null
++++ b/src/main/java/org/bukkit/persistence/list/ListPersistentDataTypeFactory.java
+@@ -0,0 +1,209 @@
++package org.bukkit.persistence.list;
++
++import com.google.common.base.Function;
++import com.google.common.collect.Collections2;
++import com.google.common.collect.Lists;
++import java.util.Collection;
++import java.util.List;
++import org.bukkit.persistence.PersistentDataAdapterContext;
++import org.bukkit.persistence.PersistentDataContainer;
++import org.bukkit.persistence.PersistentDataType;
++import org.jetbrains.annotations.NotNull;
++
++public class ListPersistentDataTypeFactory {
++    private static final ListPersistentDataType<Byte, Byte> BYTE = new ListPersistentDataTypeImpl<>(PersistentDataType.BYTE);
++    private static final ListPersistentDataType<Short, Short> SHORT = new ListPersistentDataTypeImpl<>(PersistentDataType.SHORT);
++    private static final ListPersistentDataType<Integer, Integer> INTEGER = new ListPersistentDataTypeImpl<>(PersistentDataType.INTEGER);
++    private static final ListPersistentDataType<Long, Long> LONG = new ListPersistentDataTypeImpl<>(PersistentDataType.LONG);
++    private static final ListPersistentDataType<Float, Float> FLOAT = new ListPersistentDataTypeImpl<>(PersistentDataType.FLOAT);
++    private static final ListPersistentDataType<Double, Double> DOUBLE = new ListPersistentDataTypeImpl<>(PersistentDataType.DOUBLE);
++    private static final ListPersistentDataType<Byte, Boolean> BOOLEAN = new ListPersistentDataTypeImpl<>(PersistentDataType.BOOLEAN);
++    private static final ListPersistentDataType<String, String> STRING = new ListPersistentDataTypeImpl<>(PersistentDataType.STRING);
++    private static final ListPersistentDataType<byte[], byte[]> BYTE_ARRAY = new ListPersistentDataTypeImpl<>(PersistentDataType.BYTE_ARRAY);
++    private static final ListPersistentDataType<int[], int[]> INTEGER_ARRAY = new ListPersistentDataTypeImpl<>(PersistentDataType.INTEGER_ARRAY);
++    private static final ListPersistentDataType<long[], long[]> LONG_ARRAY = new ListPersistentDataTypeImpl<>(PersistentDataType.LONG_ARRAY);
++    private static final ListPersistentDataType<PersistentDataContainer, PersistentDataContainer> DATA_CONTAINER = new ListPersistentDataTypeImpl<>(PersistentDataType.TAG_CONTAINER);
++
++    /**
++     * Provides a shared {@link ListPersistentDataType} that is capable of storing lists of bytes.
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    public ListPersistentDataType<Byte, Byte> bytes() {
++        return BYTE;
++    }
++
++    /**
++     * Provides a shared {@link ListPersistentDataType} that is capable of storing lists of shorts.
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    public ListPersistentDataType<Short, Short> shorts() {
++        return SHORT;
++    }
++
++    /**
++     * Provides a shared {@link ListPersistentDataType} that is capable of storing lists of integers.
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    public ListPersistentDataType<Integer, Integer> integers() {
++        return INTEGER;
++    }
++
++    /**
++     * Provides a shared {@link ListPersistentDataType} that is capable of storing lists of longs.
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    public ListPersistentDataType<Long, Long> longs() {
++        return LONG;
++    }
++
++    /**
++     * Provides a shared {@link ListPersistentDataType} that is capable of storing lists of floats.
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    public ListPersistentDataType<Float, Float> floats() {
++        return FLOAT;
++    }
++
++    /**
++     * Provides a shared {@link ListPersistentDataType} that is capable of storing lists of doubles.
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    public ListPersistentDataType<Double, Double> doubles() {
++        return DOUBLE;
++    }
++
++    /**
++     * Provides a shared {@link ListPersistentDataType} that is capable of storing lists of booleans.
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    public ListPersistentDataType<Byte, Boolean> booleans() {
++        return BOOLEAN;
++    }
++
++    /**
++     * Provides a shared {@link ListPersistentDataType} that is capable of storing lists of strings.
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    public ListPersistentDataType<String, String> strings() {
++        return STRING;
++    }
++
++    /**
++     * Provides a shared {@link ListPersistentDataType} that is capable of storing lists of byte arrays.
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    public ListPersistentDataType<byte[], byte[]> byteArrays() {
++        return BYTE_ARRAY;
++    }
++
++    /**
++     * Provides a shared {@link ListPersistentDataType} that is capable of storing lists of int arrays.
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    public ListPersistentDataType<int[], int[]> integerArrays() {
++        return INTEGER_ARRAY;
++    }
++
++    /**
++     * Provides a shared {@link ListPersistentDataType} that is capable of storing lists of long arrays.
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    public ListPersistentDataType<long[], long[]> longArrays() {
++        return LONG_ARRAY;
++    }
++
++    /**
++     * Provides a shared {@link ListPersistentDataType} that is capable of persistent data containers..
++     *
++     * @return the persistent data type.
++     */
++    @NotNull
++    public ListPersistentDataType<PersistentDataContainer, PersistentDataContainer> dataContainers() {
++        return DATA_CONTAINER;
++    }
++
++    /**
++     * Constructs a new list persistent data type given any persistent data type for its elements.
++     * <p>
++     * The created list persistent data type makes use of
++     * {@link com.google.common.collect.Collections2#transform(Collection, Function)} to transform between the
++     * {@link List} and the primitive {@link TypedListWrapper}.
++     *
++     * @param elementType the persistent data type that is capable of writing/reading the elements of the list.
++     * @param <P>         the generic type of the primitives stored in the list.
++     * @param <C>         the generic type of the complex values yielded back by the persistent data types.
++     * @return the created list persistent data type.
++     */
++    @NotNull
++    public static <P, C> ListPersistentDataType<P, C> listTypeFrom(@NotNull final PersistentDataType<P, C> elementType) {
++        return new ListPersistentDataTypeImpl<>(elementType);
++    }
++
++    /**
++     * A private implementation of the {@link ListPersistentDataType} that uses
++     * {@link Collections2} for conversion from/to the {@link TypedListWrapper}.
++     *
++     * @param <P> the generic type of the primitives stored in the list.
++     * @param <C> the generic type of the complex values yielded back by the persistent data types.
++     */
++    private static final class ListPersistentDataTypeImpl<P, C> implements ListPersistentDataType<P, C> {
++        private final @NotNull PersistentDataType<P, C> innerType;
++
++        private ListPersistentDataTypeImpl(@NotNull final PersistentDataType<P, C> innerType) {
++            this.innerType = innerType;
++        }
++
++        @SuppressWarnings("unchecked")
++        @NotNull
++        @Override
++        public Class<TypedListWrapper<P, C>> getPrimitiveType() {
++            return (Class<TypedListWrapper<P, C>>) (Object) TypedListWrapper.class;
++        }
++
++        @SuppressWarnings("unchecked")
++        @NotNull
++        @Override
++        public Class<List<C>> getComplexType() {
++            return (Class<List<C>>) (Object) List.class;
++        }
++
++        @Override
++        public @NotNull TypedListWrapper<P, C> toPrimitive(@NotNull final List<C> complex,
++                                                           @NotNull final PersistentDataAdapterContext context) {
++            return new TypedListWrapper<>(Lists.transform(complex, s -> innerType.toPrimitive(s, context)), this.innerType);
++        }
++
++        @Override
++        public @NotNull List<C> fromPrimitive(@NotNull final TypedListWrapper<P, C> primitive,
++                                              @NotNull final PersistentDataAdapterContext context) {
++            return Lists.transform(primitive.primitiveList(), s -> innerType.fromPrimitive(s, context));
++        }
++
++        @Override
++        public @NotNull PersistentDataType<P, C> elementType() {
++            return this.innerType;
++        }
++    }
++}
+diff --git a/src/main/java/org/bukkit/persistence/list/TypedListWrapper.java b/src/main/java/org/bukkit/persistence/list/TypedListWrapper.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c4bc07380a84101d43edf70a898f66970cabf668
+--- /dev/null
++++ b/src/main/java/org/bukkit/persistence/list/TypedListWrapper.java
+@@ -0,0 +1,49 @@
++package org.bukkit.persistence.list;
++
++import java.util.List;
++import java.util.Objects;
++import org.bukkit.persistence.PersistentDataType;
++import org.jetbrains.annotations.NotNull;
++
++public final class TypedListWrapper<P, C> {
++
++    private final List<P> primitiveList;
++    private final PersistentDataType<P, C> primitiveDataType;
++
++    public TypedListWrapper(@NotNull final List<P> primitiveList,
++                            @NotNull final PersistentDataType<P, C> primitiveDataType) {
++        this.primitiveList = primitiveList;
++        this.primitiveDataType = primitiveDataType;
++    }
++
++    @NotNull
++    public List<P> primitiveList() {
++        return primitiveList;
++    }
++
++    @NotNull
++    public PersistentDataType<P, C> primitiveDataType() {
++        return primitiveDataType;
++    }
++
++    @Override
++    public boolean equals(final Object obj) {
++        if (obj == this) return true;
++        if (obj == null || obj.getClass() != this.getClass()) return false;
++        final var that = (TypedListWrapper) obj;
++        return Objects.equals(this.primitiveList, that.primitiveList) &&
++            Objects.equals(this.primitiveDataType, that.primitiveDataType);
++    }
++
++    @Override
++    public int hashCode() {
++        return Objects.hash(primitiveList, primitiveDataType);
++    }
++
++    @Override
++    public String toString() {
++        return "TypedListWrapper[" +
++            "primitiveList=" + primitiveList + ", " +
++            "primitiveDataType=" + primitiveDataType + ']';
++    }
++}
