@@ -5,10 +5,17 @@ on:
     types: [ opened ]
 
 jobs:
-  run:
+  master:
     if: ${{ github.repository != github.event.pull_request.head.repo.full_name && github.head_ref == 'master' }}
     runs-on: ubuntu-latest
     steps:
       - uses: superbrothers/close-pull-request@v3
         with:
           comment: "Please do not open pull requests from the `master` branch, create a new branch instead."
+  org_owned:
+    if: ${{ github.repository != github.event.pull_request.head.repo.full_name && github.event.pull_request.head.repo.owner.type != 'User' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: superbrothers/close-pull-request@v3
+        with:
+          comment: "Please do not open pull requests from non-user accounts like organisations. Create a fork on a user account instead."
