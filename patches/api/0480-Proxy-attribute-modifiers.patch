@@ -1,0 +1,205 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Mon, 8 Jul 2024 21:42:44 +0200
+Subject: [PATCH] Proxy attribute modifiers
+
+In the effort to move more types exposed in the API to interfaces to
+allow for easier changes to the API, this patch proxies/delegates
+the API AttributeModifier type via the CraftAttributeModifier
+implementation.
+
+It additionally also provides a better deprecation logic for an
+attribute modifiers uuid.
+
+diff --git a/src/main/java/org/bukkit/UnsafeValues.java b/src/main/java/org/bukkit/UnsafeValues.java
+index c133564b8e8364f1eb7f0e82eed3b0add7f47351..7217af2a9f0b8531cdc199a5c7d93f02e98a0be9 100644
+--- a/src/main/java/org/bukkit/UnsafeValues.java
++++ b/src/main/java/org/bukkit/UnsafeValues.java
+@@ -283,4 +283,5 @@ public interface UnsafeValues {
+     <A extends Keyed, M> io.papermc.paper.registry.tag.@Nullable Tag<A> getTag(io.papermc.paper.registry.tag.@NotNull TagKey<A> tagKey); // Paper - hack to get tags for non-server backed registries
+ 
+     ItemStack createEmptyStack(); // Paper - proxy ItemStack
++    AttributeModifier attributeModifier(NamespacedKey key, double amount, AttributeModifier.Operation operation, org.bukkit.inventory.EquipmentSlotGroup slot); // Paper - proxy AttributeModifier
+ }
+diff --git a/src/main/java/org/bukkit/attribute/AttributeModifier.java b/src/main/java/org/bukkit/attribute/AttributeModifier.java
+index a0750d457a9cd7cf3ab9c45bb28ce5a2aef35298..f601751272ce610391eac4f24342036274cd65a7 100644
+--- a/src/main/java/org/bukkit/attribute/AttributeModifier.java
++++ b/src/main/java/org/bukkit/attribute/AttributeModifier.java
+@@ -6,6 +6,7 @@ import java.util.Locale;
+ import java.util.Map;
+ import java.util.Objects;
+ import java.util.UUID;
++import org.bukkit.Bukkit;
+ import org.bukkit.Keyed;
+ import org.bukkit.NamespacedKey;
+ import org.bukkit.configuration.serialization.ConfigurationSerializable;
+@@ -20,10 +21,7 @@ import org.jetbrains.annotations.Nullable;
+  */
+ public class AttributeModifier implements ConfigurationSerializable, Keyed {
+ 
+-    private final NamespacedKey key;
+-    private final double amount;
+-    private final Operation operation;
+-    private final EquipmentSlotGroup slot;
++    private AttributeModifier delegate; // Paper - proxy attribute modifier
+ 
+     @Deprecated(forRemoval = true, since = "1.21")
+     public AttributeModifier(@NotNull String name, double amount, @NotNull Operation operation) {
+@@ -45,15 +43,30 @@ public class AttributeModifier implements ConfigurationSerializable, Keyed {
+         this(NamespacedKey.fromString(uuid.toString()), amount, operation, slot);
+     }
+ 
++    // Paper start - proxy attribute modifier
++    /**
++     * @apiNote Use {@link #of(NamespacedKey, double, Operation, EquipmentSlotGroup)} instead.
++     */
++    @org.jetbrains.annotations.ApiStatus.Obsolete
+     public AttributeModifier(@NotNull NamespacedKey key, double amount, @NotNull Operation operation, @NotNull EquipmentSlotGroup slot) {
+-        Preconditions.checkArgument(key != null, "Key cannot be null");
+-        Preconditions.checkArgument(operation != null, "Operation cannot be null");
+-        Preconditions.checkArgument(slot != null, "EquipmentSlotGroup cannot be null");
+-        this.key = key;
+-        this.amount = amount;
+-        this.operation = operation;
+-        this.slot = slot;
++        this.delegate = of(key, amount, operation, slot);
++    }
++
++    protected AttributeModifier() {}
++
++    /**
++     * Creates a new attribute modifier with the passed data.
++     *
++     * @param key       the unique key of the attribute modifier.
++     * @param amount    the amount the modifier applied via the operation.
++     * @param operation the operation used to apply the amount of the modifier.
++     * @param slot      the slots this attribute modifier affects.
++     * @return the newly created attribute modifier instance.
++     */
++    public static AttributeModifier of(@NotNull NamespacedKey key, double amount, @NotNull Operation operation, @NotNull EquipmentSlotGroup slot) {
++        return Bukkit.getUnsafe().attributeModifier(key, amount, operation, slot);
+     }
++    // Paper end - proxy attribute modifier
+ 
+     /**
+      * Get the unique ID for this modifier.
+@@ -65,13 +78,13 @@ public class AttributeModifier implements ConfigurationSerializable, Keyed {
+     @NotNull
+     @Deprecated(forRemoval = true, since = "1.21")
+     public UUID getUniqueId() {
+-        return UUID.fromString(getKey().toString());
++        return this.delegate.getUniqueId(); // Paper - proxy attribute modifier
+     }
+ 
+     @NotNull
+     @Override
+     public NamespacedKey getKey() {
+-        return key;
++        return this.delegate.getKey(); // Paper - proxy attribute modifier
+     }
+ 
+     /**
+@@ -81,7 +94,7 @@ public class AttributeModifier implements ConfigurationSerializable, Keyed {
+      */
+     @NotNull
+     public String getName() {
+-        return key.getKey();
++        return this.delegate.getName(); // Paper - proxy attribute modifier
+     }
+ 
+     /**
+@@ -90,7 +103,7 @@ public class AttributeModifier implements ConfigurationSerializable, Keyed {
+      * @return modification amount
+      */
+     public double getAmount() {
+-        return amount;
++        return this.delegate.getAmount(); // Paper - proxy attribute modifier
+     }
+ 
+     /**
+@@ -100,7 +113,7 @@ public class AttributeModifier implements ConfigurationSerializable, Keyed {
+      */
+     @NotNull
+     public Operation getOperation() {
+-        return operation;
++        return this.delegate.getOperation(); // Paper - proxy attribute modifier
+     }
+ 
+     /**
+@@ -114,7 +127,7 @@ public class AttributeModifier implements ConfigurationSerializable, Keyed {
+     @Deprecated
+     @io.papermc.paper.annotation.DoNotUse // Paper
+     public EquipmentSlot getSlot() {
+-        return slot == EquipmentSlotGroup.ANY ? null : slot.getExample();
++        return this.delegate.getSlot(); // Paper - proxy attribute modifier
+     }
+ 
+     /**
+@@ -125,50 +138,28 @@ public class AttributeModifier implements ConfigurationSerializable, Keyed {
+      */
+     @NotNull
+     public EquipmentSlotGroup getSlotGroup() {
+-        return slot;
++        return this.delegate.getSlotGroup(); // Paper - proxy attribute modifier
+     }
+ 
+     @NotNull
+     @Override
+     public Map<String, Object> serialize() {
+-        Map<String, Object> data = new HashMap<String, Object>();
+-        data.put("key", key.toString());
+-        data.put("operation", operation.ordinal());
+-        data.put("amount", amount);
+-        if (slot != null && slot != EquipmentSlotGroup.ANY) {
+-            data.put("slot", slot.toString());
+-        }
+-        return data;
++        return this.delegate.serialize(); // Paper - proxy attribute modifier
+     }
+ 
+     @Override
+     public boolean equals(Object other) {
+-        if (!(other instanceof AttributeModifier)) {
+-            return false;
+-        }
+-        AttributeModifier mod = (AttributeModifier) other;
+-        boolean slots = (this.slot != null ? (this.slot == mod.slot) : mod.slot == null);
+-        return this.key.equals(mod.key) && this.amount == mod.amount && this.operation == mod.operation && slots;
++        return this.delegate.equals(other); // Paper - proxy attribute modifier
+     }
+ 
+     @Override
+     public int hashCode() {
+-        int hash = 5;
+-        hash = 17 * hash + Objects.hashCode(this.key);
+-        hash = 17 * hash + (int) (Double.doubleToLongBits(this.amount) ^ (Double.doubleToLongBits(this.amount) >>> 32));
+-        hash = 17 * hash + Objects.hashCode(this.operation);
+-        hash = 17 * hash + Objects.hashCode(this.slot);
+-        return hash;
++        return this.delegate.hashCode(); // Paper - proxy attribute modifier
+     }
+ 
+     @Override
+     public String toString() {
+-        return "AttributeModifier{"
+-                + "key=" + this.key.toString()
+-                + ", operation=" + this.operation.name()
+-                + ", amount=" + this.amount
+-                + ", slot=" + (this.slot != null ? this.slot.toString() : "")
+-                + "}";
++        return this.delegate.toString(); // Paper - proxy attribute modifier
+     }
+ 
+     @NotNull
+@@ -190,9 +181,9 @@ public class AttributeModifier implements ConfigurationSerializable, Keyed {
+                 }
+             }
+ 
+-            return new AttributeModifier(key, NumberConversions.toDouble(args.get("amount")), Operation.values()[NumberConversions.toInt(args.get("operation"))], slotGroup);
++            return Bukkit.getUnsafe().attributeModifier(key, NumberConversions.toDouble(args.get("amount")), Operation.values()[NumberConversions.toInt(args.get("operation"))], slotGroup); // Paper - proxy attribute modifier
+         }
+-        return new AttributeModifier(key, NumberConversions.toDouble(args.get("amount")), Operation.values()[NumberConversions.toInt(args.get("operation"))], EquipmentSlotGroup.ANY);
++        return Bukkit.getUnsafe().attributeModifier(key, NumberConversions.toDouble(args.get("amount")), Operation.values()[NumberConversions.toInt(args.get("operation"))], EquipmentSlotGroup.ANY); // Paper - proxy attribute modifier
+     }
+ 
+     /**

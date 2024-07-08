@@ -30,20 +30,22 @@ index 52439f4b959c74027eb191a3af960c70beb978e8..a2c057d92ea34368c7efc538b6e5b15e
          throw new UnsupportedOperationException("Cannot modify default attributes");
 diff --git a/src/main/java/org/bukkit/craftbukkit/attribute/AttributeMappings.java b/src/main/java/org/bukkit/craftbukkit/attribute/AttributeMappings.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ce23ac9bcf5b043a07130da39cc8804f0d0be1e5
+index 0000000000000000000000000000000000000000..65ccebd1f86752c7219e2d8b04642d9e67b5c95a
 --- /dev/null
 +++ b/src/main/java/org/bukkit/craftbukkit/attribute/AttributeMappings.java
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,81 @@
 +package org.bukkit.craftbukkit.attribute;
 +
++import java.nio.charset.StandardCharsets;
 +import java.util.HashMap;
 +import java.util.Map;
 +import java.util.UUID;
 +import org.bukkit.NamespacedKey;
 +import org.jetbrains.annotations.NotNull;
 +
-+final class AttributeMappings {
++public final class AttributeMappings {
 +    private static final Map<UUID, NamespacedKey> ATTRIBUTE_MODIFIER_IDS = new HashMap<>();
++    private static final Map<NamespacedKey, UUID> ATTRIBUTE_MODIFIER_KEYS = new HashMap<>();
 +
 +    static {
 +        add(-4483571535397864886L, -5989644940537681742L, "armor.body");
@@ -97,9 +99,20 @@ index 0000000000000000000000000000000000000000..ce23ac9bcf5b043a07130da39cc8804f
 +        }
 +    }
 +
++    public static @NotNull UUID keyToUUID(final NamespacedKey key) {
++        final UUID uuid = ATTRIBUTE_MODIFIER_KEYS.get(key);
++        if (uuid == null) {
++            return UUID.nameUUIDFromBytes(key.asMinimalString().getBytes(StandardCharsets.UTF_8)); // Fallback uuid generation for non vanilla attribute modifiers.
++        }
++
++        return uuid;
++    }
++
 +    private static void add(final long msb, final long lsb, final String id) {
 +        final UUID uuid = new UUID(msb, lsb);
-+        ATTRIBUTE_MODIFIER_IDS.put(uuid, NamespacedKey.minecraft(id));
++        final NamespacedKey namespacedKey = NamespacedKey.minecraft(id);
++        ATTRIBUTE_MODIFIER_IDS.put(uuid, namespacedKey);
++        ATTRIBUTE_MODIFIER_KEYS.put(namespacedKey, uuid);
 +    }
 +}
 diff --git a/src/main/java/org/bukkit/craftbukkit/attribute/CraftAttributeInstance.java b/src/main/java/org/bukkit/craftbukkit/attribute/CraftAttributeInstance.java

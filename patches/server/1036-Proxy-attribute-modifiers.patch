@@ -1,0 +1,149 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Mon, 8 Jul 2024 21:32:31 +0200
+Subject: [PATCH] Proxy attribute modifiers
+
+In the effort to move more types exposed in the API to interfaces to
+allow for easier changes to the API, this patch proxies/delegates
+the API AttributeModifier type via the CraftAttributeModifier
+implementation.
+
+It additionally also provides a better deprecation logic for an
+attribute modifiers uuid.
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/attribute/CraftAttributeModifier.java b/src/main/java/org/bukkit/craftbukkit/attribute/CraftAttributeModifier.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..ea39a7b2ec7ea4282ca87949ae6d95a89f0d7895
+--- /dev/null
++++ b/src/main/java/org/bukkit/craftbukkit/attribute/CraftAttributeModifier.java
+@@ -0,0 +1,108 @@
++package org.bukkit.craftbukkit.attribute;
++
++import net.kyori.adventure.key.Key;
++import org.bukkit.NamespacedKey;
++import org.bukkit.attribute.AttributeModifier;
++import org.bukkit.inventory.EquipmentSlot;
++import org.bukkit.inventory.EquipmentSlotGroup;
++import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
++import java.util.HashMap;
++import java.util.Map;
++import java.util.Objects;
++import java.util.UUID;
++
++/**
++ * "Implementation" of the {@link org.bukkit.attribute.AttributeModifier} type on the server.
++ */
++public class CraftAttributeModifier extends AttributeModifier {
++
++    private final NamespacedKey key;
++    private final UUID legacyUUID;
++    private final double amount;
++    private final Operation operation;
++    private final EquipmentSlotGroup slot;
++
++    public CraftAttributeModifier(
++        final NamespacedKey key,
++        final UUID legacyUUID,
++        final double amount,
++        final Operation operation,
++        final EquipmentSlotGroup slot
++    ) {
++        this.key = key;
++        this.legacyUUID = legacyUUID;
++        this.amount = amount;
++        this.operation = operation;
++        this.slot = slot;
++    }
++
++    @Override
++    public @NotNull NamespacedKey getKey() {
++        return this.key;
++    }
++
++    @NotNull
++    @Override
++    public Key key() {
++        return this.key;
++    }
++
++    @Override
++    public @NotNull UUID getUniqueId() {
++        return this.legacyUUID;
++    }
++
++    @Override
++    public @NotNull String getName() {
++        return this.key.getKey();
++    }
++
++    @Override
++    public double getAmount() {
++        return this.amount;
++    }
++
++    @Override
++    public @NotNull Operation getOperation() {
++        return this.operation;
++    }
++
++    @SuppressWarnings("deprecation")
++    @Override
++    public @Nullable EquipmentSlot getSlot() {
++        return this.slot == EquipmentSlotGroup.ANY ? null : slot.getExample();
++    }
++
++    @Override
++    public @NotNull EquipmentSlotGroup getSlotGroup() {
++        return this.slot;
++    }
++
++    @Override
++    public @NotNull Map<String, Object> serialize() {
++        final Map<String, Object> data = new HashMap<String, Object>();
++        data.put("key", key.toString());
++        data.put("operation", operation.ordinal());
++        data.put("amount", amount);
++        if (slot != null && slot != EquipmentSlotGroup.ANY) {
++            data.put("slot", slot.toString());
++        }
++        return data;
++    }
++
++    @Override
++    public boolean equals(final Object o) {
++        if (this == o) return true;
++        if (!(o instanceof final AttributeModifier that)) return false;
++        return Double.compare(getAmount(), that.getAmount()) == 0
++            && Objects.equals(getKey(), that.getKey())
++            && getOperation() == that.getOperation()
++            && Objects.equals(getSlot(), that.getSlot());
++    }
++
++    @Override
++    public int hashCode() {
++        return Objects.hash(super.hashCode(), key, amount, operation, slot);
++    }
++}
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
+index 3137391cadef7c67019561e65fedd0664e689eae..a2ed88fe91caec5604201130d2a301b3da6aba06 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
+@@ -701,6 +701,17 @@ public final class CraftMagicNumbers implements UnsafeValues {
+     }
+     // Paper end - proxy ItemStack
+ 
++    // Paper start - proxy attribute modifier
++    @Override
++    public AttributeModifier attributeModifier(
++        final NamespacedKey key,
++        final double amount,
++        final AttributeModifier.Operation operation,
++        final org.bukkit.inventory.EquipmentSlotGroup slot
++    ) {
++        return new CraftAttributeModifier(key, AttributeMappings.keyToUUID(key), amount, operation, slot);
++    }
++    // Paper end - proxy attribute modifier
+     /**
+      * This helper class represents the different NBT Tags.
+      * <p>
