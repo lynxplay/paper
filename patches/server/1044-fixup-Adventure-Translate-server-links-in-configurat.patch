@@ -1,0 +1,79 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <lynxplay101@gmail.com>
+Date: Wed, 31 Jul 2024 16:49:30 +0200
+Subject: [PATCH] fixup Adventure: Translate server links in configuration
+ stage
+
+
+diff --git a/src/main/java/net/minecraft/network/chat/ComponentSerialization.java b/src/main/java/net/minecraft/network/chat/ComponentSerialization.java
+index 22c6a324dedeb315eac2d3d3f55d2f3a9eebb0ad..d409b5849693662f468b577871299e847c7adfc4 100644
+--- a/src/main/java/net/minecraft/network/chat/ComponentSerialization.java
++++ b/src/main/java/net/minecraft/network/chat/ComponentSerialization.java
+@@ -66,6 +66,27 @@ public class ComponentSerialization {
+         ByteBufCodecs::optional
+     );
+     public static final StreamCodec<ByteBuf, Component> TRUSTED_CONTEXT_FREE_STREAM_CODEC = ByteBufCodecs.fromCodecTrusted(CODEC);
++    // Paper start - adventure; use locale from bytebuf for translation
++    public static final StreamCodec<net.minecraft.network.FriendlyByteBuf, Component> TRUSTED_FRIENDLY_CONTEXT_FREE_STREAM_CODEC = new StreamCodec<>() {
++        private final StreamCodec<ByteBuf, net.minecraft.nbt.Tag> streamCodec = ByteBufCodecs.tagCodec(net.minecraft.nbt.NbtAccounter::unlimitedHeap);
++
++        @Override
++        public Component decode(final net.minecraft.network.FriendlyByteBuf buf) {
++            final net.minecraft.nbt.Tag decode = this.streamCodec.decode(buf);
++            return ComponentSerialization.localizedCodec(buf.adventure$locale)
++                .parse(net.minecraft.nbt.NbtOps.INSTANCE, decode)
++                .getOrThrow(error -> new io.netty.handler.codec.EncoderException("Failed to encode: " + error + " " + decode));
++        }
++
++        @Override
++        public void encode(final net.minecraft.network.FriendlyByteBuf buf, final Component value) {
++            final net.minecraft.nbt.Tag tag = ComponentSerialization.localizedCodec(buf.adventure$locale)
++                .encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, value)
++                .getOrThrow(err -> new io.netty.handler.codec.EncoderException("Failed to encode: " + err + " " + value));
++            this.streamCodec.encode(buf, tag);
++        }
++    };
++    // Paper end - adventure; use locale from bytebuf for translation
+     public static final Codec<Component> FLAT_CODEC = flatCodec(Integer.MAX_VALUE);
+ 
+     public static Codec<Component> flatCodec(int maxSerializedLength) {
+diff --git a/src/main/java/net/minecraft/network/protocol/common/ClientboundServerLinksPacket.java b/src/main/java/net/minecraft/network/protocol/common/ClientboundServerLinksPacket.java
+index 32f88a4845769175f4c14b74836808fc93b7b92b..0a2d520bd2ab6e3f64797081b02b7e7d0269c8d9 100644
+--- a/src/main/java/net/minecraft/network/protocol/common/ClientboundServerLinksPacket.java
++++ b/src/main/java/net/minecraft/network/protocol/common/ClientboundServerLinksPacket.java
+@@ -8,7 +8,7 @@ import net.minecraft.network.protocol.PacketType;
+ import net.minecraft.server.ServerLinks;
+ 
+ public record ClientboundServerLinksPacket(List<ServerLinks.UntrustedEntry> links) implements Packet<ClientCommonPacketListener> {
+-    public static final StreamCodec<ByteBuf, ClientboundServerLinksPacket> STREAM_CODEC = StreamCodec.composite(
++    public static final StreamCodec<net.minecraft.network.FriendlyByteBuf, ClientboundServerLinksPacket> STREAM_CODEC = StreamCodec.composite( // Paper - adventure - use locale in byte buf for translations
+         ServerLinks.UNTRUSTED_LINKS_STREAM_CODEC, ClientboundServerLinksPacket::links, ClientboundServerLinksPacket::new
+     );
+ 
+diff --git a/src/main/java/net/minecraft/server/ServerLinks.java b/src/main/java/net/minecraft/server/ServerLinks.java
+index bc270dc7cf4686b43f717c81f7b219b09db1d2da..07910359704407f9cd97c4abc4e61a3b99e61ba2 100644
+--- a/src/main/java/net/minecraft/server/ServerLinks.java
++++ b/src/main/java/net/minecraft/server/ServerLinks.java
+@@ -14,10 +14,10 @@ import net.minecraft.util.ByIdMap;
+ 
+ public record ServerLinks(List<ServerLinks.Entry> entries) {
+     public static final ServerLinks EMPTY = new ServerLinks(List.of());
+-    public static final StreamCodec<ByteBuf, Either<ServerLinks.KnownLinkType, Component>> TYPE_STREAM_CODEC = ByteBufCodecs.either(
+-        ServerLinks.KnownLinkType.STREAM_CODEC, ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC
++    public static final StreamCodec<net.minecraft.network.FriendlyByteBuf, Either<ServerLinks.KnownLinkType, Component>> TYPE_STREAM_CODEC = ByteBufCodecs.either( // Paper - adventure - use locale in byte buf for translations
++        ServerLinks.KnownLinkType.STREAM_CODEC, ComponentSerialization.TRUSTED_FRIENDLY_CONTEXT_FREE_STREAM_CODEC // Paper - adventure - use locale in byte buf for translations
+     );
+-    public static final StreamCodec<ByteBuf, List<ServerLinks.UntrustedEntry>> UNTRUSTED_LINKS_STREAM_CODEC = ServerLinks.UntrustedEntry.STREAM_CODEC
++    public static final StreamCodec<net.minecraft.network.FriendlyByteBuf, List<ServerLinks.UntrustedEntry>> UNTRUSTED_LINKS_STREAM_CODEC = ServerLinks.UntrustedEntry.STREAM_CODEC // Paper - adventure - use locale in byte buf for translations
+         .apply(ByteBufCodecs.list());
+ 
+     public boolean isEmpty() {
+@@ -78,7 +78,7 @@ public record ServerLinks(List<ServerLinks.Entry> entries) {
+     }
+ 
+     public static record UntrustedEntry(Either<ServerLinks.KnownLinkType, Component> type, String link) {
+-        public static final StreamCodec<ByteBuf, ServerLinks.UntrustedEntry> STREAM_CODEC = StreamCodec.composite(
++        public static final StreamCodec<net.minecraft.network.FriendlyByteBuf, ServerLinks.UntrustedEntry> STREAM_CODEC = StreamCodec.composite( // Paper - adventure - use locale in byte buf for translations
+             ServerLinks.TYPE_STREAM_CODEC,
+             ServerLinks.UntrustedEntry::type,
+             ByteBufCodecs.STRING_UTF8,
