@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/world/entity/raid/Raid.java b/net/minecraft/world/entity/raid/Raid.java
+index efc59afe8d3041508e1a632e8ec9e45434974c36..6e8c1a2863ac6e5137a26815ecf5142f0fcc9893 100644
 --- a/net/minecraft/world/entity/raid/Raid.java
 +++ b/net/minecraft/world/entity/raid/Raid.java
-@@ -104,6 +_,11 @@
+@@ -104,6 +104,11 @@ public class Raid {
      private Raid.RaidStatus status;
      private int celebrationTicks;
      private Optional<BlockPos> waveSpawnPos = Optional.empty();
@@ -12,7 +20,7 @@
  
      public Raid(int id, ServerLevel level, BlockPos center) {
          this.id = id;
-@@ -136,6 +_,11 @@
+@@ -136,6 +141,11 @@ public class Raid {
                  this.heroesOfTheVillage.add(NbtUtils.loadUUID(tag));
              }
          }
@@ -24,7 +32,7 @@
      }
  
      public boolean isOver() {
-@@ -162,6 +_,12 @@
+@@ -162,6 +172,12 @@ public class Raid {
          return this.status == Raid.RaidStatus.LOSS;
      }
  
@@ -37,7 +45,7 @@
      public float getTotalHealth() {
          return this.totalHealth;
      }
-@@ -252,6 +_,7 @@
+@@ -252,6 +268,7 @@ public class Raid {
                  boolean flag = this.active;
                  this.active = this.level.hasChunkAt(this.center);
                  if (this.level.getDifficulty() == Difficulty.PEACEFUL) {
@@ -45,7 +53,7 @@
                      this.stop();
                      return;
                  }
-@@ -271,13 +_,16 @@
+@@ -271,13 +288,16 @@ public class Raid {
                  if (!this.level.isVillage(this.center)) {
                      if (this.groupsSpawned > 0) {
                          this.status = Raid.RaidStatus.LOSS;
@@ -62,7 +70,7 @@
                      this.stop();
                      return;
                  }
-@@ -346,6 +_,7 @@
+@@ -346,6 +366,7 @@ public class Raid {
                      }
  
                      if (i > 5) {
@@ -70,7 +78,7 @@
                          this.stop();
                          break;
                      }
-@@ -357,6 +_,7 @@
+@@ -357,6 +378,7 @@ public class Raid {
                      } else {
                          this.status = Raid.RaidStatus.VICTORY;
  
@@ -78,7 +86,7 @@
                          for (UUID uuid : this.heroesOfTheVillage) {
                              Entity entity = this.level.getEntity(uuid);
                              if (entity instanceof LivingEntity) {
-@@ -368,10 +_,12 @@
+@@ -368,10 +390,12 @@ public class Raid {
                                      if (livingEntity instanceof ServerPlayer serverPlayer) {
                                          serverPlayer.awardStat(Stats.RAID_WIN);
                                          CriteriaTriggers.RAID_WIN.trigger(serverPlayer);
@@ -91,7 +99,7 @@
                      }
                  }
  
-@@ -379,6 +_,7 @@
+@@ -379,6 +403,7 @@ public class Raid {
              } else if (this.isOver()) {
                  this.celebrationTicks++;
                  if (this.celebrationTicks >= 600) {
@@ -99,7 +107,7 @@
                      this.stop();
                      return;
                  }
-@@ -491,6 +_,10 @@
+@@ -491,6 +516,10 @@ public class Raid {
          DifficultyInstance currentDifficultyAt = this.level.getCurrentDifficultyAt(pos);
          boolean shouldSpawnBonusGroup = this.shouldSpawnBonusGroup();
  
@@ -110,7 +118,7 @@
          for (Raid.RaiderType raiderType : Raid.RaiderType.VALUES) {
              int i1 = this.getDefaultNumSpawns(raiderType, i, shouldSpawnBonusGroup)
                  + this.getPotentialBonusSpawns(raiderType, this.random, i, currentDifficultyAt, shouldSpawnBonusGroup);
-@@ -506,9 +_,11 @@
+@@ -506,9 +535,11 @@ public class Raid {
                      raider.setPatrolLeader(true);
                      this.setLeader(i, raider);
                      flag = true;
@@ -122,7 +130,7 @@
                  if (raiderType.entityType == EntityType.RAVAGER) {
                      Raider raider1 = null;
                      if (i == this.getNumGroups(Difficulty.NORMAL)) {
-@@ -526,6 +_,7 @@
+@@ -526,6 +557,7 @@ public class Raid {
                          this.joinRaid(i, raider1, pos, false);
                          raider1.moveTo(pos, 0.0F, 0.0F);
                          raider1.startRiding(raider);
@@ -130,7 +138,7 @@
                      }
                  }
              }
-@@ -535,6 +_,7 @@
+@@ -535,6 +567,7 @@ public class Raid {
          this.groupsSpawned++;
          this.updateBossbar();
          this.setDirty();
@@ -138,7 +146,7 @@
      }
  
      public void joinRaid(int wave, Raider raider, @Nullable BlockPos pos, boolean isRecruited) {
-@@ -549,7 +_,7 @@
+@@ -549,7 +582,7 @@ public class Raid {
                  raider.finalizeSpawn(this.level, this.level.getCurrentDifficultyAt(pos), EntitySpawnReason.EVENT, null);
                  raider.applyRaidBuffs(this.level, wave, false);
                  raider.setOnGround(true);
@@ -147,7 +155,7 @@
              }
          }
      }
-@@ -770,6 +_,11 @@
+@@ -770,6 +803,11 @@ public class Raid {
          }
  
          compound.put("HeroesOfTheVillage", listTag);
@@ -159,16 +167,16 @@
          return compound;
      }
  
-@@ -802,6 +_,12 @@
-     public void addHeroOfTheVillage(Entity player) {
+@@ -803,6 +841,12 @@ public class Raid {
          this.heroesOfTheVillage.add(player.getUUID());
      }
-+
+ 
 +    // CraftBukkit start - a method to get all raiders
 +    public java.util.Collection<Raider> getRaiders() {
 +        return this.groupRaiderMap.values().stream().flatMap(Set::stream).collect(java.util.stream.Collectors.toSet());
 +    }
 +    // CraftBukkit end
- 
++
      static enum RaidStatus {
          ONGOING,
+         VICTORY,

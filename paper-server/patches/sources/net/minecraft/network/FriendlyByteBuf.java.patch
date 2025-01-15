@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/network/FriendlyByteBuf.java b/net/minecraft/network/FriendlyByteBuf.java
+index 876b35e9538528ac8d6213c914f2e66179432dae..e5e5d9bc095ccd9fbf1c8aaa09e5c4ebb1d1c920 100644
 --- a/net/minecraft/network/FriendlyByteBuf.java
 +++ b/net/minecraft/network/FriendlyByteBuf.java
-@@ -70,6 +_,7 @@
+@@ -70,6 +70,7 @@ import org.joml.Vector3f;
  public class FriendlyByteBuf extends ByteBuf {
      public static final int DEFAULT_NBT_QUOTA = 2097152;
      private final ByteBuf source;
@@ -8,7 +16,7 @@
      public static final short MAX_STRING_LENGTH = 32767;
      public static final int MAX_COMPONENT_STRING_LENGTH = 262144;
      private static final int PUBLIC_KEY_SIZE = 256;
-@@ -78,6 +_,7 @@
+@@ -78,6 +79,7 @@ public class FriendlyByteBuf extends ByteBuf {
      private static final Gson GSON = new Gson();
  
      public FriendlyByteBuf(ByteBuf source) {
@@ -16,7 +24,7 @@
          this.source = source;
      }
  
-@@ -106,8 +_,13 @@
+@@ -106,8 +108,13 @@ public class FriendlyByteBuf extends ByteBuf {
      }
  
      public <T> void writeJsonWithCodec(Codec<T> codec, T value) {
@@ -31,7 +39,7 @@
      }
  
      public static <T> IntFunction<T> limitValue(IntFunction<T> function, int limit) {
-@@ -527,7 +_,7 @@
+@@ -527,7 +534,7 @@ public class FriendlyByteBuf extends ByteBuf {
  
          try {
              NbtIo.writeAnyTag(nbt, new ByteBufOutputStream(buffer));

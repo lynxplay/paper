@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/world/item/component/BundleContents.java b/net/minecraft/world/item/component/BundleContents.java
+index 216f59f8677962d00d19ad2ebd5d06a79d753ad2..fca2dd0fb9ff4ff795a01de722fbb31dc02682fa 100644
 --- a/net/minecraft/world/item/component/BundleContents.java
 +++ b/net/minecraft/world/item/component/BundleContents.java
-@@ -76,6 +_,12 @@
+@@ -76,6 +76,12 @@ public final class BundleContents implements TooltipComponent {
          return !stack.isEmpty() && stack.getItem().canFitInsideContainerItems();
      }
  
@@ -13,7 +21,7 @@
      public int getNumberOfItemsToShow() {
          int size = this.size();
          int i = size > 12 ? 11 : 12;
-@@ -171,7 +_,13 @@
+@@ -171,7 +177,13 @@ public final class BundleContents implements TooltipComponent {
          }
  
          public int getMaxAmountToAdd(ItemStack stack) {

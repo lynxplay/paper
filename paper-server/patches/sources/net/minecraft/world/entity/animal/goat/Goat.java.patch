@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/world/entity/animal/goat/Goat.java b/net/minecraft/world/entity/animal/goat/Goat.java
+index ecc13171a8e214da73e692eeeb95dbe0f6b13ea3..504a30ead8d2bb13d559acbde62f9d44a5dda1cb 100644
 --- a/net/minecraft/world/entity/animal/goat/Goat.java
 +++ b/net/minecraft/world/entity/animal/goat/Goat.java
-@@ -231,13 +_,22 @@
+@@ -231,13 +231,22 @@ public class Goat extends Animal {
      public InteractionResult mobInteract(Player player, InteractionHand hand) {
          ItemStack itemInHand = player.getItemInHand(hand);
          if (itemInHand.is(Items.BUCKET) && !this.isBaby()) {
@@ -25,7 +33,7 @@
                  this.playEatingSound();
              }
  
-@@ -350,7 +_,7 @@
+@@ -350,7 +359,7 @@ public class Goat extends Animal {
              double d2 = Mth.randomBetween(this.random, -0.2F, 0.2F);
              ItemEntity itemEntity = new ItemEntity(this.level(), vec3.x(), vec3.y(), vec3.z(), itemStack, d, d1, d2);
              this.level().addFreshEntity(itemEntity);
@@ -34,7 +42,7 @@
          }
      }
  
-@@ -381,4 +_,15 @@
+@@ -381,4 +390,15 @@ public class Goat extends Animal {
      ) {
          return level.getBlockState(pos.below()).is(BlockTags.GOATS_SPAWNABLE_ON) && isBrightEnoughToSpawn(level, pos);
      }

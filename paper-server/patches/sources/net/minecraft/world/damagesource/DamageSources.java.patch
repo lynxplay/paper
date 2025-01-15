@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/world/damagesource/DamageSources.java b/net/minecraft/world/damagesource/DamageSources.java
+index cc206ecff2d95f0398ca424c178a336ad80cc396..b1054b6b2bff568a8805fc0f610c431f3f349a04 100644
 --- a/net/minecraft/world/damagesource/DamageSources.java
 +++ b/net/minecraft/world/damagesource/DamageSources.java
-@@ -42,9 +_,15 @@
+@@ -42,9 +42,15 @@ public class DamageSources {
      private final DamageSource stalagmite;
      private final DamageSource outsideBorder;
      private final DamageSource genericKill;
@@ -16,7 +24,7 @@
          this.inFire = this.source(DamageTypes.IN_FIRE);
          this.campfire = this.source(DamageTypes.CAMPFIRE);
          this.lightningBolt = this.source(DamageTypes.LIGHTNING_BOLT);
-@@ -84,6 +_,16 @@
+@@ -84,6 +90,16 @@ public class DamageSources {
          return new DamageSource(this.damageTypes.getOrThrow(damageTypeKey), causingEntity, directEntity);
      }
  
@@ -33,7 +41,7 @@
      public DamageSource inFire() {
          return this.inFire;
      }
-@@ -261,7 +_,13 @@
+@@ -261,7 +277,13 @@ public class DamageSources {
      }
  
      public DamageSource badRespawnPointExplosion(Vec3 position) {

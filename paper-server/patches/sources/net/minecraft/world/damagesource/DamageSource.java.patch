@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/world/damagesource/DamageSource.java b/net/minecraft/world/damagesource/DamageSource.java
+index 2e67426aaf1cec19dcfe84650f977a8f6e731fff..48c9b26e023ad236b0bcb6441e8aee8f107ae381 100644
 --- a/net/minecraft/world/damagesource/DamageSource.java
 +++ b/net/minecraft/world/damagesource/DamageSource.java
-@@ -20,6 +_,107 @@
+@@ -20,6 +20,107 @@ public class DamageSource {
      private final Entity directEntity;
      @Nullable
      private final Vec3 damageSourcePosition;
@@ -108,7 +116,7 @@
  
      @Override
      public String toString() {
-@@ -134,4 +_,18 @@
+@@ -134,4 +235,18 @@ public class DamageSource {
      public Holder<DamageType> typeHolder() {
          return this.type;
      }

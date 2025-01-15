@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/world/effect/MobEffectInstance.java b/net/minecraft/world/effect/MobEffectInstance.java
+index bae1ac10c9a6bcbad781e2a96bff61dcb3755413..7cf885e6cfa22827796d4058a290cfc1491f3b49 100644
 --- a/net/minecraft/world/effect/MobEffectInstance.java
 +++ b/net/minecraft/world/effect/MobEffectInstance.java
-@@ -216,6 +_,7 @@
+@@ -216,6 +216,7 @@ public class MobEffectInstance implements Comparable<MobEffectInstance> {
              int i = this.isInfiniteDuration() ? entity.tickCount : this.duration;
              if (entity.level() instanceof ServerLevel serverLevel
                  && this.effect.value().shouldApplyEffectTickThisTick(i, this.amplifier)

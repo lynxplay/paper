@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/world/level/chunk/storage/RegionFileVersion.java b/net/minecraft/world/level/chunk/storage/RegionFileVersion.java
+index 785ed376be5ff59240a7ef9964edefd90c1626a8..0c739ca5b01ac0ec35a11fd01c5fc65de97c2852 100644
 --- a/net/minecraft/world/level/chunk/storage/RegionFileVersion.java
 +++ b/net/minecraft/world/level/chunk/storage/RegionFileVersion.java
-@@ -61,6 +_,15 @@
+@@ -61,6 +61,15 @@ public class RegionFileVersion {
      private final RegionFileVersion.StreamWrapper<InputStream> inputWrapper;
      private final RegionFileVersion.StreamWrapper<OutputStream> outputWrapper;
  

@@ -19,7 +19,7 @@ dependencies {
 paperweight {
     minecraftVersion = providers.gradleProperty("mcVersion")
     // macheOldPath = file("F:\\Projects\\PaperTooling\\mache\\versions\\1.21.4\\src\\main\\java")
-    // gitFilePatches = true
+    gitFilePatches = true
 
     spigot {
         buildDataRef = "3edaf46ec1eed4115ce1b18d2846cded42577e42"

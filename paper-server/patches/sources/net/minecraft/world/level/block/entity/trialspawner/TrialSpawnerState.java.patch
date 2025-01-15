@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/world/level/block/entity/trialspawner/TrialSpawnerState.java b/net/minecraft/world/level/block/entity/trialspawner/TrialSpawnerState.java
+index 3e8d0c8d8409b6ba2e2846d7d64cdcc8fc6094a4..02723e61684fcf36094d7b9c81f6ab87ad6f620a 100644
 --- a/net/minecraft/world/level/block/entity/trialspawner/TrialSpawnerState.java
 +++ b/net/minecraft/world/level/block/entity/trialspawner/TrialSpawnerState.java
-@@ -145,7 +_,7 @@
+@@ -145,7 +145,7 @@ public enum TrialSpawnerState implements StringRepresentable {
                      yield ACTIVE;
                  } else if (data.isCooldownFinished(level)) {
                      spawner.removeOminous(level, pos);

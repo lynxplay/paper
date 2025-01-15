@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/com/mojang/brigadier/tree/CommandNode.java b/com/mojang/brigadier/tree/CommandNode.java
+index 47f8e3dbdef111eba49bb279bdfcd52640ea5769..24295154d3434de0125a21aba31f5aef13f36a5b 100644
 --- a/com/mojang/brigadier/tree/CommandNode.java
 +++ b/com/mojang/brigadier/tree/CommandNode.java
-@@ -27,11 +_,21 @@
+@@ -27,11 +27,21 @@ public abstract class CommandNode<S> implements Comparable<CommandNode<S>> {
      private final Map<String, CommandNode<S>> children = new LinkedHashMap<>();
      private final Map<String, LiteralCommandNode<S>> literals = new LinkedHashMap<>();
      private final Map<String, ArgumentCommandNode<S, ?>> arguments = new LinkedHashMap<>();
@@ -23,7 +31,7 @@
  
      protected CommandNode(final Command<S> command, final Predicate<S> requirement, final CommandNode<S> redirect, final RedirectModifier<S> modifier, final boolean forks) {
          this.command = command;
-@@ -61,7 +_,17 @@
+@@ -61,7 +71,17 @@ public abstract class CommandNode<S> implements Comparable<CommandNode<S>> {
          return modifier;
      }
  
@@ -42,7 +50,7 @@
          return requirement.test(source);
      }
  
-@@ -151,6 +_,12 @@
+@@ -151,6 +171,12 @@ public abstract class CommandNode<S> implements Comparable<CommandNode<S>> {
      protected abstract String getSortedKey();
  
      public Collection<? extends CommandNode<S>> getRelevantNodes(final StringReader input) {
@@ -55,7 +63,7 @@
          if (literals.size() > 0) {
              final int cursor = input.getCursor();
              while (input.canRead() && input.peek() != ' ') {
-@@ -158,7 +_,21 @@
+@@ -158,7 +184,21 @@ public abstract class CommandNode<S> implements Comparable<CommandNode<S>> {
              }
              final String text = input.getString().substring(cursor, input.getCursor());
              input.setCursor(cursor);
@@ -78,7 +86,7 @@
              if (literal != null) {
                  return Collections.singleton(literal);
              } else {
-@@ -183,4 +_,11 @@
+@@ -183,4 +223,11 @@ public abstract class CommandNode<S> implements Comparable<CommandNode<S>> {
      }
  
      public abstract Collection<String> getExamples();

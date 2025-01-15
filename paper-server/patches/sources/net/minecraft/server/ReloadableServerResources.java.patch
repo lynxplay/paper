@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/server/ReloadableServerResources.java b/net/minecraft/server/ReloadableServerResources.java
+index be81e4345fa55e534d292936a07396e4e1009a0b..d56ade6f45057f8c056152c08ad6258a9716604d 100644
 --- a/net/minecraft/server/ReloadableServerResources.java
 +++ b/net/minecraft/server/ReloadableServerResources.java
-@@ -39,6 +_,7 @@
+@@ -39,6 +39,7 @@ public class ReloadableServerResources {
          this.postponedTags = postponedTags;
          this.recipes = new RecipeManager(registries);
          this.commands = new Commands(commandSelection, CommandBuildContext.simple(registries, enabledFeatures));
@@ -8,7 +16,7 @@
          this.advancements = new ServerAdvancementManager(registries);
          this.functionLibrary = new ServerFunctionLibrary(functionCompilationLevel, this.commands.getDispatcher());
      }
-@@ -83,6 +_,14 @@
+@@ -83,6 +84,14 @@ public class ReloadableServerResources {
                      ReloadableServerResources reloadableServerResources = new ReloadableServerResources(
                          loadResult.layers(), loadResult.lookupWithUpdatedTags(), enabledFeatures, commandSelection, postponedTags, functionCompilationLevel
                      );

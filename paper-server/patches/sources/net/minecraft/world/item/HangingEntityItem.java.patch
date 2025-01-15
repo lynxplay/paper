@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/world/item/HangingEntityItem.java b/net/minecraft/world/item/HangingEntityItem.java
+index f38499e4f19e2a4de1ba99f15626bc699267a732..85980c7e5ad63398e0f0948fb0250f580251fe63 100644
 --- a/net/minecraft/world/item/HangingEntityItem.java
 +++ b/net/minecraft/world/item/HangingEntityItem.java
-@@ -66,6 +_,19 @@
+@@ -66,6 +66,19 @@ public class HangingEntityItem extends Item {
  
              if (hangingEntity.survives()) {
                  if (!level.isClientSide) {

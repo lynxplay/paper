@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/world/entity/monster/Vex.java b/net/minecraft/world/entity/monster/Vex.java
+index f9b2d4d90c787be22c61fdf56809c5688f8d1150..7f1cdea810db24182f8f87076c42a19b1b43e98a 100644
 --- a/net/minecraft/world/entity/monster/Vex.java
 +++ b/net/minecraft/world/entity/monster/Vex.java
-@@ -296,7 +_,7 @@
+@@ -296,7 +296,7 @@ public class Vex extends Monster implements TraceableEntity {
  
          @Override
          public void start() {
@@ -9,7 +17,7 @@
              super.start();
          }
      }
-@@ -355,7 +_,10 @@
+@@ -355,7 +355,10 @@ public class Vex extends Monster implements TraceableEntity {
  
              for (int i = 0; i < 3; i++) {
                  BlockPos blockPos = boundOrigin.offset(Vex.this.random.nextInt(15) - 7, Vex.this.random.nextInt(11) - 5, Vex.this.random.nextInt(15) - 7);

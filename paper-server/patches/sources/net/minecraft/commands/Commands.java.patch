@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/commands/Commands.java b/net/minecraft/commands/Commands.java
+index 258f780594dd28fe048572e5994a0df1b05cedcd..fa8c5ba4e0efd0c36613aaa8eaafba0cb70ceb87 100644
 --- a/net/minecraft/commands/Commands.java
 +++ b/net/minecraft/commands/Commands.java
-@@ -251,6 +_,30 @@
+@@ -251,6 +251,30 @@ public class Commands {
              PublishCommand.register(this.dispatcher);
          }
  
@@ -31,7 +39,7 @@
          this.dispatcher.setConsumer(ExecutionCommandSource.resultConsumer());
      }
  
-@@ -260,15 +_,58 @@
+@@ -260,15 +284,58 @@ public class Commands {
          return new ParseResults<>(commandContextBuilder, parseResults.getReader(), parseResults.getExceptions());
      }
  
@@ -92,7 +100,7 @@
  
          try {
              if (contextChain != null) {
-@@ -280,9 +_,10 @@
+@@ -280,9 +347,10 @@ public class Commands {
                  );
              }
          } catch (Exception var12) {
@@ -105,7 +113,7 @@
                  StackTraceElement[] stackTrace = var12.getStackTrace();
  
                  for (int i = 0; i < Math.min(stackTrace.length, 3); i++) {
-@@ -309,18 +_,22 @@
+@@ -309,18 +377,22 @@ public class Commands {
      }
  
      @Nullable
@@ -131,7 +139,7 @@
                  if (min > 10) {
                      mutableComponent.append(CommonComponents.ELLIPSIS);
                  }
-@@ -332,7 +_,17 @@
+@@ -332,7 +404,17 @@ public class Commands {
                  }
  
                  mutableComponent.append(Component.translatable("command.context.here").withStyle(ChatFormatting.RED, ChatFormatting.ITALIC));
@@ -150,7 +158,7 @@
              }
  
              return null;
-@@ -360,25 +_,130 @@
+@@ -360,25 +442,130 @@ public class Commands {
      }
  
      public void sendCommands(ServerPlayer player) {
@@ -286,7 +294,7 @@
                  }
  
                  if (argumentBuilder instanceof RequiredArgumentBuilder) {
-@@ -396,7 +_,7 @@
+@@ -396,7 +583,7 @@ public class Commands {
                  commandNodeToSuggestionNode.put(commandNode, commandNode1);
                  rootSuggestion.addChild(commandNode1);
                  if (!commandNode.getChildren().isEmpty()) {

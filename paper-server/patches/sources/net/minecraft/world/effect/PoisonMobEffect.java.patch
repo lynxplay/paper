@@ -1,6 +1,14 @@
+From a4974fec545b37826e26e3cfe35b78eed00600ef Mon Sep 17 00:00:00 2001
+From: File <noreply+automated@papermc.io>
+Date: Sun, 20 Apr 1997 14:37:42 +0100
+Subject: [PATCH] paper File Patches
+
+
+diff --git a/net/minecraft/world/effect/PoisonMobEffect.java b/net/minecraft/world/effect/PoisonMobEffect.java
+index 20da63fbb11379a1805c40d5f0af7c912367667a..522e11a98ccd9186e7b00f6d7e28516cf33b830c 100644
 --- a/net/minecraft/world/effect/PoisonMobEffect.java
 +++ b/net/minecraft/world/effect/PoisonMobEffect.java
-@@ -13,7 +_,7 @@
+@@ -13,7 +13,7 @@ public class PoisonMobEffect extends MobEffect {
      @Override
      public boolean applyEffectTick(ServerLevel level, LivingEntity entity, int amplifier) {
          if (entity.getHealth() > 1.0F) {
