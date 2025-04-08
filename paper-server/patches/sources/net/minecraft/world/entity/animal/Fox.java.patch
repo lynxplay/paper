@@ -55,7 +55,7 @@
              this.ticksSinceEaten = 0;
          }
      }
-@@ -623,12 +_,12 @@
+@@ -619,12 +_,12 @@
      }
  
      @Override
@@ -70,7 +70,7 @@
      }
  
      void wakeUp() {
-@@ -692,15 +_,33 @@
+@@ -688,15 +_,33 @@
          return this.getTrustedEntities().anyMatch(entityReference -> entityReference.matches(entity));
      }
  
@@ -108,7 +108,7 @@
      }
  
      public static boolean isPathClear(Fox fox, LivingEntity livingEntity) {
-@@ -876,6 +_,19 @@
+@@ -872,6 +_,19 @@
                      fox.addTrustedEntity(loveCause1);
                  }
  
@@ -128,7 +128,7 @@
                  if (serverPlayer != null) {
                      serverPlayer.awardStat(Stats.ANIMALS_BRED);
                      CriteriaTriggers.BRED_ANIMALS.trigger(serverPlayer, this.animal, this.partner, fox);
-@@ -885,14 +_,12 @@
+@@ -881,14 +_,12 @@
                  this.partner.setAge(6000);
                  this.animal.resetLove();
                  this.partner.resetLove();
@@ -146,7 +146,7 @@
                          );
                  }
              }
-@@ -956,6 +_,7 @@
+@@ -952,6 +_,7 @@
          private void pickSweetBerries(BlockState state) {
              int ageValue = state.getValue(SweetBerryBushBlock.AGE);
              state.setValue(SweetBerryBushBlock.AGE, 1);

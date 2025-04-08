@@ -1,14 +1,11 @@
 --- a/net/minecraft/world/entity/ai/behavior/BabyFollowAdult.java
 +++ b/net/minecraft/world/entity/ai/behavior/BabyFollowAdult.java
-@@ -24,8 +_,19 @@
-                     if (!mob.isBaby()) {
-                         return false;
+@@ -25,6 +_,17 @@
                      } else {
--                        AgeableMob ageableMob = instance.get(nearestVisibleAdult);
-+                        LivingEntity ageableMob = instance.get(nearestVisibleAdult); // CraftBukkit - type
-                         if (mob.closerThan(ageableMob, followRange.getMaxValue() + 1) && !mob.closerThan(ageableMob, followRange.getMinValue())) {
+                         LivingEntity livingEntity = instance.get(nearestVisibleAdult);
+                         if (entity.closerThan(livingEntity, uniformInt.getMaxValue() + 1) && !entity.closerThan(livingEntity, uniformInt.getMinValue())) {
 +                            // CraftBukkit start
-+                            org.bukkit.event.entity.EntityTargetLivingEntityEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callEntityTargetLivingEvent(mob, ageableMob, org.bukkit.event.entity.EntityTargetEvent.TargetReason.FOLLOW_LEADER);
++                            org.bukkit.event.entity.EntityTargetLivingEntityEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callEntityTargetLivingEvent(entity, livingEntity, org.bukkit.event.entity.EntityTargetEvent.TargetReason.FOLLOW_LEADER);
 +                            if (event.isCancelled()) {
 +                                return false;
 +                            }
@@ -16,8 +13,8 @@
 +                                nearestVisibleAdult.erase();
 +                                return true;
 +                            }
-+                            ageableMob = ((org.bukkit.craftbukkit.entity.CraftLivingEntity) event.getTarget()).getHandle();
++                            livingEntity = ((org.bukkit.craftbukkit.entity.CraftLivingEntity) event.getTarget()).getHandle();
 +                            // CraftBukkit end
                              WalkTarget walkTarget1 = new WalkTarget(
-                                 new EntityTracker(ageableMob, false), speedModifier.apply(mob), followRange.getMinValue() - 1
+                                 new EntityTracker(livingEntity, false), function.apply(entity), uniformInt.getMinValue() - 1
                              );

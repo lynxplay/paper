@@ -356,7 +356,7 @@
      public Component getHoverName() {
          Component customName = this.getCustomName();
          return customName != null ? customName : this.getItemName();
-@@ -1054,6 +_,19 @@
+@@ -1010,6 +_,19 @@
          EnchantmentHelper.forEachModifier(this, equipmentSLot, action);
      }
  
@@ -376,7 +376,7 @@
      public Component getDisplayName() {
          MutableComponent mutableComponent = Component.empty().append(this.getHoverName());
          if (this.has(DataComponents.CUSTOM_NAME)) {
-@@ -1109,7 +_,7 @@
+@@ -1065,7 +_,7 @@
      }
  
      public void consume(int amount, @Nullable LivingEntity entity) {

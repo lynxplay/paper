@@ -12,7 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Beehive;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("1.21.5")
+@GeneratedFrom("25w15a")
 public class CraftBeehive extends CraftBlockData implements Beehive {
     private static final EnumProperty<Direction> FACING = BeehiveBlock.FACING;
 

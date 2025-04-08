@@ -53,7 +53,7 @@ diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/
 index 32db2b9e375c12cbf7abab69cc01e8ac2c7c3b6e..d50d2928ad9f8b34a14621b1fe5c188547e04bd1 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -1317,6 +1317,28 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -1344,6 +1344,28 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
          return !(entity instanceof Player player && (this.server.isUnderSpawnProtection(this, pos, player) || !this.getWorldBorder().isWithinBounds(pos)));
      }
  
@@ -86,7 +86,7 @@ diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server
 index 3e73c69c9db8cbded28a001b20d9989acb11c638..d1de5aff81da465be79f2f747466734e80ec50dc 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
-@@ -189,6 +189,7 @@ import org.slf4j.Logger;
+@@ -191,6 +191,7 @@ import org.slf4j.Logger;
  
  public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patches.chunk_system.player.ChunkSystemServerPlayer { // Paper - rewrite chunk system
      private static final Logger LOGGER = LogUtils.getLogger();

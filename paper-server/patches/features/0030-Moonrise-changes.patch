@@ -1,0 +1,125 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Tue, 8 Apr 2025 19:02:33 +0200
+Subject: [PATCH] Moonrise changes
+
+
+diff --git a/ca/spottedleaf/moonrise/patches/chunk_system/entity/ChunkSystemEntity.java b/ca/spottedleaf/moonrise/patches/chunk_system/entity/ChunkSystemEntity.java
+index c7da23900228aab3a5673eb5adfada5091140319..15c1999623f8675a9099612747e9400157b4f2c1 100644
+--- a/ca/spottedleaf/moonrise/patches/chunk_system/entity/ChunkSystemEntity.java
++++ b/ca/spottedleaf/moonrise/patches/chunk_system/entity/ChunkSystemEntity.java
+@@ -3,17 +3,35 @@ package ca.spottedleaf.moonrise.patches.chunk_system.entity;
+ import ca.spottedleaf.moonrise.patches.chunk_system.level.chunk.ChunkData;
+ import net.minecraft.server.level.FullChunkStatus;
+ import net.minecraft.world.entity.Entity;
++import net.minecraft.world.entity.animal.HappyGhast;
+ import net.minecraft.world.entity.monster.Shulker;
+ import net.minecraft.world.entity.vehicle.AbstractMinecart;
+ import net.minecraft.world.entity.vehicle.Boat;
+ 
+ public interface ChunkSystemEntity {
+ 
+-    public boolean moonrise$isHardColliding();
++    enum HardColliding {
++        NEVER,
++        ALWAYS,
++        SOMETIMES,
++        ;
++    }
++
++    default public boolean moonrise$isHardColliding() {
++        return switch (this.moonrise$hardCollisionConstant()) {
++            case ALWAYS -> true;
++            case NEVER -> false;
++            case SOMETIMES -> ((Entity)this).canBeCollidedWith();
++        };
++    }
++
++    public HardColliding moonrise$hardCollisionConstant();
+ 
+     // for mods to override
+-    public default boolean moonrise$isHardCollidingUncached() {
+-        return this instanceof Boat || this instanceof AbstractMinecart || this instanceof Shulker || ((Entity)this).canBeCollidedWith();
++    public default HardColliding moonrise$computeHardCollisionConstant() {
++        if (this instanceof Boat || this instanceof AbstractMinecart || this instanceof Shulker) return HardColliding.ALWAYS;
++        if (this instanceof HappyGhast) return HardColliding.SOMETIMES;
++        return ((Entity)this).canBeCollidedWith() ? HardColliding.ALWAYS : HardColliding.NEVER;
+     }
+ 
+     public FullChunkStatus moonrise$getChunkStatus();
+diff --git a/ca/spottedleaf/moonrise/patches/chunk_system/level/entity/ChunkEntitySlices.java b/ca/spottedleaf/moonrise/patches/chunk_system/level/entity/ChunkEntitySlices.java
+index ba20e87d2105ce53cdaf4049de2388d05fcd1b56..8d8c2cf72fd985b6be0b44bb5ecbb38c248d30ef 100644
+--- a/ca/spottedleaf/moonrise/patches/chunk_system/level/entity/ChunkEntitySlices.java
++++ b/ca/spottedleaf/moonrise/patches/chunk_system/level/entity/ChunkEntitySlices.java
+@@ -40,6 +40,7 @@ public final class ChunkEntitySlices {
+ 
+     private final EntityCollectionBySection allEntities;
+     private final EntityCollectionBySection hardCollidingEntities;
++    private final EntityCollectionBySection sometimesHardCollidingEntities;
+     private final Reference2ObjectOpenHashMap<Class<? extends Entity>, EntityCollectionBySection> entitiesByClass;
+     private final Reference2ObjectOpenHashMap<EntityType<?>, EntityCollectionBySection> entitiesByType;
+     private final EntityList entities = new EntityList();
+@@ -67,6 +68,7 @@ public final class ChunkEntitySlices {
+ 
+         this.allEntities = new EntityCollectionBySection(this);
+         this.hardCollidingEntities = new EntityCollectionBySection(this);
++        this.sometimesHardCollidingEntities = new EntityCollectionBySection(this);
+         this.entitiesByClass = new Reference2ObjectOpenHashMap<>();
+         this.entitiesByType = new Reference2ObjectOpenHashMap<>();
+ 
+@@ -244,8 +246,9 @@ public final class ChunkEntitySlices {
+ 
+         this.allEntities.addEntity(entity, sectionIndex);
+ 
+-        if (((ChunkSystemEntity)entity).moonrise$isHardColliding()) {
+-            this.hardCollidingEntities.addEntity(entity, sectionIndex);
++        switch (((ChunkSystemEntity)entity).moonrise$hardCollisionConstant()) {
++            case ALWAYS -> this.hardCollidingEntities.addEntity(entity, sectionIndex);
++            case SOMETIMES -> this.sometimesHardCollidingEntities.addEntity(entity, sectionIndex);
+         }
+ 
+         for (final Iterator<Reference2ObjectMap.Entry<Class<? extends Entity>, EntityCollectionBySection>> iterator =
+@@ -278,8 +281,9 @@ public final class ChunkEntitySlices {
+ 
+         this.allEntities.removeEntity(entity, sectionIndex);
+ 
+-        if (((ChunkSystemEntity)entity).moonrise$isHardColliding()) {
+-            this.hardCollidingEntities.removeEntity(entity, sectionIndex);
++        switch (((ChunkSystemEntity)entity).moonrise$hardCollisionConstant()) {
++            case ALWAYS -> this.hardCollidingEntities.removeEntity(entity, sectionIndex);
++            case SOMETIMES -> this.sometimesHardCollidingEntities.removeEntity(entity, sectionIndex);
+         }
+ 
+         for (final Iterator<Reference2ObjectMap.Entry<Class<? extends Entity>, EntityCollectionBySection>> iterator =
+@@ -299,6 +303,7 @@ public final class ChunkEntitySlices {
+ 
+     public void getHardCollidingEntities(final Entity except, final AABB box, final List<Entity> into, final Predicate<? super Entity> predicate) {
+         this.hardCollidingEntities.getEntities(except, box, into, predicate);
++        this.sometimesHardCollidingEntities.getEntities(except, box, into, e -> e.moonrise$isHardColliding() && (predicate == null || predicate.test(e)));
+     }
+ 
+     public void getEntities(final Entity except, final AABB box, final List<Entity> into, final Predicate<? super Entity> predicate) {
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index 7e2e821d51f278ffd0326228a176360deac5eca8..31b7f1f7310f668008b9a61a9e1d1d3bb1a3c050 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -364,7 +364,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     }
+     // Paper end
+     // Paper start - rewrite chunk system
+-    private final boolean isHardColliding = this.moonrise$isHardCollidingUncached();
++    private final HardColliding constantHardCollision = this.moonrise$computeHardCollisionConstant();
+     private net.minecraft.server.level.FullChunkStatus chunkStatus;
+     private ca.spottedleaf.moonrise.patches.chunk_system.level.chunk.ChunkData chunkData;
+     private int sectionX = Integer.MIN_VALUE;
+@@ -373,8 +373,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     private boolean updatingSectionStatus;
+ 
+     @Override
+-    public final boolean moonrise$isHardColliding() {
+-        return this.isHardColliding;
++    public final HardColliding moonrise$hardCollisionConstant() {
++        return this.constantHardCollision;
+     }
+ 
+     @Override

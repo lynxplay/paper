@@ -20,7 +20,7 @@
  
      public void setDragonFight(EndDragonFight dragonFight) {
 @@ -120,6 +_,19 @@
-         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 200.0);
+         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 200.0).add(Attributes.CAMERA_DISTANCE, 16.0);
      }
  
 +    // Paper start - Allow changing the EnderDragon podium
