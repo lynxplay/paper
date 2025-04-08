@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/EntityType.java
 +++ b/net/minecraft/world/entity/EntityType.java
-@@ -216,7 +_,7 @@
+@@ -217,7 +_,7 @@
              .fireImmune()
              .sized(6.0F, 0.5F)
              .clientTrackingRange(10)
@@ -9,7 +9,7 @@
      );
      public static final EntityType<Armadillo> ARMADILLO = register(
          "armadillo", EntityType.Builder.of(Armadillo::new, MobCategory.CREATURE).sized(0.7F, 0.65F).eyeHeight(0.26F).clientTrackingRange(10)
-@@ -1145,6 +_,22 @@
+@@ -1155,6 +_,22 @@
          boolean shouldOffsetY,
          boolean shouldOffsetYMore
      ) {
@@ -32,7 +32,7 @@
          Consumer<T> consumer;
          if (spawnedFrom != null) {
              consumer = createDefaultStackConfig(level, spawnedFrom, owner);
-@@ -1152,7 +_,7 @@
+@@ -1162,7 +_,7 @@
              consumer = entity -> {};
          }
  
@@ -41,7 +41,7 @@
      }
  
      public static <T extends Entity> Consumer<T> createDefaultStackConfig(Level level, ItemStack stack, @Nullable LivingEntity owner) {
-@@ -1169,19 +_,56 @@
+@@ -1179,19 +_,56 @@
  
      public static <T extends Entity> Consumer<T> appendCustomEntityStackConfig(Consumer<T> consumer, Level level, ItemStack stack, @Nullable LivingEntity owner) {
          CustomData customData = stack.getOrDefault(DataComponents.ENTITY_DATA, CustomData.EMPTY);
@@ -101,7 +101,7 @@
              if (entity instanceof Mob mob) {
                  mob.playAmbientSound();
              }
-@@ -1237,6 +_,15 @@
+@@ -1247,6 +_,15 @@
                  if (level.isClientSide
                      || !entity.getType().onlyOpCanSetNbt()
                      || owner instanceof Player player && server.getPlayerList().isOp(player.getGameProfile())) {
@@ -117,7 +117,7 @@
                      customData.loadInto(entity);
                  }
              }
-@@ -1308,9 +_,20 @@
+@@ -1318,9 +_,20 @@
      }
  
      public static Optional<Entity> create(CompoundTag tag, Level level, EntitySpawnReason spawnReason) {

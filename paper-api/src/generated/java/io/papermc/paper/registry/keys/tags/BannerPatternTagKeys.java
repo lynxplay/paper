@@ -24,7 +24,7 @@ import org.jspecify.annotations.NullMarked;
         "SpellCheckingInspection"
 })
 @NullMarked
-@GeneratedFrom("1.21.5")
+@GeneratedFrom("25w15a")
 @ApiStatus.Experimental
 public final class BannerPatternTagKeys {
     /**

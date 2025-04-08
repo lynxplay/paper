@@ -60,7 +60,7 @@ public interface Chicken extends Animals {
     interface Variant extends Keyed {
 
         // Start generate - ChickenVariant
-        // @GeneratedFrom 1.21.5
+        // @GeneratedFrom 25w15a
         Variant COLD = getVariant("cold");
 
         Variant TEMPERATE = getVariant("temperate");

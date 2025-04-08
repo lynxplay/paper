@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public interface JukeboxSong extends Keyed, Translatable {
 
     // Start generate - JukeboxSong
-    // @GeneratedFrom 1.21.5
+    // @GeneratedFrom 25w15a
     JukeboxSong ELEVEN = get("11");
 
     JukeboxSong THIRTEEN = get("13");

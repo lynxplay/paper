@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.properties.SculkSensorPhase;
 import org.bukkit.block.data.type.SculkSensor;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("1.21.5")
+@GeneratedFrom("25w15a")
 public class CraftSculkSensor extends CraftBlockData implements SculkSensor {
     private static final IntegerProperty POWER = SculkSensorBlock.POWER;
 

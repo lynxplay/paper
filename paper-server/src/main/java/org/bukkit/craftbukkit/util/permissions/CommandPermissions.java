@@ -94,6 +94,9 @@ public final class CommandPermissions {
         DefaultPermissions.registerPermission(CommandPermissions.PREFIX + "return", "Allows the user to use the /return command", PermissionDefault.OP, commands);
         DefaultPermissions.registerPermission(CommandPermissions.PREFIX + "random", "Allows the user to generate a random number", PermissionDefault.OP, commands);
         DefaultPermissions.registerPermission(CommandPermissions.PREFIX + "rotate", "Allows the user to change the rotation of entities", PermissionDefault.OP, commands);
+        DefaultPermissions.registerPermission(CommandPermissions.PREFIX + "waypoint", "Allows the managment of a waypoints on the server/locator bar", PermissionDefault.OP, commands);
+        DefaultPermissions.registerPermission(CommandPermissions.PREFIX + "version", "Shows info related to the server version", PermissionDefault.OP, commands);
+
         // Paper end
 
         DefaultPermissions.registerPermission("minecraft.admin.command_feedback", "Receive command broadcasts when sendCommandFeedback is true", PermissionDefault.OP, commands);

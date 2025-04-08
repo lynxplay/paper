@@ -7,7 +7,7 @@ import org.bukkit.craftbukkit.util.CraftLocation;
 import org.bukkit.entity.Phantom;
 import java.util.UUID;
 
-public class CraftPhantom extends CraftFlying implements Phantom, CraftEnemy {
+public class CraftPhantom extends CraftMob implements Phantom, CraftEnemy {
 
     public CraftPhantom(CraftServer server, net.minecraft.world.entity.monster.Phantom entity) {
         super(server, entity);

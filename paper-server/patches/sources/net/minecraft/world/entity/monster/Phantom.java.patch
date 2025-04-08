@@ -21,7 +21,7 @@
              this.igniteForSeconds(8.0F);
          }
  
-@@ -163,6 +_,10 @@
+@@ -177,6 +_,10 @@
          super.readAdditionalSaveData(compound);
          this.anchorPoint = compound.read("anchor_pos", BlockPos.CODEC).orElse(null);
          this.setPhantomSize(compound.getIntOr("size", 0));
@@ -32,7 +32,7 @@
      }
  
      @Override
-@@ -170,6 +_,10 @@
+@@ -184,6 +_,10 @@
          super.addAdditionalSaveData(compound);
          compound.storeNullable("anchor_pos", BlockPos.CODEC, this.anchorPoint);
          compound.putInt("size", this.getPhantomSize());
@@ -43,7 +43,7 @@
      }
  
      @Override
-@@ -243,7 +_,8 @@
+@@ -257,7 +_,8 @@
  
                      for (Player player : nearbyPlayers) {
                          if (Phantom.this.canAttack(serverLevel, player, TargetingConditions.DEFAULT)) {

@@ -5,7 +5,7 @@ Subject: [PATCH] Incremental chunk and player saving
 
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 00f7f4356d6bffdd31f58b9d798c755edd9cd3ff..ea85cac4a41075efe8525c40755e7ebac6ca9dea 100644
+index ac757691caff7a3b219f1bfe677f4debc5e66989..1a476d09de93b131d38a16c1a170c19905926e2c 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -952,7 +952,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -50,10 +50,10 @@ index 00f7f4356d6bffdd31f58b9d798c755edd9cd3ff..ea85cac4a41075efe8525c40755e7eba
          ProfilerFiller profilerFiller = Profiler.get();
          this.runAllTasks(); // Paper - move runAllTasks() into full server tick (previously for timings)
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index debc511cf18d0be813803c200bd1cf0b07ba7974..2a4a40976215ea858c562c3f530db378896c6fcb 100644
+index 4ab197757c13f9ee4d4e93c836cb7b38b427806c..e8f434b9e1ff7337193f1422c1218cc94566d4a7 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -1317,6 +1317,28 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -1344,6 +1344,28 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
          return !(entity instanceof Player player && (this.server.isUnderSpawnProtection(this, pos, player) || !this.getWorldBorder().isWithinBounds(pos)));
      }
  
@@ -83,10 +83,10 @@ index debc511cf18d0be813803c200bd1cf0b07ba7974..2a4a40976215ea858c562c3f530db378
          // Paper start - add close param
          this.save(progress, flush, skipSave, false);
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index bc901bc689c2690ac19e590bff1ae612b7071ee9..8e7ee4dc951eb53ccf65ab71214a0b89bd932ba0 100644
+index ca45288e3973c69fd21fd7d72fa3d3e0852e30d7..eaa121075a45536dfcff9f6eb9b28fab539aa753 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
-@@ -189,6 +189,7 @@ import org.slf4j.Logger;
+@@ -191,6 +191,7 @@ import org.slf4j.Logger;
  
  public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patches.chunk_system.player.ChunkSystemServerPlayer { // Paper - rewrite chunk system
      private static final Logger LOGGER = LogUtils.getLogger();

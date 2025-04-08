@@ -1,15 +1,15 @@
 --- a/net/minecraft/world/entity/ai/goal/TemptGoal.java
 +++ b/net/minecraft/world/entity/ai/goal/TemptGoal.java
-@@ -21,7 +_,7 @@
+@@ -24,7 +_,7 @@
      private double pRotX;
      private double pRotY;
      @Nullable
 -    protected Player player;
-+    protected LivingEntity player; // CraftBukkit
++    protected Player player; // CraftBukkit
      private int calmDown;
      private boolean isRunning;
      private final Predicate<ItemStack> items;
-@@ -44,6 +_,15 @@
+@@ -57,6 +_,15 @@
          } else {
              this.player = getServerLevel(this.mob)
                  .getNearestPlayer(this.targetingConditions.range(this.mob.getAttributeValue(Attributes.TEMPT_RANGE)), this.mob);
@@ -19,7 +19,7 @@
 +                if (event.isCancelled()) {
 +                    return false;
 +                }
-+                this.player = (event.getTarget() == null) ? null : ((org.bukkit.craftbukkit.entity.CraftLivingEntity) event.getTarget()).getHandle();
++                this.player = event.getTarget() instanceof final org.bukkit.craftbukkit.entity.CraftPlayer craftPlayer ? craftPlayer.getHandle() : null;
 +            }
 +            // CraftBukkit end
              return this.player != null;

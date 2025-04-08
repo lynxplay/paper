@@ -18,6 +18,7 @@ import org.bukkit.craftbukkit.command.VanillaCommandWrapper;
 import org.bukkit.craftbukkit.util.permissions.CraftDefaultPermissions;
 import org.bukkit.permissions.Permission;
 import org.bukkit.support.RegistryHelper;
+import org.bukkit.support.environment.AllFeatures;
 import org.bukkit.support.environment.VanillaFeature;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@VanillaFeature
+@AllFeatures
 public class MinecraftCommandPermissionsTest {
 
     private static PrintStream old;
@@ -40,7 +41,7 @@ public class MinecraftCommandPermissionsTest {
         CraftDefaultPermissions.registerCorePermissions();
         Set<String> perms = collectMinecraftCommandPerms();
 
-        Commands commands = new Commands(Commands.CommandSelection.DEDICATED, CommandBuildContext.simple(RegistryHelper.getRegistry(), FeatureFlags.VANILLA_SET), true);
+        Commands commands = new Commands(Commands.CommandSelection.DEDICATED, CommandBuildContext.simple(RegistryHelper.getRegistry(), FeatureFlags.REGISTRY.allFlags()), true);
         RootCommandNode<CommandSourceStack> root = commands.getDispatcher().getRoot();
         Set<String> missing = new LinkedHashSet<>();
         Set<String> foundPerms = new HashSet<>();

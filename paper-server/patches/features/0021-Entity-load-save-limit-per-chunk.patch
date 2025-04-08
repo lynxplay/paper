@@ -32,10 +32,10 @@ index 1c82dcd38f789707e15e8cbec72ef9cdc7efdf56..ba20e87d2105ce53cdaf4049de2388d0
              if (entity.save(compoundTag)) {
                  entitiesTag.add(compoundTag);
 diff --git a/net/minecraft/world/entity/EntityType.java b/net/minecraft/world/entity/EntityType.java
-index 4c57990c94721dd0973477669e1dadfab5f16404..8af02ed823da098a5592ef195c9fe8ed8f245b53 100644
+index b1c7839c2ead2cdd6da8951c553619b2ae917d04..ad114f7ee9e6c03a724d0d0377d85fe659330890 100644
 --- a/net/minecraft/world/entity/EntityType.java
 +++ b/net/minecraft/world/entity/EntityType.java
-@@ -1430,9 +1430,20 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
+@@ -1440,9 +1440,20 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
      }
  
      public static Stream<Entity> loadEntitiesRecursive(List<? extends Tag> entityTags, Level level, EntitySpawnReason spawnReason) {

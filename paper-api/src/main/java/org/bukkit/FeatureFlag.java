@@ -15,7 +15,10 @@ import org.jetbrains.annotations.ApiStatus;
 public interface FeatureFlag extends Keyed {
 
     // Start generate - FeatureFlag
-    // @GeneratedFrom 1.21.5
+    // @GeneratedFrom 25w15a
+    @ApiStatus.Experimental
+    FeatureFlag LOCATOR_BAR = create("locator_bar");
+
     @ApiStatus.Experimental
     FeatureFlag MINECART_IMPROVEMENTS = create("minecart_improvements");
 
