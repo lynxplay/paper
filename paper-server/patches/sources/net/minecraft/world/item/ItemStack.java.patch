@@ -272,7 +272,7 @@
              this.shrink(1);
              onBreak.accept(item);
          }
-@@ -510,15 +_,39 @@
+@@ -510,7 +_,26 @@
                  return;
              }
  
@@ -300,6 +300,8 @@
              this.applyDamage(min, serverPlayer, item -> {});
          }
      }
+@@ -520,9 +_,14 @@
+     }
  
      public void hurtAndBreak(int amount, LivingEntity entity, EquipmentSlot slot) {
 +        // Paper start - add param to skip infinite mats check
@@ -314,7 +316,7 @@
              );
          }
      }
-@@ -732,6 +_,12 @@
+@@ -736,6 +_,12 @@
          return this.getItem().useOnRelease(this);
      }
  
@@ -327,7 +329,7 @@
      @Nullable
      public <T> T set(DataComponentType<T> component, @Nullable T value) {
          return this.components.set(component, value);
-@@ -779,6 +_,28 @@
+@@ -783,6 +_,28 @@
          this.getItem().verifyComponentsAfterLoad(this);
      }
  
@@ -356,7 +358,7 @@
      public Component getHoverName() {
          Component customName = this.getCustomName();
          return customName != null ? customName : this.getItemName();
-@@ -1010,6 +_,19 @@
+@@ -1014,6 +_,19 @@
          EnchantmentHelper.forEachModifier(this, equipmentSLot, action);
      }
  
@@ -376,7 +378,7 @@
      public Component getDisplayName() {
          MutableComponent mutableComponent = Component.empty().append(this.getHoverName());
          if (this.has(DataComponents.CUSTOM_NAME)) {
-@@ -1065,7 +_,7 @@
+@@ -1069,7 +_,7 @@
      }
  
      public void consume(int amount, @Nullable LivingEntity entity) {

@@ -13,7 +13,7 @@
      @Override
      protected boolean shouldDespawnInPeaceful() {
          return true;
-@@ -312,6 +_,7 @@
+@@ -330,6 +_,7 @@
                          }
  
                          LargeFireball largeFireball = new LargeFireball(level, this.ghast, vec3.normalize(), this.ghast.getExplosionPower());

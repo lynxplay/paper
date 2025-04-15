@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/Leashable.java
 +++ b/net/minecraft/world/entity/Leashable.java
-@@ -56,6 +_,11 @@
+@@ -77,6 +_,11 @@
      }
  
      default void writeLeashData(CompoundTag tag, @Nullable Leashable.LeashData leashData) {
@@ -12,7 +12,7 @@
          tag.storeNullable("leash", Leashable.LeashData.CODEC, leashData);
      }
  
-@@ -75,7 +_,9 @@
+@@ -96,7 +_,9 @@
              }
  
              if (entity.tickCount > 100) {
@@ -22,7 +22,7 @@
                  entity.setLeashData(null);
              }
          }
-@@ -99,7 +_,9 @@
+@@ -120,7 +_,9 @@
              entity.onLeashRemoved();
              if (entity.level() instanceof ServerLevel serverLevel) {
                  if (dropItem) {
@@ -32,7 +32,7 @@
                  }
  
                  if (broadcastPacket) {
-@@ -117,7 +_,15 @@
+@@ -140,7 +_,15 @@
  
          if (leashData != null && leashData.leashHolder != null) {
              if (!entity.isAlive() || !leashData.leashHolder.isAlive()) {
@@ -49,16 +49,16 @@
                      entity.dropLeash();
                  } else {
                      entity.removeLeash();
-@@ -131,7 +_,7 @@
-                     return;
-                 }
- 
--                if (f > 10.0) {
-+                if (f > entity.level().paperConfig().misc.maxLeashDistance.or(LEASH_TOO_FAR_DIST)) { // Paper - Configurable max leash distance
+@@ -151,7 +_,7 @@
+             if (leashHolder != null && leashHolder.level() == entity.level()) {
+                 double d = entity.leashDistanceTo(leashHolder);
+                 entity.whenLeashedTo(leashHolder);
+-                if (d > entity.leashSnapDistance()) {
++                if (d > entity.level().paperConfig().misc.maxLeashDistance.or(LEASH_TOO_FAR_DIST)) { // Paper - Configurable max leash distance
                      entity.leashTooFarBehaviour();
-                 } else if (f > 6.0) {
-                     entity.elasticRangeLeashBehaviour(leashHolder, f);
-@@ -148,7 +_,21 @@
+                 } else if (d > entity.leashElasticDistance() - leashHolder.getBbWidth() - entity.getBbWidth()
+                     && entity.checkElasticInteractions(leashHolder, leashData)) {
+@@ -192,7 +_,21 @@
      }
  
      default void leashTooFarBehaviour() {

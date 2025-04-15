@@ -15,7 +15,7 @@ import org.bukkit.block.data.type.Fence;
 import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 public class CraftIronBars extends CraftBlockData implements Fence {
     private static final BooleanProperty WATERLOGGED = IronBarsBlock.WATERLOGGED;
 

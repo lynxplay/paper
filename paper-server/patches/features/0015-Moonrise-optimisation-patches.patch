@@ -28597,7 +28597,7 @@ index 8cc5c0716392ba06501542ff5cbe71ee43979e5d..09fd99c9cbd23b5f3c899bfb00c9b896
 +    // Paper end - block counting
  }
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 039bfc36cf8d03bc3c7ddc6b011f3f4333241adc..cec82d30efea387b75617d33908cc48accd7d842 100644
+index 762f61c47ed6d747cc0913f281aa97e24047e566..7427339ec1512287f69f73a4992bdb656140ae70 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -141,7 +141,7 @@ import net.minecraft.world.scores.Team;
@@ -29072,7 +29072,7 @@ index 039bfc36cf8d03bc3c7ddc6b011f3f4333241adc..cec82d30efea387b75617d33908cc48a
      }
  
      public InteractionResult interact(Player player, InteractionHand hand) {
-@@ -4101,15 +4338,17 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -4193,15 +4430,17 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      }
  
      public Iterable<Entity> getIndirectPassengers() {
@@ -29098,7 +29098,7 @@ index 039bfc36cf8d03bc3c7ddc6b011f3f4333241adc..cec82d30efea387b75617d33908cc48a
      }
  
      public int countPlayerPassengers() {
-@@ -4252,77 +4491,136 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -4344,77 +4583,136 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
          return Mth.lerp(partialTick, this.yRotO, this.yRot);
      }
  
@@ -29289,7 +29289,7 @@ index 039bfc36cf8d03bc3c7ddc6b011f3f4333241adc..cec82d30efea387b75617d33908cc48a
  
      public boolean touchingUnloadedChunk() {
          AABB aabb = this.getBoundingBox().inflate(1.0);
-@@ -4477,6 +4775,15 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -4569,6 +4867,15 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      }
  
      public final void setPosRaw(double x, double y, double z, boolean forceBoundingBoxUpdate) {
@@ -29305,7 +29305,7 @@ index 039bfc36cf8d03bc3c7ddc6b011f3f4333241adc..cec82d30efea387b75617d33908cc48a
          if (!checkPosition(this, x, y, z)) {
              return;
          }
-@@ -4619,6 +4926,12 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -4725,6 +5032,12 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
  
      @Override
      public final void setRemoved(Entity.RemovalReason removalReason, @Nullable org.bukkit.event.entity.EntityRemoveEvent.Cause cause) { // CraftBukkit - add Bukkit remove cause
@@ -29318,7 +29318,7 @@ index 039bfc36cf8d03bc3c7ddc6b011f3f4333241adc..cec82d30efea387b75617d33908cc48a
          org.bukkit.craftbukkit.event.CraftEventFactory.callEntityRemoveEvent(this, cause); // CraftBukkit
          final boolean alreadyRemoved = this.removalReason != null; // Paper - Folia schedulers
          if (this.removalReason == null) {
-@@ -4629,7 +4942,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -4735,7 +5048,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
              this.stopRiding();
          }
  
@@ -29327,7 +29327,7 @@ index 039bfc36cf8d03bc3c7ddc6b011f3f4333241adc..cec82d30efea387b75617d33908cc48a
          this.levelCallback.onRemove(removalReason);
          this.onRemoval(removalReason);
          // Paper start - Folia schedulers
-@@ -4663,7 +4976,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -4769,7 +5082,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      public boolean shouldBeSaved() {
          return (this.removalReason == null || this.removalReason.shouldSave())
              && !this.isPassenger()
@@ -32727,10 +32727,10 @@ index b4b973e453a093dcc04a6b7257883aa0065e2a89..a80b2e9dceea423180a9c390d1970317
  
      boolean maybeHas(Predicate<T> filter);
 diff --git a/net/minecraft/world/level/chunk/PalettedContainer.java b/net/minecraft/world/level/chunk/PalettedContainer.java
-index 1491401ec94038450ea5eeb589fc33a336a3ae55..7da7ce0fd19896593e63edc88b492c02f926bba0 100644
+index 9b0f17841230640f532ac33bb86e6585e88b5a57..a251ba67644cd02a0b00d7c8b0e2c64aa5e26291 100644
 --- a/net/minecraft/world/level/chunk/PalettedContainer.java
 +++ b/net/minecraft/world/level/chunk/PalettedContainer.java
-@@ -29,7 +29,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -28,7 +28,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
      private final PaletteResize<T> dummyPaletteResize = (bits, objectAdded) -> 0;
      public final IdMap<T> registry;
      private final T @org.jetbrains.annotations.Nullable [] presetValues; // Paper - Anti-Xray - Add preset values
@@ -32739,7 +32739,7 @@ index 1491401ec94038450ea5eeb589fc33a336a3ae55..7da7ce0fd19896593e63edc88b492c02
      private final PalettedContainer.Strategy strategy;
      //private final ThreadingDetector threadingDetector = new ThreadingDetector("PalettedContainer"); // Paper - unused
  
-@@ -75,6 +75,33 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -74,6 +74,33 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
              );
      }
  
@@ -32773,7 +32773,7 @@ index 1491401ec94038450ea5eeb589fc33a336a3ae55..7da7ce0fd19896593e63edc88b492c02
      // Paper start - Anti-Xray - Add preset values
      @Deprecated @io.papermc.paper.annotation.DoNotUse
      public PalettedContainer(IdMap<T> registry, PalettedContainer.Strategy strategy, PalettedContainer.Configuration<T> configuration, BitStorage storage, List<T> values) {
-@@ -109,6 +136,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -108,6 +135,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
              }
          }
          // Paper end
@@ -32781,7 +32781,7 @@ index 1491401ec94038450ea5eeb589fc33a336a3ae55..7da7ce0fd19896593e63edc88b492c02
      }
  
      // Paper start - Anti-Xray - Add preset values
-@@ -118,6 +146,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -117,6 +145,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
          this.registry = registry;
          this.strategy = strategy;
          this.data = data;
@@ -32789,7 +32789,7 @@ index 1491401ec94038450ea5eeb589fc33a336a3ae55..7da7ce0fd19896593e63edc88b492c02
      }
  
      private PalettedContainer(PalettedContainer<T> other, T @org.jetbrains.annotations.Nullable [] presetValues) { // Paper - Anti-Xray - Add preset values
-@@ -139,6 +168,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -138,6 +167,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
          this.registry = registry;
          this.data = this.createOrReuseData(null, 0);
          this.data.palette.idFor(palette);
@@ -32797,7 +32797,7 @@ index 1491401ec94038450ea5eeb589fc33a336a3ae55..7da7ce0fd19896593e63edc88b492c02
      }
  
      private PalettedContainer.Data<T> createOrReuseData(@Nullable PalettedContainer.Data<T> data, int id) {
-@@ -163,6 +193,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -162,6 +192,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
          this.data = data1;
          // Paper start - Anti-Xray
          this.addPresetValues();
@@ -32805,7 +32805,7 @@ index 1491401ec94038450ea5eeb589fc33a336a3ae55..7da7ce0fd19896593e63edc88b492c02
          return objectAdded == null ? -1 : data1.palette.idFor(objectAdded);
      }
      private void addPresetValues() {
-@@ -192,9 +223,12 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -191,9 +222,12 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
      }
  
      private T getAndSet(int index, T state) {
@@ -32821,7 +32821,7 @@ index 1491401ec94038450ea5eeb589fc33a336a3ae55..7da7ce0fd19896593e63edc88b492c02
      }
  
      public synchronized void set(int x, int y, int z, T state) { // Paper - synchronize
-@@ -217,9 +251,11 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -216,9 +250,11 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
          return this.get(this.strategy.getIndex(x, y, z));
      }
  
@@ -32836,7 +32836,7 @@ index 1491401ec94038450ea5eeb589fc33a336a3ae55..7da7ce0fd19896593e63edc88b492c02
      }
  
      @Override
-@@ -240,6 +276,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -239,6 +275,7 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
              buffer.readFixedSizeLongArray(data.storage.getRaw());
              this.data = data;
              this.addPresetValues(); // Paper - Anti-Xray - Add preset values (inefficient, but this isn't used by the server)
@@ -32844,7 +32844,7 @@ index 1491401ec94038450ea5eeb589fc33a336a3ae55..7da7ce0fd19896593e63edc88b492c02
          } finally {
              this.release();
          }
-@@ -390,7 +427,44 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
+@@ -389,7 +426,44 @@ public class PalettedContainer<T> implements PaletteResize<T>, PalettedContainer
          void accept(T state, int count);
      }
  

@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.state.properties.SlabType;
 import org.bukkit.block.data.type.Slab;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 public class CraftWeatheringCopperSlab extends CraftBlockData implements Slab {
     private static final EnumProperty<SlabType> TYPE = WeatheringCopperSlabBlock.TYPE;
 
