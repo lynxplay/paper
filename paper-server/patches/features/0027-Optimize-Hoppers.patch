@@ -48,7 +48,7 @@ index 0000000000000000000000000000000000000000..24a2090e068ad3c0d08705050944abdf
 +    }
 +}
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 79bc1b7d9f640d2322814177eb3e921da8671e87..f1373fd5fdebb9f4600ba7f32a5df6188de3a0e9 100644
+index 1a476d09de93b131d38a16c1a170c19905926e2c..09398599ea0a4a13515bc1e23450889460d921aa 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -1706,6 +1706,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -60,10 +60,10 @@ index 79bc1b7d9f640d2322814177eb3e921da8671e87..f1373fd5fdebb9f4600ba7f32a5df618
              /* Drop global time updates
              if (this.tickCount % 20 == 0) {
 diff --git a/net/minecraft/world/item/ItemStack.java b/net/minecraft/world/item/ItemStack.java
-index 72cd623a1a3ce4b7a570a853456b067cd93736b1..ad7852a19ff73368ec9e7e63dcb7a064f78eefa0 100644
+index faee242492f6f8275f5faba8150d541eb9dd92eb..de31f99f195c3f0790b79162ec7257aa42278d92 100644
 --- a/net/minecraft/world/item/ItemStack.java
 +++ b/net/minecraft/world/item/ItemStack.java
-@@ -831,10 +831,16 @@ public final class ItemStack implements DataComponentHolder {
+@@ -835,10 +835,16 @@ public final class ItemStack implements DataComponentHolder {
      }
  
      public ItemStack copy() {

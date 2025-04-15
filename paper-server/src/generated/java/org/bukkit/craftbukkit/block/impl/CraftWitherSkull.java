@@ -12,7 +12,7 @@ import org.bukkit.block.data.type.Skull;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.util.Vector;
 
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 public class CraftWitherSkull extends CraftBlockData implements Skull {
     private static final BooleanProperty POWERED = WitherSkullBlock.POWERED;
 

@@ -1489,7 +1489,7 @@
              this.hurtServer(serverLevel, this.damageSources().drown(), 1.0F);
          }
 @@ -2872,6 +_,7 @@
-         this.checkSlowFallDistance();
+         this.checkFallDistanceAccumulation();
          if (!this.level().isClientSide) {
              if (!this.canGlide()) {
 +                if (this.getSharedFlag(7) != false && !CraftEventFactory.callToggleGlideEvent(this, false).isCancelled()) // CraftBukkit
