@@ -13,7 +13,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Chest;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 public class CraftChest extends CraftBlockData implements Chest {
     private static final EnumProperty<Direction> FACING = ChestBlock.FACING;
 

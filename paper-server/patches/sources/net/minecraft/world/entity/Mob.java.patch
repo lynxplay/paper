@@ -417,7 +417,7 @@
          }
  
          return flag;
-@@ -1276,7 +_,7 @@
+@@ -1271,7 +_,7 @@
              float knockback = this.getKnockback(source, damageSource);
              if (knockback > 0.0F && source instanceof LivingEntity livingEntity) {
                  livingEntity.knockback(

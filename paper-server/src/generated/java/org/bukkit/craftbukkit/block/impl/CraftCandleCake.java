@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import org.bukkit.block.data.Lightable;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 public class CraftCandleCake extends CraftBlockData implements Lightable {
     private static final BooleanProperty LIT = CandleCakeBlock.LIT;
 

@@ -24,7 +24,7 @@ import org.jspecify.annotations.NullMarked;
         "SpellCheckingInspection"
 })
 @NullMarked
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 @ApiStatus.Experimental
 public final class FluidTagKeys {
     /**

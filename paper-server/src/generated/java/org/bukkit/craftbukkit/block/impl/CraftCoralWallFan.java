@@ -12,7 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.CoralWallFan;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 public class CraftCoralWallFan extends CraftBlockData implements CoralWallFan {
     private static final EnumProperty<Direction> FACING = CoralWallFanBlock.FACING;
 

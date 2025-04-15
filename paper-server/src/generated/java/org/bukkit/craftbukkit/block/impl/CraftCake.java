@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.bukkit.block.data.type.Cake;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 public class CraftCake extends CraftBlockData implements Cake {
     private static final IntegerProperty BITES = CakeBlock.BITES;
 

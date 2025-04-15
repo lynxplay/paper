@@ -12,7 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Furnace;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 public class CraftSmoker extends CraftBlockData implements Furnace {
     private static final EnumProperty<Direction> FACING = SmokerBlock.FACING;
 

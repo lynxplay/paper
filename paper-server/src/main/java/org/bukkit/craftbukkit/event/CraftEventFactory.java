@@ -27,6 +27,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.AbstractFish;
 import net.minecraft.world.entity.animal.AbstractGolem;
@@ -1490,16 +1491,29 @@ public class CraftEventFactory {
         Bukkit.getPluginManager().callEvent(new PlayerRecipeBookSettingsChangeEvent(player.getBukkitEntity(), bukkitType, open, filter));
     }
 
-    public static PlayerUnleashEntityEvent callPlayerUnleashEntityEvent(Entity entity, net.minecraft.world.entity.player.Player player, InteractionHand hand, boolean dropLeash) {
+    public record UnleashEventResult(boolean cancelled, boolean dropLeash) {
+
+    }
+    public static UnleashEventResult handlePlayerUnleashEntityEvent(Leashable leashable, net.minecraft.world.entity.player.@Nullable Player player, InteractionHand hand, boolean dropLeash) {
+        if (!(leashable instanceof final Entity entity)) return new UnleashEventResult(false, true);
         PlayerUnleashEntityEvent event = new PlayerUnleashEntityEvent(entity.getBukkitEntity(), (Player) player.getBukkitEntity(), CraftEquipmentSlot.getHand(hand), dropLeash);
-        entity.level().getCraftServer().getPluginManager().callEvent(event);
-        return event;
+        event.callEvent();
+
+        if (event.isCancelled()) {
+            ((ServerPlayer) player).connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket(entity, leashable.getLeashHolder()));
+        }
+        return new UnleashEventResult(event.isCancelled(), event.isDropLeash());
     }
 
-    public static PlayerLeashEntityEvent callPlayerLeashEntityEvent(Entity entity, Entity leashHolder, net.minecraft.world.entity.player.Player player, InteractionHand hand) {
-        PlayerLeashEntityEvent event = new PlayerLeashEntityEvent(entity.getBukkitEntity(), leashHolder.getBukkitEntity(), (Player) player.getBukkitEntity(), CraftEquipmentSlot.getHand(hand));
-        entity.level().getCraftServer().getPluginManager().callEvent(event);
-        return event;
+    public static boolean handlePlayerLeashEntityEvent(Leashable leashable, Entity leashHolder, net.minecraft.world.entity.player.Player player, InteractionHand hand, boolean resendSlots) {
+        if (!(leashable instanceof final Entity entity) || player == null) return true;
+        if (!new PlayerLeashEntityEvent(entity.getBukkitEntity(), leashHolder.getBukkitEntity(), (Player) player.getBukkitEntity(), CraftEquipmentSlot.getHand(hand)).callEvent()) {
+            ((ServerPlayer) player).connection.send(new net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket(entity, leashable.getLeashHolder()));
+            if (resendSlots) player.containerMenu.sendAllDataToRemote();
+            return false;
+        }
+
+        return true;
     }
 
     public static void callPlayerRiptideEvent(net.minecraft.world.entity.player.Player player, ItemStack tridentItemStack, float velocityX, float velocityY, float velocityZ) {

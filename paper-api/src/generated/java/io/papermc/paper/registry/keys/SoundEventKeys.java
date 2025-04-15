@@ -23,7 +23,7 @@ import org.jspecify.annotations.NullMarked;
         "SpellCheckingInspection"
 })
 @NullMarked
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 public final class SoundEventKeys {
     /**
      * {@code minecraft:ambient.basalt_deltas.additions}
@@ -9028,13 +9028,6 @@ public final class SoundEventKeys {
     public static final TypedKey<Sound> ENTITY_POLAR_BEAR_WARNING = create(key("entity.polar_bear.warning"));
 
     /**
-     * {@code minecraft:entity.puffer_fish.ambient}
-     *
-     * @apiNote This field is version-dependant and may be removed in future Minecraft versions
-     */
-    public static final TypedKey<Sound> ENTITY_PUFFER_FISH_AMBIENT = create(key("entity.puffer_fish.ambient"));
-
-    /**
      * {@code minecraft:entity.puffer_fish.blow_out}
      *
      * @apiNote This field is version-dependant and may be removed in future Minecraft versions
@@ -11518,6 +11511,13 @@ public final class SoundEventKeys {
      * @apiNote This field is version-dependant and may be removed in future Minecraft versions
      */
     public static final TypedKey<Sound> ITEM_OMINOUS_BOTTLE_DISPOSE = create(key("item.ominous_bottle.dispose"));
+
+    /**
+     * {@code minecraft:item.shears.snip}
+     *
+     * @apiNote This field is version-dependant and may be removed in future Minecraft versions
+     */
+    public static final TypedKey<Sound> ITEM_SHEARS_SNIP = create(key("item.shears.snip"));
 
     /**
      * {@code minecraft:item.shield.block}

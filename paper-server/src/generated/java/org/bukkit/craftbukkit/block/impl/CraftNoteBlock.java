@@ -12,7 +12,7 @@ import org.bukkit.Note;
 import org.bukkit.block.data.type.NoteBlock;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 public class CraftNoteBlock extends CraftBlockData implements NoteBlock {
     private static final EnumProperty<NoteBlockInstrument> INSTRUMENT = net.minecraft.world.level.block.NoteBlock.INSTRUMENT;
 

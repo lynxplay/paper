@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import org.bukkit.block.data.Snowable;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 public class CraftSnowyDirt extends CraftBlockData implements Snowable {
     private static final BooleanProperty SNOWY = SnowyDirtBlock.SNOWY;
 

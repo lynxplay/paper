@@ -23,7 +23,7 @@ import org.jspecify.annotations.NullMarked;
         "SpellCheckingInspection"
 })
 @NullMarked
-@GeneratedFrom("25w15a")
+@GeneratedFrom("25w16a")
 public final class VillagerProfessionKeys {
     /**
      * {@code minecraft:armorer}
