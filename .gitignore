@@ -46,6 +46,8 @@ logs/
 
 test-plugin.settings.gradle.kts
 paper-generator.settings.gradle.kts
+shelfback.settings.gradle.kts
+.kotlin
 
 # Don't track patched vanilla submodules
 paper-server/src/minecraft/

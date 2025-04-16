@@ -40,19 +40,29 @@ for (name in listOf("paper-api", "paper-server")) {
 
 optionalInclude("test-plugin")
 optionalInclude("paper-generator")
+optionalInclude(
+    "shelfback",
+    paths = listOf("shelfback:shelfback-api", "shelfback:shelfback-runner", "shelfback:shelfback-tests")
+)
 
-fun optionalInclude(name: String, op: (ProjectDescriptor.() -> Unit)? = null) {
+fun optionalInclude(name: String, op: (ProjectDescriptor.() -> Unit)? = null, paths: List<String> = listOf(name)) {
     val settingsFile = file("$name.settings.gradle.kts")
     if (settingsFile.exists()) {
         apply(from = settingsFile)
         findProject(":$name")?.let { op?.invoke(it) }
     } else {
-        settingsFile.writeText(
+        val content = StringBuilder()
+        content.append(
             """
-            // Uncomment to enable the '$name' project
-            // include(":$name")
+            // Uncomment to enable the '$name' module
+            // includeThisModule()
+            
+            fun includeThisModule() {
 
             """.trimIndent()
         )
+        content.append("  ").append(paths.joinToString("\n  ") { it -> "include(\":$it\")" })
+        content.append("\n}")
+        settingsFile.writeText(content.toString())
     }
 }
