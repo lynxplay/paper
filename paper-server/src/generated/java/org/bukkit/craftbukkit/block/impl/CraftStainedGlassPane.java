@@ -15,7 +15,7 @@ import org.bukkit.block.data.type.GlassPane;
 import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftStainedGlassPane extends CraftBlockData implements GlassPane {
     private static final BooleanProperty WATERLOGGED = StainedGlassPaneBlock.WATERLOGGED;
 

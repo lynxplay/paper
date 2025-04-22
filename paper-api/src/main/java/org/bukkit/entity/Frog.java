@@ -53,7 +53,7 @@ public interface Frog extends Animals {
     interface Variant extends OldEnum<Variant>, Keyed {
 
         // Start generate - FrogVariant
-        // @GeneratedFrom 25w15a
+        // @GeneratedFrom 25w17a
         Variant COLD = getVariant("cold");
 
         Variant TEMPERATE = getVariant("temperate");

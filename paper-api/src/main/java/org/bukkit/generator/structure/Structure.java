@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 public abstract class Structure implements Keyed {
 
     // Start generate - Structure
-    // @GeneratedFrom 25w15a
+    // @GeneratedFrom 25w17a
     public static final Structure ANCIENT_CITY = getStructure("ancient_city");
 
     public static final Structure BASTION_REMNANT = getStructure("bastion_remnant");

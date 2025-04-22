@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.bukkit.block.data.type.Farmland;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftFarm extends CraftBlockData implements Farmland {
     private static final IntegerProperty MOISTURE = FarmBlock.MOISTURE;
 

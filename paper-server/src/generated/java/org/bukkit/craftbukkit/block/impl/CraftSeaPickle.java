@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.bukkit.block.data.type.SeaPickle;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftSeaPickle extends CraftBlockData implements SeaPickle {
     private static final IntegerProperty PICKLES = SeaPickleBlock.PICKLES;
 

@@ -24,7 +24,7 @@ import org.jspecify.annotations.NullMarked;
         "SpellCheckingInspection"
 })
 @NullMarked
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 @ApiStatus.Experimental
 public final class BlockTypeTagKeys {
     /**
@@ -579,6 +579,13 @@ public final class BlockTypeTagKeys {
      * @apiNote This field is version-dependant and may be removed in future Minecraft versions
      */
     public static final TagKey<BlockType> GUARDED_BY_PIGLINS = create(key("guarded_by_piglins"));
+
+    /**
+     * {@code #minecraft:happy_ghast_avoids}
+     *
+     * @apiNote This field is version-dependant and may be removed in future Minecraft versions
+     */
+    public static final TagKey<BlockType> HAPPY_GHAST_AVOIDS = create(key("happy_ghast_avoids"));
 
     /**
      * {@code #minecraft:hoglin_repellents}
@@ -1209,6 +1216,13 @@ public final class BlockTypeTagKeys {
      * @apiNote This field is version-dependant and may be removed in future Minecraft versions
      */
     public static final TagKey<BlockType> TRIGGERS_AMBIENT_DESERT_SAND_BLOCK_SOUNDS = create(key("triggers_ambient_desert_sand_block_sounds"));
+
+    /**
+     * {@code #minecraft:triggers_ambient_dried_ghast_block_sounds}
+     *
+     * @apiNote This field is version-dependant and may be removed in future Minecraft versions
+     */
+    public static final TagKey<BlockType> TRIGGERS_AMBIENT_DRIED_GHAST_BLOCK_SOUNDS = create(key("triggers_ambient_dried_ghast_block_sounds"));
 
     /**
      * {@code #minecraft:underwater_bonemeals}

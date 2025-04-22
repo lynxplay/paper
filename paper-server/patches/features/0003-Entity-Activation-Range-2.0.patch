@@ -359,10 +359,10 @@ index a0eec03c9e710f871413f2052e9d2839d6bb0c54..f517b0d9d5ad5176f641ac61e2bef3a4
  import java.io.Writer;
  import java.nio.file.Path;
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 45e9b1e2d916c2ab949fd0be7dc89e0114bfe260..f615642354e1323151989f7b4f04be1706d8de39 100644
+index 9bafd83c00e17dc275b000e725386ba6ce3165f8..958c096bacd03ec03e16fc762b561896ae6f8d18 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -553,6 +553,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -548,6 +548,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
                  profilerFiller.pop();
              }
  
@@ -370,7 +370,7 @@ index 45e9b1e2d916c2ab949fd0be7dc89e0114bfe260..f615642354e1323151989f7b4f04be17
              this.entityTickList
                  .forEach(
                      entity -> {
-@@ -995,12 +996,15 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -990,12 +991,15 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
          entity.totalEntityAge++; // Paper - age-like counter for all entities
          profilerFiller.push(() -> BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString());
          profilerFiller.incrementCounter("tickNonPassenger");
@@ -387,7 +387,7 @@ index 45e9b1e2d916c2ab949fd0be7dc89e0114bfe260..f615642354e1323151989f7b4f04be17
          }
          // Paper start - log detailed entity tick information
          } finally {
-@@ -1011,7 +1015,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -1006,7 +1010,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
          // Paper end - log detailed entity tick information
      }
  
@@ -396,7 +396,7 @@ index 45e9b1e2d916c2ab949fd0be7dc89e0114bfe260..f615642354e1323151989f7b4f04be17
          if (passengerEntity.isRemoved() || passengerEntity.getVehicle() != ridingEntity) {
              passengerEntity.stopRiding();
          } else if (passengerEntity instanceof Player || this.entityTickList.contains(passengerEntity)) {
-@@ -1021,12 +1025,21 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -1016,12 +1020,21 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
              ProfilerFiller profilerFiller = Profiler.get();
              profilerFiller.push(() -> BuiltInRegistries.ENTITY_TYPE.getKey(passengerEntity.getType()).toString());
              profilerFiller.incrementCounter("tickPassenger");
@@ -469,7 +469,7 @@ index de10faebfe40e9875a71b1f1e5754d66b64cb540..4be7c099185257650253ba89a37e8610
      public void tick() {
          super.tick();
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 8f411632bd039b8036f6c645ece5f22321ea9956..fd29f3d1c60011af34dc278b957c050ce8bfeb4e 100644
+index f39115591f9a2c7da670830f3f3dd953b87d197e..b9a79c844d60c346ea754d85fe8ce83e894192b4 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -390,6 +390,15 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
@@ -528,10 +528,10 @@ index 8f411632bd039b8036f6c645ece5f22321ea9956..fd29f3d1c60011af34dc278b957c050c
              movement = this.maybeBackOffFromEdge(movement, type);
              Vec3 vec3 = this.collide(movement);
 diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
-index f6f1ee281a456ba661220eb7a59f0ef0cff4ce94..4ee622b82ee9ba91cf08d5d45e5e78d1252357cf 100644
+index e85fbdc58e34df4f4173fd2325c99b4620cc497e..0cb9a8f3ef4317ae7a8d4456048e3319e6b6993a 100644
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
-@@ -3200,6 +3200,14 @@ public abstract class LivingEntity extends Entity implements Attackable, Attribu
+@@ -3208,6 +3208,14 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
          return false;
      }
  
@@ -547,7 +547,7 @@ index f6f1ee281a456ba661220eb7a59f0ef0cff4ce94..4ee622b82ee9ba91cf08d5d45e5e78d1
      public void tick() {
          super.tick();
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
-index cddfd35214b89f9095c72e0c577fcfe0e448f41e..771ef1794328523f02e5eccff54541c22dfabd13 100644
+index 4e126bdbb2e713b2d1c1e1f8004074f7ab8d006d..52f512a736ecc1b44ff6e783c582d601b9577eed 100644
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
 @@ -204,6 +204,19 @@ public abstract class Mob extends LivingEntity implements EquipmentUser, Leashab
@@ -571,7 +571,7 @@ index cddfd35214b89f9095c72e0c577fcfe0e448f41e..771ef1794328523f02e5eccff54541c2
          return this.getControlledVehicle() instanceof Mob mob ? mob.getMoveControl() : this.moveControl;
      }
 diff --git a/net/minecraft/world/entity/PathfinderMob.java b/net/minecraft/world/entity/PathfinderMob.java
-index 0caf50ec50f056b83a20bbc6a2fe0144593aef39..af59a700755654eb68d6bf57d0712c4a2ac6c09b 100644
+index 0e626b49059b24914626c9aa4436321135829423..b16c63497dc1e1fdacbba1e68b5604bed27e9c2b 100644
 --- a/net/minecraft/world/entity/PathfinderMob.java
 +++ b/net/minecraft/world/entity/PathfinderMob.java
 @@ -17,6 +17,8 @@ public abstract class PathfinderMob extends Mob {

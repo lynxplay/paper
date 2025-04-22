@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/animal/HappyGhast.java
 +++ b/net/minecraft/world/entity/animal/HappyGhast.java
-@@ -284,11 +_,14 @@
+@@ -289,11 +_,14 @@
      }
  
      @Override

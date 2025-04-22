@@ -13,7 +13,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftStair extends CraftBlockData implements Stairs {
     private static final EnumProperty<Direction> FACING = StairBlock.FACING;
 

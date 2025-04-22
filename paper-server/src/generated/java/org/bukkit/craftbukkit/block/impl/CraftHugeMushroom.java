@@ -14,7 +14,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.MultipleFacing;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftHugeMushroom extends CraftBlockData implements MultipleFacing {
     private static final Map<BlockFace, BooleanProperty> PROPERTY_BY_DIRECTION = Map.of(
         BlockFace.DOWN, HugeMushroomBlock.DOWN,

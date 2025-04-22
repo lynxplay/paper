@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftLiquid extends CraftBlockData implements Levelled {
     private static final IntegerProperty LEVEL = LiquidBlock.LEVEL;
 

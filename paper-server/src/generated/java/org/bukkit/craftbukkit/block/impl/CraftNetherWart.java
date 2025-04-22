@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftNetherWart extends CraftBlockData implements Ageable {
     private static final IntegerProperty AGE = NetherWartBlock.AGE;
 

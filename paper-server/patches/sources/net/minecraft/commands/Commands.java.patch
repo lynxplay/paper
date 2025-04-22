@@ -12,7 +12,7 @@
          AdvancementCommands.register(this.dispatcher);
          AttributeCommand.register(this.dispatcher, context);
          ExecuteCommand.register(this.dispatcher, context);
-@@ -258,6 +_,40 @@
+@@ -255,6 +_,40 @@
              PublishCommand.register(this.dispatcher);
          }
  
@@ -53,7 +53,7 @@
          this.dispatcher.setConsumer(ExecutionCommandSource.resultConsumer());
      }
  
-@@ -267,15 +_,58 @@
+@@ -264,15 +_,58 @@
          return new ParseResults<>(commandContextBuilder, parseResults.getReader(), parseResults.getExceptions());
      }
  
@@ -114,7 +114,7 @@
  
          try {
              if (contextChain != null) {
-@@ -287,9 +_,10 @@
+@@ -284,9 +_,10 @@
                  );
              }
          } catch (Exception var12) {
@@ -127,7 +127,7 @@
                  StackTraceElement[] stackTrace = var12.getStackTrace();
  
                  for (int i = 0; i < Math.min(stackTrace.length, 3); i++) {
-@@ -315,18 +_,22 @@
+@@ -312,18 +_,22 @@
      }
  
      @Nullable
@@ -153,7 +153,7 @@
                  if (min > 10) {
                      mutableComponent.append(CommonComponents.ELLIPSIS);
                  }
-@@ -338,7 +_,17 @@
+@@ -335,7 +_,17 @@
                  }
  
                  mutableComponent.append(Component.translatable("command.context.here").withStyle(ChatFormatting.RED, ChatFormatting.ITALIC));
@@ -172,7 +172,7 @@
              }
  
              return null;
-@@ -366,26 +_,120 @@
+@@ -363,26 +_,120 @@
      }
  
      public void sendCommands(ServerPlayer player) {
@@ -299,7 +299,7 @@
  
                  if (argumentBuilder instanceof RequiredArgumentBuilder requiredArgumentBuilder
                      && requiredArgumentBuilder.getSuggestionsProvider() != null) {
-@@ -400,7 +_,7 @@
+@@ -397,7 +_,7 @@
                  commandNodeToSuggestionNode.put(commandNode, commandNode1);
                  rootSuggestion.addChild(commandNode1);
                  if (!commandNode.getChildren().isEmpty()) {

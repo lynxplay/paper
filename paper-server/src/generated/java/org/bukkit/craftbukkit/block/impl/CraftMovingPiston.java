@@ -12,7 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.TechnicalPiston;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftMovingPiston extends CraftBlockData implements TechnicalPiston {
     private static final EnumProperty<Direction> FACING = MovingPistonBlock.FACING;
 

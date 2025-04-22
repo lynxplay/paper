@@ -66,8 +66,8 @@
          })
      );
 @@ -225,17 +_,18 @@
-     public static final GameRules.Key<GameRules.BooleanValue> RULE_USE_LOCATOR_BAR = register(
-         "useLocatorBar",
+     public static final GameRules.Key<GameRules.BooleanValue> RULE_LOCATOR_BAR = register(
+         "locatorBar",
          GameRules.Category.PLAYER,
 -        GameRules.BooleanValue.create(true, (minecraftServer, booleanValue) -> minecraftServer.getAllLevels().forEach(serverLevel -> {
 +        GameRules.BooleanValue.create(true, (serverLevel, booleanValue) -> { // CraftBukkit - per-world
@@ -77,8 +77,8 @@
              } else {
                  waypointManager.breakAllConnections();
              }
--        }), FeatureFlagSet.of(FeatureFlags.LOCATOR_BAR))
-+        }, FeatureFlagSet.of(FeatureFlags.LOCATOR_BAR)) // CraftBukkit - per-world
+-        }))
++        }) // CraftBukkit - per-world
      );
      private final Map<GameRules.Key<?>, GameRules.Value<?>> rules;
      private final FeatureFlagSet enabledFeatures;
@@ -130,7 +130,7 @@
 @@ -348,7 +_,7 @@
          private boolean value;
  
-         static GameRules.Type<GameRules.BooleanValue> create(
+         private static GameRules.Type<GameRules.BooleanValue> create(
 -            boolean flag, BiConsumer<MinecraftServer, GameRules.BooleanValue> biConsumer, FeatureFlagSet featureFlagSet
 +            boolean flag, BiConsumer<ServerLevel, GameRules.BooleanValue> biConsumer, FeatureFlagSet featureFlagSet // CraftBukkit - per-world
          ) {

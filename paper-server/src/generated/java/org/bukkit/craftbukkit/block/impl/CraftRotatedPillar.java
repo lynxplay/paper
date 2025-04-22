@@ -11,7 +11,7 @@ import org.bukkit.Axis;
 import org.bukkit.block.data.Orientable;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftRotatedPillar extends CraftBlockData implements Orientable {
     private static final EnumProperty<Direction.Axis> AXIS = RotatedPillarBlock.AXIS;
 

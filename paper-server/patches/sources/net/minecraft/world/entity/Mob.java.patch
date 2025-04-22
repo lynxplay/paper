@@ -235,7 +235,7 @@
          ProfilerFiller profilerFiller = Profiler.get();
          profilerFiller.push("sensing");
          this.sensing.tick();
-@@ -795,14 +_,69 @@
+@@ -799,14 +_,69 @@
              public boolean stillValid(Player player) {
                  return player.getVehicle() == Mob.this || player.canInteractWithEntity(Mob.this, 4.0);
              }
@@ -305,7 +305,7 @@
              ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
              float f = this.dropChances.byEquipment(equipmentSlot);
              if (f != 0.0F) {
-@@ -822,7 +_,13 @@
+@@ -826,7 +_,13 @@
                      }
  
                      this.spawnAtLocation(level, itemBySlot);
@@ -319,7 +319,7 @@
                  }
              }
          }
-@@ -846,7 +_,9 @@
+@@ -850,7 +_,9 @@
                      set.add(equipmentSlot);
                  } else if (this.dropChances.isPreserved(equipmentSlot)) {
                      this.setItemSlot(equipmentSlot, ItemStack.EMPTY);
@@ -329,7 +329,7 @@
                  }
              }
          }
-@@ -1128,6 +_,21 @@
+@@ -1132,6 +_,21 @@
      public <T extends Mob> T convertTo(
          EntityType<T> entityType, ConversionParams conversionParams, EntitySpawnReason spawnReason, ConversionParams.AfterConversion<T> afterConversion
      ) {
@@ -351,7 +351,7 @@
          if (this.isRemoved()) {
              return null;
          } else {
-@@ -1136,13 +_,23 @@
+@@ -1140,13 +_,23 @@
                  return null;
              } else {
                  conversionParams.type().convert(this, mob, conversionParams);
@@ -378,7 +378,7 @@
                  }
  
                  return mob;
-@@ -1152,7 +_,18 @@
+@@ -1156,7 +_,18 @@
  
      @Nullable
      public <T extends Mob> T convertTo(EntityType<T> entityType, ConversionParams coversionParams, ConversionParams.AfterConversion<T> afterConversion) {
@@ -398,7 +398,7 @@
      }
  
      @Nullable
-@@ -1188,7 +_,17 @@
+@@ -1192,7 +_,17 @@
      public boolean startRiding(Entity entity, boolean force) {
          boolean flag = super.startRiding(entity, force);
          if (flag && this.isLeashed()) {
@@ -417,7 +417,7 @@
          }
  
          return flag;
-@@ -1271,7 +_,7 @@
+@@ -1275,7 +_,7 @@
              float knockback = this.getKnockback(source, damageSource);
              if (knockback > 0.0F && source instanceof LivingEntity livingEntity) {
                  livingEntity.knockback(

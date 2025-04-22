@@ -56,6 +56,12 @@ subprojects {
                 credentials(PasswordCredentials::class)
             }
         }
+        repositories {
+            maven("https://maven.pkg.github.com/lynxplay/paper") {
+                name = "githubLynxplayPackages"
+                credentials(PasswordCredentials::class)
+            }
+        }
     }
 }
 
