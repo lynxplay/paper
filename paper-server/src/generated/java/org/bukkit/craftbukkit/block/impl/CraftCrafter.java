@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.bukkit.block.data.type.Crafter;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftCrafter extends CraftBlockData implements Crafter {
     private static final BooleanProperty CRAFTING = CrafterBlock.CRAFTING;
 

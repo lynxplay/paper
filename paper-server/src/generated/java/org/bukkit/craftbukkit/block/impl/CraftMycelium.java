@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import org.bukkit.block.data.Snowable;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftMycelium extends CraftBlockData implements Snowable {
     private static final BooleanProperty SNOWY = MyceliumBlock.SNOWY;
 

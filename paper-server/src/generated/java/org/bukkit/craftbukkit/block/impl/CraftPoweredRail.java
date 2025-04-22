@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.properties.RailShape;
 import org.bukkit.block.data.type.RedstoneRail;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftPoweredRail extends CraftBlockData implements RedstoneRail {
     private static final BooleanProperty POWERED = PoweredRailBlock.POWERED;
 

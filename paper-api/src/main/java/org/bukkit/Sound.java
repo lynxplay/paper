@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 public interface Sound extends OldEnum<Sound>, Keyed, net.kyori.adventure.sound.Sound.Type { // Paper - implement Sound.Type
 
     // Start generate - Sound
-    // @GeneratedFrom 25w15a
+    // @GeneratedFrom 25w17a
     Sound AMBIENT_BASALT_DELTAS_ADDITIONS = getSound("ambient.basalt_deltas.additions");
 
     Sound AMBIENT_BASALT_DELTAS_LOOP = getSound("ambient.basalt_deltas.loop");
@@ -2597,8 +2597,6 @@ public interface Sound extends OldEnum<Sound>, Keyed, net.kyori.adventure.sound.
 
     Sound ENTITY_POLAR_BEAR_WARNING = getSound("entity.polar_bear.warning");
 
-    Sound ENTITY_PUFFER_FISH_AMBIENT = getSound("entity.puffer_fish.ambient");
-
     Sound ENTITY_PUFFER_FISH_BLOW_OUT = getSound("entity.puffer_fish.blow_out");
 
     Sound ENTITY_PUFFER_FISH_BLOW_UP = getSound("entity.puffer_fish.blow_up");
@@ -3308,6 +3306,8 @@ public interface Sound extends OldEnum<Sound>, Keyed, net.kyori.adventure.sound.
     Sound ITEM_NETHER_WART_PLANT = getSound("item.nether_wart.plant");
 
     Sound ITEM_OMINOUS_BOTTLE_DISPOSE = getSound("item.ominous_bottle.dispose");
+
+    Sound ITEM_SHEARS_SNIP = getSound("item.shears.snip");
 
     Sound ITEM_SHIELD_BLOCK = getSound("item.shield.block");
 

@@ -2326,10 +2326,10 @@ index 0000000000000000000000000000000000000000..298076a0db4e6ee6e4775ac43bf749d9
 +    }
 +}
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 7d9178fcd12587e9f4d56a778802ecc89b62fd94..4ab197757c13f9ee4d4e93c836cb7b38b427806c 100644
+index f204e3e5ec94397bde8b478d4b36ddf4c43f0054..e2da347436e9046142567b88ed5ad3436190fc4e 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -214,6 +214,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -213,6 +213,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
      public final java.util.UUID uuid;
      public boolean hasPhysicsEvent = true; // Paper - BlockPhysicsEvent
      public boolean hasEntityMoveEvent; // Paper - Add EntityMoveEvent
@@ -2337,7 +2337,7 @@ index 7d9178fcd12587e9f4d56a778802ecc89b62fd94..4ab197757c13f9ee4d4e93c836cb7b38
  
      @Override
      public @Nullable LevelChunk getChunkIfLoaded(int x, int z) {
-@@ -2579,6 +2580,13 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -2574,6 +2575,13 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
          return this.chunkSource.getGenerator().getSeaLevel();
      }
  

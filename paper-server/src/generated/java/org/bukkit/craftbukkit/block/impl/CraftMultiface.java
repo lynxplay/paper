@@ -15,7 +15,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.ResinClump;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftMultiface extends CraftBlockData implements ResinClump {
     private static final BooleanProperty WATERLOGGED = MultifaceBlock.WATERLOGGED;
 

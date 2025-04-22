@@ -14,7 +14,7 @@ import org.bukkit.block.data.type.Wall;
 import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftWall extends CraftBlockData implements Wall {
     private static final BooleanProperty UP = WallBlock.UP;
 

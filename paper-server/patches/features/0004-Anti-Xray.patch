@@ -143,10 +143,10 @@ index 3a384175f8e7f204234bbaf3081bdc20c47a0d4b..5699bc15eba92e22433a20cb8326b59f
  
      private ClientboundLevelChunkWithLightPacket(RegistryFriendlyByteBuf buffer) {
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index f615642354e1323151989f7b4f04be1706d8de39..2e99e6aa40b2d7bd2ea17285e7063845b8fae823 100644
+index 958c096bacd03ec03e16fc762b561896ae6f8d18..b449fbf5041bc74b801790558db60f34e34743ae 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -347,7 +347,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+@@ -346,7 +346,7 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
          org.bukkit.generator.BiomeProvider biomeProvider // CraftBukkit
      ) {
          // CraftBukkit start

@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import org.bukkit.block.data.type.SculkShrieker;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftSculkShrieker extends CraftBlockData implements SculkShrieker {
     private static final BooleanProperty CAN_SUMMON = SculkShriekerBlock.CAN_SUMMON;
 

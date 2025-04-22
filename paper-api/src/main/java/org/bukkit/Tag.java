@@ -20,7 +20,7 @@ import org.jetbrains.annotations.NotNull;
 public interface Tag<T extends Keyed> extends Keyed {
 
     // Start generate - Tag
-    // @GeneratedFrom 25w15a
+    // @GeneratedFrom 25w17a
     String REGISTRY_BLOCKS = "blocks";
 
     Tag<Material> ACACIA_LOGS = Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("acacia_logs"), Material.class);
@@ -180,6 +180,8 @@ public interface Tag<T extends Keyed> extends Keyed {
     Tag<Material> GOLD_ORES = Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("gold_ores"), Material.class);
 
     Tag<Material> GUARDED_BY_PIGLINS = Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("guarded_by_piglins"), Material.class);
+
+    Tag<Material> HAPPY_GHAST_AVOIDS = Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("happy_ghast_avoids"), Material.class);
 
     Tag<Material> HOGLIN_REPELLENTS = Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("hoglin_repellents"), Material.class);
 
@@ -360,6 +362,8 @@ public interface Tag<T extends Keyed> extends Keyed {
     Tag<Material> TRIGGERS_AMBIENT_DESERT_DRY_VEGETATION_BLOCK_SOUNDS = Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("triggers_ambient_desert_dry_vegetation_block_sounds"), Material.class);
 
     Tag<Material> TRIGGERS_AMBIENT_DESERT_SAND_BLOCK_SOUNDS = Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("triggers_ambient_desert_sand_block_sounds"), Material.class);
+
+    Tag<Material> TRIGGERS_AMBIENT_DRIED_GHAST_BLOCK_SOUNDS = Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("triggers_ambient_dried_ghast_block_sounds"), Material.class);
 
     Tag<Material> UNDERWATER_BONEMEALS = Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("underwater_bonemeals"), Material.class);
 

@@ -13,7 +13,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Switch;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftLever extends CraftBlockData implements Switch {
     private static final EnumProperty<AttachFace> FACE = LeverBlock.FACE;
 

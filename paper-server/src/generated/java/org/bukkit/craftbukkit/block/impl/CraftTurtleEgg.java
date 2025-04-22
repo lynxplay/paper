@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.bukkit.block.data.type.TurtleEgg;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftTurtleEgg extends CraftBlockData implements TurtleEgg {
     private static final IntegerProperty EGGS = TurtleEggBlock.EGGS;
 

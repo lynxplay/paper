@@ -12,7 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.WallHangingSign;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftWallHangingSign extends CraftBlockData implements WallHangingSign {
     private static final EnumProperty<Direction> FACING = WallHangingSignBlock.FACING;
 

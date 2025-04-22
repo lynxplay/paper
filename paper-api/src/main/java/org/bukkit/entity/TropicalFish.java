@@ -61,7 +61,7 @@ public interface TropicalFish extends io.papermc.paper.entity.SchoolableFish { /
     public static enum Pattern {
 
         // Start generate - TropicalFishPattern
-        // @GeneratedFrom 25w15a
+        // @GeneratedFrom 25w17a
         KOB,
         SUNSTREAK,
         SNOOPER,

@@ -12,7 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Gate;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftFenceGate extends CraftBlockData implements Gate {
     private static final EnumProperty<Direction> FACING = FenceGateBlock.FACING;
 

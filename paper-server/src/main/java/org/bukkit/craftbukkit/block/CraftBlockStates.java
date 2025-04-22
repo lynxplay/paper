@@ -85,7 +85,7 @@ public final class CraftBlockStates {
 
     static {
         // Start generate - CraftBlockEntityStates
-        // @GeneratedFrom 25w15a
+        // @GeneratedFrom 25w17a
         register(BlockEntityType.BANNER, CraftBanner.class, CraftBanner::new);
         register(BlockEntityType.BARREL, CraftBarrel.class, CraftBarrel::new);
         register(BlockEntityType.BEACON, CraftBeacon.class, CraftBeacon::new);

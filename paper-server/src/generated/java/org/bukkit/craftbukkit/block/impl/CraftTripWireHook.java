@@ -12,7 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.TripwireHook;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftTripWireHook extends CraftBlockData implements TripwireHook {
     private static final BooleanProperty ATTACHED = TripWireHookBlock.ATTACHED;
 

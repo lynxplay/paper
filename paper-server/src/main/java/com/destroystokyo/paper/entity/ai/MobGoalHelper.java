@@ -36,7 +36,7 @@ public class MobGoalHelper {
 
         //<editor-fold defaultstate="collapsed" desc="bukkitMap Entities">
         // Start generate - MobGoalHelper#bukkitMap
-        // @GeneratedFrom 25w15a
+        // @GeneratedFrom 25w17a
         bukkitMap.put(net.minecraft.world.entity.Mob.class, Mob.class);
         bukkitMap.put(net.minecraft.world.entity.AgeableMob.class, Ageable.class);
         bukkitMap.put(net.minecraft.world.entity.ambient.AmbientCreature.class, Ambient.class);

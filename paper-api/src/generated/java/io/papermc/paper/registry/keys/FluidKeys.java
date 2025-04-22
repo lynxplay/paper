@@ -23,7 +23,7 @@ import org.jspecify.annotations.NullMarked;
         "SpellCheckingInspection"
 })
 @NullMarked
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public final class FluidKeys {
     /**
      * {@code minecraft:empty}

@@ -12,7 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Cocoa;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftCocoa extends CraftBlockData implements Cocoa {
     private static final IntegerProperty AGE = CocoaBlock.AGE;
 

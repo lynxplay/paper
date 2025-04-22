@@ -14,7 +14,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Vault;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w16a")
+@GeneratedFrom("25w17a")
 public class CraftVault extends CraftBlockData implements Vault {
     private static final EnumProperty<Direction> FACING = VaultBlock.FACING;
 

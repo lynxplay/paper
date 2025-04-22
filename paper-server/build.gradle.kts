@@ -15,7 +15,7 @@ plugins {
 val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"
 
 dependencies {
-    mache("io.papermc:mache:25w16a+build.2")
+    mache("io.papermc:mache:25w17a+build.2")
     paperclip("io.papermc:paperclip:3.0.3")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
@@ -25,7 +25,7 @@ paperweight {
     gitFilePatches = false
 
     updatingMinecraft {
-        // oldPaperCommit = "01660a82b1652be360231333248422394ee8e8bb"
+        // oldPaperCommit = "d5ea5fd9b11a9b239df930eb068709da240ae2b6"
     }
 
     spigot {
