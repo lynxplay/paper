@@ -38,12 +38,12 @@ public interface PaperSharedSpawnerLogic extends Spawner {
     }
 
     default void setSpawnedItem(final ItemStack itemStack) {
-        Preconditions.checkArgument(itemStack != null && !itemStack.getType().isAir(), "spawners cannot spawn air");
+        Preconditions.checkArgument(itemStack != null && !itemStack.isEmpty(), "spawners cannot spawn air");
 
         final net.minecraft.world.item.ItemStack item = CraftItemStack.asNMSCopy(itemStack);
         final CompoundTag entity = new CompoundTag();
         entity.putString(Entity.ID_TAG, BuiltInRegistries.ENTITY_TYPE.getKey(EntityType.ITEM).toString());
-        entity.put("Item", item.save(this.getInternalWorld().registryAccess()));
+        entity.store("Item", net.minecraft.world.item.ItemStack.CODEC, item);
 
         this.setNextSpawnData(
             new net.minecraft.world.level.SpawnData(

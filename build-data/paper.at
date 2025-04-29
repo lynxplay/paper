@@ -8,6 +8,7 @@ private-f net.minecraft.world.item.ItemStack item
 private-f net.minecraft.world.level.block.entity.BeehiveBlockEntity stored
 protected net.minecraft.world.entity.LivingEntity skipDropExperience
 protected-f net.minecraft.server.MinecraftServer worldData
+public Lnet.minecraft.world.level.chunk.status.ChunkStatusTasks postLoadProtoChunk(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/storage/ValueInput$ValueInputList;)V
 public net.minecraft.ChatFormatting code
 public net.minecraft.Util onThreadException(Ljava/lang/Thread;Ljava/lang/Throwable;)V
 public net.minecraft.advancements.Advancement decorateName(Lnet/minecraft/advancements/DisplayInfo;)Lnet/minecraft/network/chat/Component;
@@ -616,7 +617,7 @@ public net.minecraft.world.level.block.entity.BedBlockEntity color
 public net.minecraft.world.level.block.entity.BeehiveBlockEntity savedFlowerPos
 public net.minecraft.world.level.block.entity.BellBlockEntity resonating
 public net.minecraft.world.level.block.entity.BellBlockEntity resonationTicks
-public net.minecraft.world.level.block.entity.BlockEntity saveId(Lnet/minecraft/nbt/CompoundTag;)V
+public net.minecraft.world.level.block.entity.BlockEntity saveId(Lnet/minecraft/world/level/storage/ValueOutput;)V
 public net.minecraft.world.level.block.entity.BlockEntityType validBlocks
 public net.minecraft.world.level.block.entity.BrewingStandBlockEntity brewTime
 public net.minecraft.world.level.block.entity.BrewingStandBlockEntity fuel
@@ -665,13 +666,14 @@ public net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity age
 public net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity exactTeleport
 public net.minecraft.world.level.block.entity.TheEndGatewayBlockEntity exitPortal
 public net.minecraft.world.level.block.entity.TrialSpawnerBlockEntity trialSpawner
+public net.minecraft.world.level.block.entity.trialspawner.TrialSpawner config
 public net.minecraft.world.level.block.entity.trialspawner.TrialSpawner isOminous
 public net.minecraft.world.level.block.entity.trialspawner.TrialSpawner stateAccessor
-public net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerData cooldownEndsAt
-public net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerData currentMobs
-public net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerData detectedPlayers
-public net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerData nextMobSpawnsAt
-public net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerData nextSpawnData
+public net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerStateData cooldownEndsAt
+public net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerStateData currentMobs
+public net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerStateData detectedPlayers
+public net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerStateData nextMobSpawnsAt
+public net.minecraft.world.level.block.entity.trialspawner.TrialSpawnerStateData nextSpawnData
 public net.minecraft.world.level.block.entity.vault.VaultBlockEntity serverData
 public net.minecraft.world.level.block.entity.vault.VaultServerData getRewardedPlayers()Ljava/util/Set;
 public net.minecraft.world.level.block.entity.vault.VaultServerData pauseStateUpdatingUntil(J)V
@@ -690,7 +692,7 @@ public net.minecraft.world.level.chunk.LevelChunk level
 public net.minecraft.world.level.chunk.LevelChunk loaded
 public net.minecraft.world.level.chunk.LevelChunkSection states
 public net.minecraft.world.level.chunk.PalettedContainer registry
-public net.minecraft.world.level.chunk.status.ChunkStatusTasks postLoadProtoChunk(Lnet/minecraft/server/level/ServerLevel;Ljava/util/List;)V
+public net.minecraft.world.level.chunk.status.ChunkStatusTasks postLoadProtoChunk(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/level/storage/ValueInput$ValueInputList;)V
 public net.minecraft.world.level.chunk.storage.EntityStorage entityDeserializerQueue
 public net.minecraft.world.level.chunk.storage.EntityStorage level
 public net.minecraft.world.level.chunk.storage.RegionFileStorage regionCache

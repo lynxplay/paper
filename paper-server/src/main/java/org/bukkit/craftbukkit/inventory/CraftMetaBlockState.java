@@ -19,6 +19,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.TagValueOutput;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
@@ -145,7 +146,7 @@ public class CraftMetaBlockState extends CraftMetaItem implements BlockStateMeta
         if (legacyPosition != null) {
             this.blockEntityTag = this.blockEntityTag.update(blockEntityTag -> {
                 if (blockEntityTag.isEmpty()) {
-                    BlockEntity.addEntityType(blockEntityTag, java.util.Objects.requireNonNull(CraftBlockStates.getBlockEntityType(this.materialForBlockEntityType())));
+                    BlockEntity.addEntityType(TagValueOutput.createDiscarding(blockEntityTag), java.util.Objects.requireNonNull(CraftBlockStates.getBlockEntityType(this.materialForBlockEntityType())));
                 }
                 blockEntityTag.putInt("x", legacyPosition.getBlockX());
                 blockEntityTag.putInt("y", legacyPosition.getBlockY());
@@ -164,7 +165,7 @@ public class CraftMetaBlockState extends CraftMetaItem implements BlockStateMeta
         final CompoundTag nbt = this.blockEntityTag.copyTag();
         if (!nbt.isEmpty()) {
             if (nbt.getString("id").isEmpty()) {
-                BlockEntity.addEntityType(nbt, java.util.Objects.requireNonNull(CraftBlockStates.getBlockEntityType(this.materialForBlockEntityType())));
+                BlockEntity.addEntityType(TagValueOutput.createDiscarding(nbt), java.util.Objects.requireNonNull(CraftBlockStates.getBlockEntityType(this.materialForBlockEntityType())));
             }
             tag.put(CraftMetaBlockState.BLOCK_ENTITY_TAG, CustomData.of(nbt));
         }

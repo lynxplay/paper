@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/AgeableMob.java
 +++ b/net/minecraft/world/entity/AgeableMob.java
-@@ -22,6 +_,7 @@
+@@ -23,6 +_,7 @@
      protected int age = 0;
      protected int forcedAge = 0;
      protected int forcedAgeTimer;
@@ -8,7 +8,7 @@
  
      protected AgeableMob(EntityType<? extends AgeableMob> entityType, Level level) {
          super(entityType, level);
-@@ -68,13 +_,15 @@
+@@ -69,13 +_,15 @@
      }
  
      public void ageUp(int amount, boolean forced) {
@@ -25,23 +25,23 @@
          this.setAge(age);
          if (forced) {
              this.forcedAge += i1;
-@@ -106,6 +_,7 @@
-         super.addAdditionalSaveData(compound);
-         compound.putInt("Age", this.getAge());
-         compound.putInt("ForcedAge", this.forcedAge);
-+        compound.putBoolean("AgeLocked", this.ageLocked); // CraftBukkit
+@@ -107,6 +_,7 @@
+         super.addAdditionalSaveData(valueOutput);
+         valueOutput.putInt("Age", this.getAge());
+         valueOutput.putInt("ForcedAge", this.forcedAge);
++        valueOutput.putBoolean("AgeLocked", this.ageLocked); // CraftBukkit
      }
  
      @Override
-@@ -113,6 +_,7 @@
-         super.readAdditionalSaveData(compound);
-         this.setAge(compound.getIntOr("Age", 0));
-         this.forcedAge = compound.getIntOr("ForcedAge", 0);
-+        this.ageLocked = compound.getBooleanOr("AgeLocked", false); // CraftBukkit
+@@ -114,6 +_,7 @@
+         super.readAdditionalSaveData(valueInput);
+         this.setAge(valueInput.getIntOr("Age", 0));
+         this.forcedAge = valueInput.getIntOr("ForcedAge", 0);
++        this.ageLocked = valueInput.getBooleanOr("AgeLocked", false); // CraftBukkit
      }
  
      @Override
-@@ -127,7 +_,7 @@
+@@ -128,7 +_,7 @@
      @Override
      public void aiStep() {
          super.aiStep();

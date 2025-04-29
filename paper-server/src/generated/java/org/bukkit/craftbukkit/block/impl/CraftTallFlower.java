@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w17a")
+@GeneratedFrom("25w18a")
 public class CraftTallFlower extends CraftBlockData implements Bisected {
     private static final EnumProperty<DoubleBlockHalf> HALF = TallFlowerBlock.HALF;
 

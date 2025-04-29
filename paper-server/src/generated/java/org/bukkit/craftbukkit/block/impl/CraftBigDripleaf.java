@@ -13,7 +13,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.BigDripleaf;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w17a")
+@GeneratedFrom("25w18a")
 public class CraftBigDripleaf extends CraftBlockData implements BigDripleaf {
     private static final EnumProperty<Direction> FACING = BigDripleafBlock.FACING;
 

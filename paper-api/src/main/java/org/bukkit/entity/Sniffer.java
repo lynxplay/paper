@@ -75,7 +75,7 @@ public interface Sniffer extends Animals {
      */
     public enum State {
         // Start generate - SnifferState
-        // @GeneratedFrom 25w17a
+        // @GeneratedFrom 25w18a
         IDLING,
         FEELING_HAPPY,
         SCENTING,

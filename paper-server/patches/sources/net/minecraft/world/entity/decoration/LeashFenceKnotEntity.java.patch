@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/decoration/LeashFenceKnotEntity.java
 +++ b/net/minecraft/world/entity/decoration/LeashFenceKnotEntity.java
-@@ -82,6 +_,7 @@
+@@ -83,6 +_,7 @@
  
              for (Leashable leashable : Leashable.leashableLeashedTo(player)) {
                  if (leashable.canHaveALeashAttachedTo(this)) {
@@ -8,7 +8,7 @@
                      leashable.setLeashedTo(this, true);
                      flag = true;
                  }
-@@ -91,6 +_,7 @@
+@@ -92,6 +_,7 @@
              if (!flag && !player.isSecondaryUseActive()) {
                  for (Leashable leashable1 : Leashable.leashableLeashedTo(this)) {
                      if (leashable1.canHaveALeashAttachedTo(player)) {

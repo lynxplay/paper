@@ -13,7 +13,7 @@ import org.bukkit.Axis;
 import org.bukkit.block.data.type.CreakingHeart;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w17a")
+@GeneratedFrom("25w18a")
 public class CraftCreakingHeart extends CraftBlockData implements CreakingHeart {
     private static final EnumProperty<Direction.Axis> AXIS = CreakingHeartBlock.AXIS;
 

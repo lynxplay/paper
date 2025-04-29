@@ -52,20 +52,20 @@
      private boolean isLit() {
          return this.litTimeRemaining > 0;
 @@ -125,6 +_,7 @@
-         this.litTotalTime = tag.getShortOr("lit_total_time", (short)0);
+         this.litTotalTime = valueInput.getShortOr("lit_total_time", (short)0);
          this.recipesUsed.clear();
-         this.recipesUsed.putAll(tag.read("RecipesUsed", RECIPES_USED_CODEC).orElse(Map.of()));
-+        this.cookSpeedMultiplier = tag.getDoubleOr("Paper.CookSpeedMultiplier", 1); // Paper - cook speed multiplier API
+         this.recipesUsed.putAll(valueInput.read("RecipesUsed", RECIPES_USED_CODEC).orElse(Map.of()));
++        this.cookSpeedMultiplier = valueInput.getDoubleOr("Paper.CookSpeedMultiplier", 1); // Paper - cook speed multiplier API
      }
  
      @Override
 @@ -134,6 +_,7 @@
-         tag.putShort("cooking_total_time", (short)this.cookingTotalTime);
-         tag.putShort("lit_time_remaining", (short)this.litTimeRemaining);
-         tag.putShort("lit_total_time", (short)this.litTotalTime);
-+        tag.putDouble("Paper.CookSpeedMultiplier", this.cookSpeedMultiplier); // Paper - cook speed multiplier API
-         ContainerHelper.saveAllItems(tag, this.items, registries);
-         tag.store("RecipesUsed", RECIPES_USED_CODEC, this.recipesUsed);
+         valueOutput.putShort("cooking_total_time", (short)this.cookingTotalTime);
+         valueOutput.putShort("lit_time_remaining", (short)this.litTimeRemaining);
+         valueOutput.putShort("lit_total_time", (short)this.litTotalTime);
++        valueOutput.putDouble("Paper.CookSpeedMultiplier", this.cookSpeedMultiplier); // Paper - cook speed multiplier API
+         ContainerHelper.saveAllItems(valueOutput, this.items);
+         valueOutput.store("RecipesUsed", RECIPES_USED_CODEC, this.recipesUsed);
      }
 @@ -160,11 +_,22 @@
  
@@ -268,7 +268,7 @@
 +        floor = event.getExpToDrop();
 +        // CraftBukkit end
 +
-+        ExperienceOrb.award(level, popVec, floor, org.bukkit.entity.ExperienceOrb.SpawnReason.FURNACE, serverPlayer); // Paper
++        ExperienceOrb.award(level, popVec, floor, org.bukkit.entity.ExperienceOrb.SpawnReason.FURNACE, serverPlayer, null); // Paper
      }
  
      @Override

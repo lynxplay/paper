@@ -23,7 +23,7 @@ import org.jspecify.annotations.NullMarked;
         "SpellCheckingInspection"
 })
 @NullMarked
-@GeneratedFrom("25w17a")
+@GeneratedFrom("25w18a")
 public final class VillagerTypeKeys {
     /**
      * {@code minecraft:desert}

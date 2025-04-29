@@ -1,0 +1,19 @@
+--- a/net/minecraft/world/level/storage/TagValueOutput.java
++++ b/net/minecraft/world/level/storage/TagValueOutput.java
+@@ -24,6 +_,16 @@
+         this.output = compoundTag;
+     }
+ 
++    // Paper start - utility methods
++    public static TagValueOutput createDiscarding() {
++        return createWithoutContext(ProblemReporter.DISCARDING);
++    }
++
++    public static TagValueOutput createDiscarding(final CompoundTag wrapping) {
++        return new TagValueOutput(ProblemReporter.DISCARDING, NbtOps.INSTANCE, wrapping);
++    }
++    // Paper end - utility methods
++
+     public static TagValueOutput createWithContext(ProblemReporter problemReporter, HolderLookup.Provider provider) {
+         return new TagValueOutput(problemReporter, provider.createSerializationContext(NbtOps.INSTANCE), new CompoundTag());
+     }

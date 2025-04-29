@@ -5,7 +5,7 @@ Subject: [PATCH] Incremental chunk and player saving
 
 
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 094ef7f54ad71795a2d8c2a8d03a32bef6ff2164..79bc1b7d9f640d2322814177eb3e921da8671e87 100644
+index ac757691caff7a3b219f1bfe677f4debc5e66989..1a476d09de93b131d38a16c1a170c19905926e2c 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
 @@ -952,7 +952,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
@@ -50,7 +50,7 @@ index 094ef7f54ad71795a2d8c2a8d03a32bef6ff2164..79bc1b7d9f640d2322814177eb3e921d
          ProfilerFiller profilerFiller = Profiler.get();
          this.runAllTasks(); // Paper - move runAllTasks() into full server tick (previously for timings)
 diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
-index 32c8d4675de341d5edad7dbd9c0bf4bce5037733..3c8a1fe9831d6cf9e622e3ac2aede4e5c657c18f 100644
+index e2da347436e9046142567b88ed5ad3436190fc4e..8027f5de0f58e36ab28e319f62c44fc9cb0aa22c 100644
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
 @@ -1339,6 +1339,28 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
@@ -83,7 +83,7 @@ index 32c8d4675de341d5edad7dbd9c0bf4bce5037733..3c8a1fe9831d6cf9e622e3ac2aede4e5
          // Paper start - add close param
          this.save(progress, flush, skipSave, false);
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index 9eff33c3f552da794370d48a6ef526eecd2b131c..222bfe0a04b5d583852ea2c167d52d0e907cf006 100644
+index da191016bb94d59f0d26e9ab5082c56104345c12..8ae11efe510f49679116b51c633b95ca71a244c3 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
 @@ -193,6 +193,7 @@ import org.slf4j.Logger;
@@ -95,10 +95,10 @@ index 9eff33c3f552da794370d48a6ef526eecd2b131c..222bfe0a04b5d583852ea2c167d52d0e
      private static final int NEUTRAL_MOB_DEATH_NOTIFICATION_RADII_Y = 10;
      private static final int FLY_STAT_RECORDING_SPEED = 25;
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index a7a07ebe6ceed99fa768b6834e350fe2f51a6950..9ca3c55a3b5b1a532b86b08eb92460df4cb54f2a 100644
+index 886955eefd616e94caae77269479e1faad15766d..2d81b555bc1eaa755aadf6b5dfd49c8fa4c8fa3d 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -486,6 +486,7 @@ public abstract class PlayerList {
+@@ -483,6 +483,7 @@ public abstract class PlayerList {
  
      protected void save(ServerPlayer player) {
          if (!player.getBukkitEntity().isPersistent()) return; // CraftBukkit
@@ -106,7 +106,7 @@ index a7a07ebe6ceed99fa768b6834e350fe2f51a6950..9ca3c55a3b5b1a532b86b08eb92460df
          this.playerIo.save(player);
          ServerStatsCounter serverStatsCounter = player.getStats(); // CraftBukkit
          if (serverStatsCounter != null) {
-@@ -1079,9 +1080,23 @@ public abstract class PlayerList {
+@@ -1076,9 +1077,23 @@ public abstract class PlayerList {
      }
  
      public void saveAll() {

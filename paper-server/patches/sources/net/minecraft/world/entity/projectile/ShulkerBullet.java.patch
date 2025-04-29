@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/projectile/ShulkerBullet.java
 +++ b/net/minecraft/world/entity/projectile/ShulkerBullet.java
-@@ -58,7 +_,21 @@
+@@ -59,7 +_,21 @@
          this.finalTarget = finalTarget;
          this.currentMoveDirection = Direction.UP;
          this.selectNextMoveDirection(axis);
@@ -23,7 +23,7 @@
  
      @Override
      public SoundSource getSoundSource() {
-@@ -180,7 +_,7 @@
+@@ -181,7 +_,7 @@
      @Override
      public void checkDespawn() {
          if (this.level().getDifficulty() == Difficulty.PEACEFUL) {
@@ -32,7 +32,7 @@
          }
      }
  
-@@ -226,7 +_,7 @@
+@@ -227,7 +_,7 @@
          }
  
          if (hitResult != null && this.isAlive() && hitResult.getType() != HitResult.Type.MISS) {
@@ -41,7 +41,7 @@
          }
  
          ProjectileUtil.rotateTowardsMovement(this, 0.5F);
-@@ -299,7 +_,7 @@
+@@ -300,7 +_,7 @@
              }
  
              if (entity instanceof LivingEntity livingEntity1) {
@@ -50,7 +50,7 @@
              }
          }
      }
-@@ -312,14 +_,20 @@
+@@ -313,14 +_,20 @@
      }
  
      private void destroy() {
@@ -73,7 +73,7 @@
      }
  
      @Override
-@@ -334,9 +_,14 @@
+@@ -335,9 +_,14 @@
  
      @Override
      public boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {

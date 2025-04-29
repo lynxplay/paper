@@ -12,7 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.WallSkull;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w17a")
+@GeneratedFrom("25w18a")
 public class CraftWallSkull extends CraftBlockData implements WallSkull {
     private static final EnumProperty<Direction> FACING = WallSkullBlock.FACING;
 

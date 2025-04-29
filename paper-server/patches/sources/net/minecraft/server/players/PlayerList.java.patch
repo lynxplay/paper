@@ -47,258 +47,251 @@
          GameProfile gameProfile = player.getGameProfile();
          GameProfileCache profileCache = this.server.getProfileCache();
          String string;
-@@ -150,30 +_,94 @@
-         }
+@@ -151,28 +_,88 @@
  
-         Optional<CompoundTag> optional = this.load(player);
--        ResourceKey<Level> resourceKey = optional.<ResourceKey<Level>>flatMap(
--                compoundTag -> DimensionType.parseLegacy(new Dynamic<>(NbtOps.INSTANCE, compoundTag.get("Dimension"))).resultOrPartial(LOGGER::error)
-+        // CraftBukkit start - Better rename detection
-+        if (optional.isPresent()) {
-+            string = optional.flatMap(t -> t.getCompound("bukkit")).flatMap(t -> t.getString("lastKnownName")).orElse(string);
-+        }
-+        // CraftBukkit end
-+        // Paper start - move logic in Entity to here, to use bukkit supplied world UUID & reset to main world spawn if no valid world is found
-+        ResourceKey<Level> resourceKey = null; // Paper
-+        boolean[] invalidPlayerWorld = {false};
-+        bukkitData: if (optional.isPresent()) {
-+            // The main way for bukkit worlds to store the world is the world UUID despite mojang adding custom worlds
-+            final org.bukkit.World bWorld;
-+            final CompoundTag playerData = optional.get();
-+            // TODO maybe convert this to a codec and use compoundTag#read, we need silent variants of that method first.
-+            final Optional<Long> worldUUIDMost = playerData.getLong("WorldUUIDMost");
-+            final Optional<Long> worldUUIDLeast = playerData.getLong("WorldUUIDLeast");
-+            final java.util.Optional<String> worldName = playerData.getString("world");
-+            if (worldUUIDMost.isPresent() && worldUUIDLeast.isPresent()) {
-+                bWorld = org.bukkit.Bukkit.getServer().getWorld(new UUID(worldUUIDMost.get(), worldUUIDLeast.get()));
-+            } else if (worldName.isPresent()) { // Paper - legacy bukkit world name
-+                bWorld = org.bukkit.Bukkit.getServer().getWorld(worldName.get());
-+            } else {
-+                break bukkitData; // if neither of the bukkit data points exist, proceed to the vanilla migration section
+         try (ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(player.problemPath(), LOGGER)) {
+             Optional<ValueInput> optional1 = this.load(player, scopedCollector);
+-            ResourceKey<Level> resourceKey = optional1.<ResourceKey<Level>>flatMap(valueInput -> valueInput.read("Dimension", Level.RESOURCE_KEY_CODEC))
+-                .orElse(Level.OVERWORLD);
++
++            // CraftBukkit start - Better rename detection
++            if (optional1.isPresent()) {
++                string = optional1.flatMap(t -> t.read("bukkit", CompoundTag.CODEC)).flatMap(t -> t.getString("lastKnownName")).orElse(string);
 +            }
-+            if (bWorld != null) {
-+                resourceKey = ((org.bukkit.craftbukkit.CraftWorld) bWorld).getHandle().dimension();
-+            } else {
-+                resourceKey = Level.OVERWORLD;
-+                invalidPlayerWorld[0] = true;
-+            }
-+        }
-+        if (resourceKey == null) { // only run the vanilla logic if we haven't found a world from the bukkit data
-+        // Below is the vanilla way of getting the dimension, this is for migration from vanilla servers
-+        resourceKey = optional.<ResourceKey<Level>>flatMap(
-+                compoundTag -> {
-+                    com.mojang.serialization.DataResult<ResourceKey<Level>> dataResult = DimensionType.parseLegacy(new Dynamic<>(NbtOps.INSTANCE, compoundTag.get("Dimension")));
-+                    final Optional<ResourceKey<Level>> result = dataResult.resultOrPartial(LOGGER::error);
-+                    invalidPlayerWorld[0] = result.isEmpty(); // reset to main world spawn if no valid world is found
-+                    return result;
-+                }
-             )
--            .orElse(Level.OVERWORLD);
-+            .orElse(Level.OVERWORLD); // revert to vanilla default main world, this isn't an "invalid world" since no player data existed
-+        }
-+        // Paper end
-         ServerLevel level = this.server.getLevel(resourceKey);
-         ServerLevel serverLevel;
-         if (level == null) {
-             LOGGER.warn("Unknown respawn dimension {}, defaulting to overworld", resourceKey);
-             serverLevel = this.server.overworld();
-+            invalidPlayerWorld[0] = true; // Paper - reset to main world if no world with parsed value is found
-         } else {
-             serverLevel = level;
-         }
- 
-+        // Paper start - Entity#getEntitySpawnReason
-+        if (optional.isEmpty()) {
-+            player.spawnReason = org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT; // set Player SpawnReason to DEFAULT on first login
-+            // Paper start - reset to main world spawn if first spawn or invalid world
-+        }
-+        if (optional.isEmpty() || invalidPlayerWorld[0]) {
-+            // Paper end - reset to main world spawn if first spawn or invalid world
-+            player.snapTo(player.adjustSpawnLocation(serverLevel, serverLevel.getSharedSpawnPos()).getBottomCenter(), serverLevel.getSharedSpawnAngle(), 0.0F); // Paper - MC-200092 - fix first spawn pos yaw being ignored
-+        }
-+        // Paper end - Entity#getEntitySpawnReason
-         player.setServerLevel(serverLevel);
-         String loggableAddress = connection.getLoggableAddress(this.server.logIPs());
--        LOGGER.info(
--            "{}[{}] logged in with entity id {} at ({}, {}, {})",
--            player.getName().getString(),
--            loggableAddress,
--            player.getId(),
--            player.getX(),
--            player.getY(),
--            player.getZ()
--        );
-+        // Spigot start - spawn location event
-+        org.bukkit.entity.Player spawnPlayer = player.getBukkitEntity();
-+        org.spigotmc.event.player.PlayerSpawnLocationEvent ev = new org.spigotmc.event.player.PlayerSpawnLocationEvent(spawnPlayer, spawnPlayer.getLocation());
-+        this.cserver.getPluginManager().callEvent(ev);
-+
-+        org.bukkit.Location loc = ev.getSpawnLocation();
-+        serverLevel = ((org.bukkit.craftbukkit.CraftWorld) loc.getWorld()).getHandle();
-+
-+        player.spawnIn(serverLevel);
-+        // Paper start - set raw so we aren't fully joined to the world (not added to chunk or world)
-+        player.setPosRaw(loc.getX(), loc.getY(), loc.getZ());
-+        player.setRot(loc.getYaw(), loc.getPitch());
-+        // Paper end - set raw so we aren't fully joined to the world
-+        // Spigot end
-+        // LOGGER.info( // CraftBukkit - Moved message to after join
-+        //     "{}[{}] logged in with entity id {} at ({}, {}, {})",
-+        //     player.getName().getString(),
-+        //     loggableAddress,
-+        //     player.getId(),
-+        //     player.getX(),
-+        //     player.getY(),
-+        //     player.getZ()
-+        // );
-         LevelData levelData = serverLevel.getLevelData();
-         player.loadGameTypes(optional.orElse(null));
-         ServerGamePacketListenerImpl serverGamePacketListenerImpl = new ServerGamePacketListenerImpl(this.server, connection, player, cookie);
-@@ -191,8 +_,8 @@
-                 levelData.isHardcore(),
-                 this.server.levelKeys(),
-                 this.getMaxPlayers(),
--                this.viewDistance,
--                this.simulationDistance,
-+                serverLevel.spigotConfig.viewDistance,// Spigot - view distance
-+                serverLevel.spigotConfig.simulationDistance,
-                 _boolean1,
-                 !_boolean,
-                 _boolean2,
-@@ -200,6 +_,7 @@
-                 this.server.enforceSecureProfile()
-             )
-         );
-+        player.getBukkitEntity().sendSupportedChannels(); // CraftBukkit
-         serverGamePacketListenerImpl.send(new ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
-         serverGamePacketListenerImpl.send(new ClientboundPlayerAbilitiesPacket(player.getAbilities()));
-         serverGamePacketListenerImpl.send(new ClientboundSetHeldSlotPacket(player.getInventory().getSelectedSlot()));
-@@ -219,26 +_,119 @@
-             mutableComponent = Component.translatable("multiplayer.player.joined.renamed", player.getDisplayName(), string);
-         }
- 
--        this.broadcastSystemMessage(mutableComponent.withStyle(ChatFormatting.YELLOW), false);
-+        // CraftBukkit start
-+        mutableComponent.withStyle(ChatFormatting.YELLOW);
-+        Component joinMessage = mutableComponent; // Paper - Adventure
-         serverGamePacketListenerImpl.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
-         ServerStatus status = this.server.getStatus();
-         if (status != null && !cookie.transferred()) {
-             player.sendServerStatus(status);
-         }
- 
--        player.connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(this.players));
-+        // player.connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(this.players)); // CraftBukkit - replaced with loop below
-         this.players.add(player);
-+        this.playersByName.put(player.getScoreboardName().toLowerCase(java.util.Locale.ROOT), player); // Spigot
-         this.playersByUUID.put(player.getUUID(), player);
--        this.broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(player)));
--        this.sendLevelInfo(player, serverLevel);
-+        // this.broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(player))); // CraftBukkit - replaced with loop below
-+        // Paper start - Fire PlayerJoinEvent when Player is actually ready; correctly register player BEFORE PlayerJoinEvent, so the entity is valid and doesn't require tick delay hacks
-+        player.supressTrackerForLogin = true;
-         serverLevel.addNewPlayer(player);
--        this.server.getCustomBossEvents().onPlayerConnect(player);
--        this.sendActivePlayerEffects(player);
-+        this.server.getCustomBossEvents().onPlayerConnect(player); // see commented out section below serverLevel.addPlayerJoin(player);
-+        // Paper end - Fire PlayerJoinEvent when Player is actually ready
-         optional.ifPresent(compoundTag -> {
-             player.loadAndSpawnEnderPearls(compoundTag);
-             player.loadAndSpawnParentVehicle(compoundTag);
-         });
-+        // CraftBukkit start
-+        org.bukkit.craftbukkit.entity.CraftPlayer bukkitPlayer = player.getBukkitEntity();
-+
-+        // Ensure that player inventory is populated with its viewer
-+        player.containerMenu.transferTo(player.containerMenu, bukkitPlayer);
-+
-+        org.bukkit.event.player.PlayerJoinEvent playerJoinEvent = new org.bukkit.event.player.PlayerJoinEvent(bukkitPlayer, io.papermc.paper.adventure.PaperAdventure.asAdventure(mutableComponent)); // Paper - Adventure
-+        this.cserver.getPluginManager().callEvent(playerJoinEvent);
-+
-+        if (!player.connection.isAcceptingMessages()) {
-+            return;
-+        }
-+
-+        final net.kyori.adventure.text.Component jm = playerJoinEvent.joinMessage();
-+
-+        if (jm != null && !jm.equals(net.kyori.adventure.text.Component.empty())) { // Paper - Adventure
-+            joinMessage = io.papermc.paper.adventure.PaperAdventure.asVanilla(jm); // Paper - Adventure
-+            this.server.getPlayerList().broadcastSystemMessage(joinMessage, false); // Paper - Adventure
-+        }
-+        // CraftBukkit end
-+
-+        // CraftBukkit start - sendAll above replaced with this loop
-+        ClientboundPlayerInfoUpdatePacket packet = ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(player)); // Paper - Add Listing API for Player
-+
-+        final List<ServerPlayer> onlinePlayers = Lists.newArrayListWithExpectedSize(this.players.size() - 1); // Paper - Use single player info update packet on join
-+        for (int i = 0; i < this.players.size(); ++i) {
-+            ServerPlayer entityplayer1 = (ServerPlayer) this.players.get(i);
-+
-+            if (entityplayer1.getBukkitEntity().canSee(bukkitPlayer)) {
-+                // Paper start - Add Listing API for Player
-+                if (entityplayer1.getBukkitEntity().isListed(bukkitPlayer)) {
-+                // Paper end - Add Listing API for Player
-+                entityplayer1.connection.send(packet);
-+                // Paper start - Add Listing API for Player
++            // CraftBukkit end
++            // Paper start - move logic in Entity to here, to use bukkit supplied world UUID & reset to main world spawn if no valid world is found
++            ResourceKey<Level> resourceKey = null; // Paper
++            boolean[] invalidPlayerWorld = {false};
++            bukkitData: if (optional1.isPresent()) {
++                // The main way for bukkit worlds to store the world is the world UUID despite mojang adding custom worlds
++                final org.bukkit.World bWorld;
++                final ValueInput playerData = optional1.get();
++                // TODO maybe convert this to a codec and use compoundTag#read, we need silent variants of that method first.
++                final Optional<Long> worldUUIDMost = playerData.getLong("WorldUUIDMost");
++                final Optional<Long> worldUUIDLeast = playerData.getLong("WorldUUIDLeast");
++                final java.util.Optional<String> worldName = playerData.getString("world");
++                if (worldUUIDMost.isPresent() && worldUUIDLeast.isPresent()) {
++                    bWorld = org.bukkit.Bukkit.getServer().getWorld(new UUID(worldUUIDMost.get(), worldUUIDLeast.get()));
++                } else if (worldName.isPresent()) { // Paper - legacy bukkit world name
++                    bWorld = org.bukkit.Bukkit.getServer().getWorld(worldName.get());
 +                } else {
-+                    entityplayer1.connection.send(ClientboundPlayerInfoUpdatePacket.createSinglePlayerInitializing(player, false));
++                    break bukkitData; // if neither of the bukkit data points exist, proceed to the vanilla migration section
 +                }
-+                // Paper end - Add Listing API for Player
++                if (bWorld != null) {
++                    resourceKey = ((org.bukkit.craftbukkit.CraftWorld) bWorld).getHandle().dimension();
++                } else {
++                    resourceKey = Level.OVERWORLD;
++                    invalidPlayerWorld[0] = true;
++                }
++            }
++            if (resourceKey == null) { // only run the vanilla logic if we haven't found a world from the bukkit data
++                // Below is the vanilla way of getting the dimension, this is for migration from vanilla servers
++                resourceKey = optional1.<ResourceKey<Level>>flatMap(valueInput -> valueInput.read("Dimension", Level.RESOURCE_KEY_CODEC))
++                    .orElse(Level.OVERWORLD);
++            }
++            // Paper end
+             ServerLevel level = this.server.getLevel(resourceKey);
+             ServerLevel serverLevel;
+             if (level == null) {
+                 LOGGER.warn("Unknown respawn dimension {}, defaulting to overworld", resourceKey);
+                 serverLevel = this.server.overworld();
++                invalidPlayerWorld[0] = true; // Paper - reset to main world if no world with parsed value is found
+             } else {
+                 serverLevel = level;
+             }
+ 
++            // Paper start - Entity#getEntitySpawnReason
++            if (optional1.isEmpty()) {
++                player.spawnReason = org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT; // set Player SpawnReason to DEFAULT on first login
++                // Paper start - reset to main world spawn if first spawn or invalid world
++            }
++            if (optional1.isEmpty() || invalidPlayerWorld[0]) {
++                // Paper end - reset to main world spawn if first spawn or invalid world
++                player.snapTo(player.adjustSpawnLocation(serverLevel, serverLevel.getSharedSpawnPos()).getBottomCenter(), serverLevel.getSharedSpawnAngle(), 0.0F); // Paper - MC-200092 - fix first spawn pos yaw being ignored
++            }
++            // Paper end - Entity#getEntitySpawnReason
+             player.setServerLevel(serverLevel);
+             String loggableAddress = connection.getLoggableAddress(this.server.logIPs());
+-            LOGGER.info(
+-                "{}[{}] logged in with entity id {} at ({}, {}, {})",
+-                player.getName().getString(),
+-                loggableAddress,
+-                player.getId(),
+-                player.getX(),
+-                player.getY(),
+-                player.getZ()
+-            );
++            // Spigot start - spawn location event
++            org.bukkit.entity.Player spawnPlayer = player.getBukkitEntity();
++            org.spigotmc.event.player.PlayerSpawnLocationEvent ev = new org.spigotmc.event.player.PlayerSpawnLocationEvent(spawnPlayer, spawnPlayer.getLocation());
++            this.cserver.getPluginManager().callEvent(ev);
++
++            org.bukkit.Location loc = ev.getSpawnLocation();
++            serverLevel = ((org.bukkit.craftbukkit.CraftWorld) loc.getWorld()).getHandle();
++
++            player.spawnIn(serverLevel);
++            // Paper start - set raw so we aren't fully joined to the world (not added to chunk or world)
++            player.setPosRaw(loc.getX(), loc.getY(), loc.getZ());
++            player.setRot(loc.getYaw(), loc.getPitch());
++            // Paper end - set raw so we aren't fully joined to the world
++            // Spigot end
++            // LOGGER.info( // CraftBukkit - Moved message to after join
++            //     "{}[{}] logged in with entity id {} at ({}, {}, {})",
++            //     player.getName().getString(),
++            //     loggableAddress,
++            //     player.getId(),
++            //     player.getX(),
++            //     player.getY(),
++            //     player.getZ()
++            // );
+             LevelData levelData = serverLevel.getLevelData();
+             player.loadGameTypes(optional1.orElse(null));
+             ServerGamePacketListenerImpl serverGamePacketListenerImpl = new ServerGamePacketListenerImpl(this.server, connection, player, cookie);
+@@ -190,8 +_,8 @@
+                     levelData.isHardcore(),
+                     this.server.levelKeys(),
+                     this.getMaxPlayers(),
+-                    this.viewDistance,
+-                    this.simulationDistance,
++                    serverLevel.spigotConfig.viewDistance,// Spigot - view distance
++                    serverLevel.spigotConfig.simulationDistance,
+                     _boolean1,
+                     !_boolean,
+                     _boolean2,
+@@ -199,6 +_,7 @@
+                     this.server.enforceSecureProfile()
+                 )
+             );
++            player.getBukkitEntity().sendSupportedChannels(); // CraftBukkit
+             serverGamePacketListenerImpl.send(new ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
+             serverGamePacketListenerImpl.send(new ClientboundPlayerAbilitiesPacket(player.getAbilities()));
+             serverGamePacketListenerImpl.send(new ClientboundSetHeldSlotPacket(player.getInventory().getSelectedSlot()));
+@@ -218,26 +_,119 @@
+                 mutableComponent = Component.translatable("multiplayer.player.joined.renamed", player.getDisplayName(), string);
+             }
+ 
+-            this.broadcastSystemMessage(mutableComponent.withStyle(ChatFormatting.YELLOW), false);
++            // CraftBukkit start
++            mutableComponent.withStyle(ChatFormatting.YELLOW);
++            Component joinMessage = mutableComponent; // Paper - Adventure
+             serverGamePacketListenerImpl.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
+             ServerStatus status = this.server.getStatus();
+             if (status != null && !cookie.transferred()) {
+                 player.sendServerStatus(status);
+             }
+ 
+-            player.connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(this.players));
++            // player.connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(this.players)); // CraftBukkit - replaced with loop below
+             this.players.add(player);
++            this.playersByName.put(player.getScoreboardName().toLowerCase(java.util.Locale.ROOT), player); // Spigot
+             this.playersByUUID.put(player.getUUID(), player);
+-            this.broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(player)));
+-            this.sendLevelInfo(player, serverLevel);
++            // this.broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(player))); // CraftBukkit - replaced with loop below
++            // Paper start - Fire PlayerJoinEvent when Player is actually ready; correctly register player BEFORE PlayerJoinEvent, so the entity is valid and doesn't require tick delay hacks
++            player.supressTrackerForLogin = true;
+             serverLevel.addNewPlayer(player);
+-            this.server.getCustomBossEvents().onPlayerConnect(player);
+-            this.sendActivePlayerEffects(player);
++            this.server.getCustomBossEvents().onPlayerConnect(player); // see commented out section below serverLevel.addPlayerJoin(player);
++            // Paper end - Fire PlayerJoinEvent when Player is actually ready
+             optional1.ifPresent(valueInput -> {
+                 player.loadAndSpawnEnderPearls(valueInput);
+                 player.loadAndSpawnParentVehicle(valueInput);
+             });
++            // CraftBukkit start
++            org.bukkit.craftbukkit.entity.CraftPlayer bukkitPlayer = player.getBukkitEntity();
++
++            // Ensure that player inventory is populated with its viewer
++            player.containerMenu.transferTo(player.containerMenu, bukkitPlayer);
++
++            org.bukkit.event.player.PlayerJoinEvent playerJoinEvent = new org.bukkit.event.player.PlayerJoinEvent(bukkitPlayer, io.papermc.paper.adventure.PaperAdventure.asAdventure(mutableComponent)); // Paper - Adventure
++            this.cserver.getPluginManager().callEvent(playerJoinEvent);
++
++            if (!player.connection.isAcceptingMessages()) {
++                return;
 +            }
 +
-+            if (entityplayer1 == player || !bukkitPlayer.canSee(entityplayer1.getBukkitEntity())) { // Paper - Use single player info update packet on join; Don't include joining player
-+                continue;
++            final net.kyori.adventure.text.Component jm = playerJoinEvent.joinMessage();
++
++            if (jm != null && !jm.equals(net.kyori.adventure.text.Component.empty())) { // Paper - Adventure
++                joinMessage = io.papermc.paper.adventure.PaperAdventure.asVanilla(jm); // Paper - Adventure
++                this.server.getPlayerList().broadcastSystemMessage(joinMessage, false); // Paper - Adventure
++            }
++            // CraftBukkit end
++
++            // CraftBukkit start - sendAll above replaced with this loop
++            ClientboundPlayerInfoUpdatePacket packet = ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(player)); // Paper - Add Listing API for Player
++
++            final List<ServerPlayer> onlinePlayers = Lists.newArrayListWithExpectedSize(this.players.size() - 1); // Paper - Use single player info update packet on join
++            for (int i = 0; i < this.players.size(); ++i) {
++                ServerPlayer entityplayer1 = (ServerPlayer) this.players.get(i);
++
++                if (entityplayer1.getBukkitEntity().canSee(bukkitPlayer)) {
++                    // Paper start - Add Listing API for Player
++                    if (entityplayer1.getBukkitEntity().isListed(bukkitPlayer)) {
++                        // Paper end - Add Listing API for Player
++                        entityplayer1.connection.send(packet);
++                        // Paper start - Add Listing API for Player
++                    } else {
++                        entityplayer1.connection.send(ClientboundPlayerInfoUpdatePacket.createSinglePlayerInitializing(player, false));
++                    }
++                    // Paper end - Add Listing API for Player
++                }
++
++                if (entityplayer1 == player || !bukkitPlayer.canSee(entityplayer1.getBukkitEntity())) { // Paper - Use single player info update packet on join; Don't include joining player
++                    continue;
++                }
++
++                onlinePlayers.add(entityplayer1); // Paper - Use single player info update packet on join
++            }
++            // Paper start - Use single player info update packet on join
++            if (!onlinePlayers.isEmpty()) {
++                player.connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(onlinePlayers, player)); // Paper - Add Listing API for Player
++            }
++            // Paper end - Use single player info update packet on join
++            player.sentListPacket = true;
++            player.supressTrackerForLogin = false; // Paper - Fire PlayerJoinEvent when Player is actually ready
++            ((ServerLevel)player.level()).getChunkSource().chunkMap.addEntity(player); // Paper - Fire PlayerJoinEvent when Player is actually ready; track entity now
++            // CraftBukkit end
++
++            //player.refreshEntityData(player); // CraftBukkit - BungeeCord#2321, send complete data to self on spawn // Paper - THIS IS NOT NEEDED ANYMORE
++
++            this.sendLevelInfo(player, serverLevel);
++
++            // CraftBukkit start - Only add if the player wasn't moved in the event
++            if (player.level() == serverLevel && !serverLevel.players().contains(player)) {
++                serverLevel.addNewPlayer(player);
++                this.server.getCustomBossEvents().onPlayerConnect(player);
 +            }
 +
-+            onlinePlayers.add(entityplayer1); // Paper - Use single player info update packet on join
-+        }
-+        // Paper start - Use single player info update packet on join
-+        if (!onlinePlayers.isEmpty()) {
-+            player.connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(onlinePlayers, player)); // Paper - Add Listing API for Player
-+        }
-+        // Paper end - Use single player info update packet on join
-+        player.sentListPacket = true;
-+        player.supressTrackerForLogin = false; // Paper - Fire PlayerJoinEvent when Player is actually ready
-+        ((ServerLevel)player.level()).getChunkSource().chunkMap.addEntity(player); // Paper - Fire PlayerJoinEvent when Player is actually ready; track entity now
-+        // CraftBukkit end
-+
-+        //player.refreshEntityData(player); // CraftBukkit - BungeeCord#2321, send complete data to self on spawn // Paper - THIS IS NOT NEEDED ANYMORE
-+
-+        this.sendLevelInfo(player, serverLevel);
-+
-+        // CraftBukkit start - Only add if the player wasn't moved in the event
-+        if (player.level() == serverLevel && !serverLevel.players().contains(player)) {
-+            serverLevel.addNewPlayer(player);
-+            this.server.getCustomBossEvents().onPlayerConnect(player);
-+        }
-+
-+        serverLevel = player.serverLevel(); // CraftBukkit - Update in case join event changed it
-+        // CraftBukkit end
-+        this.sendActivePlayerEffects(player);
-+        // Paper - move loading pearls / parent vehicle up
-         player.initInventoryMenu();
-+        // CraftBukkit - Moved from above, added world
-+        // Paper start - Configurable player collision; Add to collideRule team if needed
-+        final net.minecraft.world.scores.Scoreboard scoreboard = this.getServer().getLevel(Level.OVERWORLD).getScoreboard();
-+        final PlayerTeam collideRuleTeam = scoreboard.getPlayerTeam(this.collideRuleTeamName);
-+        if (this.collideRuleTeamName != null && collideRuleTeam != null && player.getTeam() == null) {
-+            scoreboard.addPlayerToTeam(player.getScoreboardName(), collideRuleTeam);
-+        }
-+        // Paper end - Configurable player collision
-+        PlayerList.LOGGER.info("{}[{}] logged in with entity id {} at ([{}]{}, {}, {})", player.getName().getString(), loggableAddress, player.getId(), serverLevel.serverLevelData.getLevelName(), player.getX(), player.getY(), player.getZ());
-+        // Paper start - Send empty chunk, so players aren't stuck in the world loading screen with our chunk system not sending chunks when dead
-+        if (player.isDeadOrDying()) {
-+            net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome> plains = serverLevel.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.BIOME)
++            serverLevel = player.serverLevel(); // CraftBukkit - Update in case join event changed it
++            // CraftBukkit end
++            this.sendActivePlayerEffects(player);
++            // Paper - move loading pearls / parent vehicle up
+             player.initInventoryMenu();
++            // CraftBukkit - Moved from above, added world
++            // Paper start - Configurable player collision; Add to collideRule team if needed
++            final net.minecraft.world.scores.Scoreboard scoreboard = this.getServer().getLevel(Level.OVERWORLD).getScoreboard();
++            final PlayerTeam collideRuleTeam = scoreboard.getPlayerTeam(this.collideRuleTeamName);
++            if (this.collideRuleTeamName != null && collideRuleTeam != null && player.getTeam() == null) {
++                scoreboard.addPlayerToTeam(player.getScoreboardName(), collideRuleTeam);
++            }
++            // Paper end - Configurable player collision
++            PlayerList.LOGGER.info("{}[{}] logged in with entity id {} at ([{}]{}, {}, {})", player.getName().getString(), loggableAddress, player.getId(), serverLevel.serverLevelData.getLevelName(), player.getX(), player.getY(), player.getZ());
++            // Paper start - Send empty chunk, so players aren't stuck in the world loading screen with our chunk system not sending chunks when dead
++            if (player.isDeadOrDying()) {
++                net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome> plains = serverLevel.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.BIOME)
 +                    .getOrThrow(net.minecraft.world.level.biome.Biomes.PLAINS);
-+            player.connection.send(new net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket(
++                player.connection.send(new net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket(
 +                    new net.minecraft.world.level.chunk.EmptyLevelChunk(serverLevel, player.chunkPosition(), plains),
 +                    serverLevel.getLightEngine(), (java.util.BitSet)null, (java.util.BitSet) null)
-+            );
-+        }
-+        // Paper end - Send empty chunk
++                );
++            }
++            // Paper end - Send empty chunk
+         }
      }
  
-     public void updateEntireScoreboard(ServerScoreboard scoreboard, ServerPlayer player) {
 @@ -261,30 +_,31 @@
      }
  
@@ -336,7 +329,7 @@
              }
  
              @Override
-@@ -312,56 +_,156 @@
+@@ -313,56 +_,156 @@
      }
  
      protected void save(ServerPlayer player) {
@@ -507,7 +500,7 @@
              MutableComponent mutableComponent = Component.translatable("multiplayer.disconnect.banned.reason", userBanListEntry.getReason());
              if (userBanListEntry.getExpires() != null) {
                  mutableComponent.append(
-@@ -369,10 +_,12 @@
+@@ -370,10 +_,12 @@
                  );
              }
  
@@ -524,7 +517,7 @@
              IpBanListEntry ipBanListEntry = this.ipBans.get(socketAddress);
              MutableComponent mutableComponent = Component.translatable("multiplayer.disconnect.banned_ip.reason", ipBanListEntry.getReason());
              if (ipBanListEntry.getExpires() != null) {
-@@ -381,69 +_,131 @@
+@@ -382,69 +_,131 @@
                  );
              }
  
@@ -697,7 +690,7 @@
          serverPlayer.connection.send(new ClientboundSetDefaultSpawnPositionPacket(level.getSharedSpawnPos(), level.getSharedSpawnAngle()));
          serverPlayer.connection.send(new ClientboundChangeDifficultyPacket(levelData.getDifficulty(), levelData.isDifficultyLocked()));
          serverPlayer.connection
-@@ -451,10 +_,13 @@
+@@ -452,10 +_,13 @@
          this.sendActivePlayerEffects(serverPlayer);
          this.sendLevelInfo(serverPlayer, level);
          this.sendPlayerPermissionLevel(serverPlayer);
@@ -715,7 +708,7 @@
          serverPlayer.setHealth(serverPlayer.getHealth());
          ServerPlayer.RespawnConfig respawnConfig = serverPlayer.getRespawnConfig();
          if (!keepInventory && respawnConfig != null) {
-@@ -477,8 +_,52 @@
+@@ -478,8 +_,52 @@
                              )
                          );
                  }
@@ -768,7 +761,7 @@
  
          return serverPlayer;
      }
-@@ -488,24 +_,59 @@
+@@ -489,24 +_,59 @@
      }
  
      public void sendActiveEffects(LivingEntity entity, ServerGamePacketListenerImpl connection) {
@@ -831,7 +824,7 @@
      public void broadcastAll(Packet<?> packet) {
          for (ServerPlayer serverPlayer : this.players) {
              serverPlayer.connection.send(packet);
-@@ -581,6 +_,12 @@
+@@ -582,6 +_,12 @@
      }
  
      private void sendPlayerPermissionLevel(ServerPlayer player, int permLevel) {
@@ -844,7 +837,7 @@
          if (player.connection != null) {
              byte b;
              if (permLevel <= 0) {
-@@ -594,11 +_,33 @@
+@@ -595,11 +_,33 @@
              player.connection.send(new ClientboundEntityEventPacket(player, b));
          }
  
@@ -879,7 +872,7 @@
      }
  
      public boolean isOp(GameProfile profile) {
-@@ -609,21 +_,17 @@
+@@ -610,21 +_,17 @@
  
      @Nullable
      public ServerPlayer getPlayerByName(String username) {
@@ -907,7 +900,7 @@
              if (serverPlayer != except && serverPlayer.level().dimension() == dimension) {
                  double d = x - serverPlayer.getX();
                  double d1 = y - serverPlayer.getY();
-@@ -636,9 +_,11 @@
+@@ -637,9 +_,11 @@
      }
  
      public void saveAll() {
@@ -919,7 +912,7 @@
      }
  
      public UserWhiteList getWhiteList() {
-@@ -661,14 +_,18 @@
+@@ -662,14 +_,18 @@
      }
  
      public void sendLevelInfo(ServerPlayer player, ServerLevel level) {
@@ -942,7 +935,7 @@
          }
  
          player.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.LEVEL_CHUNKS_LOAD_START, 0.0F));
-@@ -677,8 +_,21 @@
+@@ -678,8 +_,21 @@
  
      public void sendAllPlayerInfo(ServerPlayer player) {
          player.inventoryMenu.sendAllDataToRemote();
@@ -965,7 +958,7 @@
      }
  
      public int getPlayerCount() {
-@@ -694,6 +_,7 @@
+@@ -695,6 +_,7 @@
      }
  
      public void setUsingWhiteList(boolean whitelistEnabled) {
@@ -973,7 +966,7 @@
          this.doWhiteList = whitelistEnabled;
      }
  
-@@ -731,10 +_,35 @@
+@@ -732,10 +_,35 @@
      }
  
      public void removeAll() {
@@ -1013,7 +1006,7 @@
  
      public void broadcastSystemMessage(Component message, boolean bypassHiddenChat) {
          this.broadcastSystemMessage(message, serverPlayer -> message, bypassHiddenChat);
-@@ -756,20 +_,39 @@
+@@ -757,20 +_,39 @@
      }
  
      public void broadcastChatMessage(PlayerChatMessage message, ServerPlayer sender, ChatType.Bound boundChatType) {
@@ -1056,7 +1049,7 @@
              flag1 |= flag2 && message.isFullyFiltered();
          }
  
-@@ -782,14 +_,21 @@
+@@ -783,14 +_,21 @@
          return message.hasSignature() && !message.hasExpiredServer(Instant.now());
      }
  
@@ -1082,7 +1075,7 @@
                  Path path = file2.toPath();
                  if (FileUtil.isPathNormalized(path) && FileUtil.isPathPortable(path) && path.startsWith(file.getPath()) && file2.isFile()) {
                      file2.renameTo(file1);
-@@ -797,7 +_,7 @@
+@@ -798,7 +_,7 @@
              }
  
              serverStatsCounter = new ServerStatsCounter(this.server, file1);
@@ -1091,7 +1084,7 @@
          }
  
          return serverStatsCounter;
-@@ -805,11 +_,11 @@
+@@ -806,11 +_,11 @@
  
      public PlayerAdvancements getPlayerAdvancements(ServerPlayer player) {
          UUID uuid = player.getUUID();
@@ -1105,7 +1098,7 @@
          }
  
          playerAdvancements.setPlayer(player);
-@@ -852,11 +_,34 @@
+@@ -853,11 +_,34 @@
      }
  
      public void reloadResources() {

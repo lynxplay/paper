@@ -38,6 +38,7 @@ import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueInput;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -769,7 +770,11 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
     @Override
     public org.bukkit.entity.Entity getShoulderEntityLeft() {
         if (!this.getHandle().getShoulderEntityLeft().isEmpty()) {
-            Optional<Entity> shoulder = EntityType.create(this.getHandle().getShoulderEntityLeft(), this.getHandle().level(), EntitySpawnReason.LOAD);
+            Optional<Entity> shoulder = EntityType.create(
+                TagValueInput.createDiscarding(this.getHandle().level().registryAccess(), this.getHandle().getShoulderEntityLeft()),
+                this.getHandle().level(),
+                EntitySpawnReason.LOAD
+            );
             return shoulder.map(Entity::getBukkitEntity).orElse(null);
         }
 
@@ -787,7 +792,11 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
     @Override
     public org.bukkit.entity.Entity getShoulderEntityRight() {
         if (!this.getHandle().getShoulderEntityRight().isEmpty()) {
-            Optional<Entity> shoulder = EntityType.create(this.getHandle().getShoulderEntityRight(), this.getHandle().level(), EntitySpawnReason.LOAD);
+            Optional<Entity> shoulder = EntityType.create(
+                TagValueInput.createDiscarding(this.getHandle().level().registryAccess(), this.getHandle().getShoulderEntityRight()),
+                this.getHandle().level(),
+                EntitySpawnReason.LOAD
+            );
             return shoulder.map(Entity::getBukkitEntity).orElse(null);
         }
 

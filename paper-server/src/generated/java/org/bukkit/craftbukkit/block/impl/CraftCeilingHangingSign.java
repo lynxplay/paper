@@ -12,7 +12,7 @@ import org.bukkit.block.data.type.HangingSign;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 import org.bukkit.util.Vector;
 
-@GeneratedFrom("25w17a")
+@GeneratedFrom("25w18a")
 public class CraftCeilingHangingSign extends CraftBlockData implements HangingSign {
     private static final BooleanProperty ATTACHED = CeilingHangingSignBlock.ATTACHED;
 

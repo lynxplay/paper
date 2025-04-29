@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w17a")
+@GeneratedFrom("25w18a")
 public class CraftWaterloggedTransparent extends CraftBlockData implements Waterlogged {
     private static final BooleanProperty WATERLOGGED = WaterloggedTransparentBlock.WATERLOGGED;
 

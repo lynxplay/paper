@@ -12,7 +12,7 @@
                  FluidState fluidState = level.getFluidState(worldPos);
                  if (!fluidState.isEmpty()) {
                      level.scheduleTick(worldPos, fluidState.getType(), 0);
-@@ -193,6 +_,39 @@
+@@ -193,6 +_,42 @@
          }
      }
  
@@ -25,7 +25,10 @@
 +        boolean result = levelAccessor.setBlock(pos, craftBlockEntityState.getHandle(), flags);
 +        BlockEntity blockEntity = levelAccessor.getBlockEntity(pos);
 +        if (blockEntity != null) {
-+            blockEntity.loadWithComponents(craftBlockEntityState.getSnapshotNBT(), levelAccessor.registryAccess());
++            blockEntity.loadWithComponents(net.minecraft.world.level.storage.TagValueInput.createDiscarding(
++                levelAccessor.registryAccess(),
++                craftBlockEntityState.getSnapshotNBT()
++            ));
 +        }
 +        return result;
 +    }

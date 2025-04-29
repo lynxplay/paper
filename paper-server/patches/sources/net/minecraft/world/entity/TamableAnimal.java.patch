@@ -1,15 +1,15 @@
 --- a/net/minecraft/world/entity/TamableAnimal.java
 +++ b/net/minecraft/world/entity/TamableAnimal.java
-@@ -77,7 +_,7 @@
+@@ -78,7 +_,7 @@
          }
  
-         this.orderedToSit = compound.getBooleanOr("Sitting", false);
+         this.orderedToSit = valueInput.getBooleanOr("Sitting", false);
 -        this.setInSittingPose(this.orderedToSit);
 +        this.setInSittingPose(this.orderedToSit, false); // Paper - Add EntityToggleSitEvent
      }
  
      @Override
-@@ -135,6 +_,13 @@
+@@ -136,6 +_,13 @@
      }
  
      public void setInSittingPose(boolean sitting) {
@@ -23,7 +23,7 @@
          byte b = this.entityData.get(DATA_FLAGS_ID);
          if (sitting) {
              this.entityData.set(DATA_FLAGS_ID, (byte)(b | 1));
-@@ -217,7 +_,12 @@
+@@ -218,7 +_,12 @@
          if (this.level() instanceof ServerLevel serverLevel
              && serverLevel.getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)
              && this.getOwner() instanceof ServerPlayer serverPlayer) {
@@ -37,7 +37,7 @@
          }
  
          super.die(cause);
-@@ -260,7 +_,14 @@
+@@ -261,7 +_,14 @@
          if (!this.canTeleportTo(new BlockPos(x, y, z))) {
              return false;
          } else {

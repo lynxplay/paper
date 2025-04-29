@@ -14,6 +14,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -164,8 +166,8 @@ public class PaperLootableInventoryData {
     private static final String NUM_REFILLS = "numRefills";
     private static final String LOOTED_PLAYERS = "lootedPlayers";
 
-    public void loadNbt(final CompoundTag base) {
-        final Optional<CompoundTag> compOpt = base.getCompound(ROOT);
+    public void loadNbt(final ValueInput base) {
+        final Optional<CompoundTag> compOpt = base.read(ROOT, CompoundTag.CODEC);
         if (compOpt.isEmpty()) {
             return;
         }
@@ -187,7 +189,7 @@ public class PaperLootableInventoryData {
         }
     }
 
-    public void saveNbt(final CompoundTag base) {
+    public void saveNbt(final ValueOutput valueOutput) {
         final CompoundTag comp = new CompoundTag();
         if (this.nextRefill != -1) {
             comp.putLong(NEXT_REFILL, this.nextRefill);
@@ -210,7 +212,7 @@ public class PaperLootableInventoryData {
         }
 
         if (!comp.isEmpty()) {
-            base.put(ROOT, comp);
+            valueOutput.store(ROOT, CompoundTag.CODEC, comp);
         }
     }
 

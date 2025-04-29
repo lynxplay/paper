@@ -15,7 +15,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.SculkVein;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w17a")
+@GeneratedFrom("25w18a")
 public class CraftSculkVein extends CraftBlockData implements SculkVein {
     private static final BooleanProperty WATERLOGGED = SculkVeinBlock.WATERLOGGED;
 
