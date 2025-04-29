@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.state.properties.TestBlockMode;
 import org.bukkit.block.data.type.TestBlock;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w17a")
+@GeneratedFrom("25w18a")
 public class CraftTestBlock extends CraftBlockData implements TestBlock {
     private static final EnumProperty<TestBlockMode> MODE = net.minecraft.world.level.block.TestBlock.MODE;
 

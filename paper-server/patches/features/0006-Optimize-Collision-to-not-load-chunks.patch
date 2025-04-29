@@ -14,10 +14,10 @@ movement will load only the chunk the player enters anyways and avoids loading
 massive amounts of surrounding chunks due to large AABB lookups.
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index fd29f3d1c60011af34dc278b957c050ce8bfeb4e..8fba44dea053af4eae3a802bbe0ffab07d134152 100644
+index f70e82184e01b851b577754b714cfd62a7716eab..2f67bc1de6e3db70efcaad0ede616fda9623775c 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -224,6 +224,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -226,6 +226,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      // Paper end - Share random for entities to make them more random
      public @Nullable org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason spawnReason; // Paper - Entity#getEntitySpawnReason
  
@@ -76,7 +76,7 @@ index ed6e4f9fd0c7ad1219e66bc1cb4038191dd6edd8..45a20dbb935b12d429153463dba5d6fd
                          && (nextType != 2 || blockState.is(Blocks.MOVING_PISTON))) {
                          VoxelShape collisionShape = this.context.getCollisionShape(blockState, this.collisionGetter, this.pos);
 diff --git a/net/minecraft/world/level/CollisionGetter.java b/net/minecraft/world/level/CollisionGetter.java
-index 79af1e4dd1f84580e509ac3e9a77bcd5531c8da6..a031d39854eb049a701f3de9e11c73419883d5ca 100644
+index c58433770eacaae0e81767bac72d012c42120b80..ee55870a65c8e5754f8d91dad3f2c5ad56d32058 100644
 --- a/net/minecraft/world/level/CollisionGetter.java
 +++ b/net/minecraft/world/level/CollisionGetter.java
 @@ -50,11 +50,13 @@ public interface CollisionGetter extends BlockGetter {

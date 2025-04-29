@@ -16,7 +16,7 @@ import org.bukkit.block.data.type.RedstoneWire;
 import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w17a")
+@GeneratedFrom("25w18a")
 public class CraftRedStoneWire extends CraftBlockData implements RedstoneWire {
     private static final IntegerProperty POWER = RedStoneWireBlock.POWER;
 

@@ -1,18 +1,18 @@
 --- a/net/minecraft/world/entity/Leashable.java
 +++ b/net/minecraft/world/entity/Leashable.java
-@@ -77,6 +_,11 @@
+@@ -78,6 +_,11 @@
      }
  
-     default void writeLeashData(CompoundTag tag, @Nullable Leashable.LeashData leashData) {
+     default void writeLeashData(ValueOutput valueOutput, @Nullable Leashable.LeashData leashData) {
 +        // CraftBukkit start - SPIGOT-7487: Don't save (and possible drop) leash, when the holder was removed by a plugin
 +        if (leashData != null && leashData.leashHolder != null && leashData.leashHolder.pluginRemoved) {
 +            return;
 +        }
 +        // CraftBukkit end
-         tag.storeNullable("leash", Leashable.LeashData.CODEC, leashData);
+         valueOutput.storeNullable("leash", Leashable.LeashData.CODEC, leashData);
      }
  
-@@ -96,7 +_,9 @@
+@@ -97,7 +_,9 @@
              }
  
              if (entity.tickCount > 100) {
@@ -22,7 +22,7 @@
                  entity.setLeashData(null);
              }
          }
-@@ -120,7 +_,9 @@
+@@ -121,7 +_,9 @@
              entity.onLeashRemoved();
              if (entity.level() instanceof ServerLevel serverLevel) {
                  if (dropItem) {
@@ -32,7 +32,7 @@
                  }
  
                  if (broadcastPacket) {
-@@ -140,7 +_,15 @@
+@@ -141,7 +_,15 @@
  
          if (leashData != null && leashData.leashHolder != null) {
              if (!entity.isAlive() || !leashData.leashHolder.isAlive()) {
@@ -49,7 +49,7 @@
                      entity.dropLeash();
                  } else {
                      entity.removeLeash();
-@@ -151,7 +_,7 @@
+@@ -152,7 +_,7 @@
              if (leashHolder != null && leashHolder.level() == entity.level()) {
                  double d = entity.leashDistanceTo(leashHolder);
                  entity.whenLeashedTo(leashHolder);
@@ -58,7 +58,7 @@
                      entity.leashTooFarBehaviour();
                  } else if (d > entity.leashElasticDistance() - leashHolder.getBbWidth() - entity.getBbWidth()
                      && entity.checkElasticInteractions(leashHolder, leashData)) {
-@@ -192,7 +_,21 @@
+@@ -193,7 +_,21 @@
      }
  
      default void leashTooFarBehaviour() {

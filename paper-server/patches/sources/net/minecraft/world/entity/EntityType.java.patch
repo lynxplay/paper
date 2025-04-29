@@ -120,22 +120,22 @@
 @@ -1318,9 +_,20 @@
      }
  
-     public static Optional<Entity> create(CompoundTag tag, Level level, EntitySpawnReason spawnReason) {
+     public static Optional<Entity> create(ValueInput valueInput, Level level, EntitySpawnReason entitySpawnReason) {
 +        // Paper start - Don't fire sync event during generation
-+        return create(tag, level, spawnReason, false);
++        return create(valueInput, level, entitySpawnReason, false);
 +    }
 +
-+    public static Optional<Entity> create(CompoundTag tag, Level level, EntitySpawnReason spawnReason, boolean generation) {
++    public static Optional<Entity> create(ValueInput valueInput, Level level, EntitySpawnReason entitySpawnReason, boolean generation) {
 +        // Paper end - Don't fire sync event during generation
          return Util.ifElse(
-             by(tag).map(entityType -> entityType.create(level, spawnReason)),
--            entity -> entity.load(tag),
+             by(valueInput).map(entityType -> entityType.create(level, entitySpawnReason)),
+-            entity -> entity.load(valueInput),
 +                // Paper start - Don't fire sync event during generation
 +                entity -> {
 +                    if (generation) entity.generation = true; // Paper - Don't fire sync event during generation
-+                    entity.load(tag);
++                    entity.load(valueInput);
 +                },
 +                // Paper end - Don't fire sync event during generation
-             () -> LOGGER.warn("Skipping Entity with id {}", tag.getStringOr("id", "[invalid]"))
+             () -> LOGGER.warn("Skipping Entity with id {}", valueInput.getStringOr("id", "[invalid]"))
          );
      }

@@ -37,7 +37,7 @@ public final class MapPalette {
     @NotNull
     static final Color[] colors = {
         // Start generate - MapPalette#colors
-        // @GeneratedFrom 25w17a
+        // @GeneratedFrom 25w18a
         new Color(0x00000000, true),
         new Color(0x00000000, true),
         new Color(0x00000000, true),

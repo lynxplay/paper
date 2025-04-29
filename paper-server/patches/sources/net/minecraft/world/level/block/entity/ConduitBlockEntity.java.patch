@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/entity/ConduitBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/ConduitBlockEntity.java
-@@ -165,8 +_,20 @@
+@@ -167,8 +_,20 @@
      }
  
      private static void applyEffects(Level level, BlockPos pos, List<BlockPos> positions) {
@@ -21,7 +21,7 @@
          int x = pos.getX();
          int y = pos.getY();
          int z = pos.getZ();
-@@ -175,13 +_,19 @@
+@@ -177,13 +_,19 @@
          if (!entitiesOfClass.isEmpty()) {
              for (Player player : entitiesOfClass) {
                  if (pos.closerThan(player.blockPosition(), i) && player.isInWaterOrRain()) {
@@ -42,7 +42,7 @@
          LivingEntity livingEntity = blockEntity.destroyTarget;
          int size = positions.size();
          if (size < 42) {
-@@ -200,7 +_,8 @@
+@@ -202,7 +_,8 @@
              blockEntity.destroyTarget = null;
          }
  
@@ -52,7 +52,7 @@
              level.playSound(
                  null,
                  blockEntity.destroyTarget.getX(),
-@@ -211,7 +_,6 @@
+@@ -213,7 +_,6 @@
                  1.0F,
                  1.0F
              );

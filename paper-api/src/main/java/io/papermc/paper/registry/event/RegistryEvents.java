@@ -25,7 +25,7 @@ import static io.papermc.paper.registry.event.RegistryEventProviderImpl.create;
 public final class RegistryEvents {
 
     // Start generate - RegistryEvents
-    // @GeneratedFrom 25w17a
+    // @GeneratedFrom 25w18a
     public static final RegistryEventProvider<GameEvent, GameEventRegistryEntry.Builder> GAME_EVENT = create(RegistryKey.GAME_EVENT);
     public static final RegistryEventProvider<DamageType, DamageTypeRegistryEntry.Builder> DAMAGE_TYPE = create(RegistryKey.DAMAGE_TYPE);
     public static final RegistryEventProvider<Enchantment, EnchantmentRegistryEntry.Builder> ENCHANTMENT = create(RegistryKey.ENCHANTMENT);

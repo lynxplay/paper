@@ -60,10 +60,10 @@ index 1a476d09de93b131d38a16c1a170c19905926e2c..09398599ea0a4a13515bc1e234508894
              /* Drop global time updates
              if (this.tickCount % 20 == 0) {
 diff --git a/net/minecraft/world/item/ItemStack.java b/net/minecraft/world/item/ItemStack.java
-index faee242492f6f8275f5faba8150d541eb9dd92eb..de31f99f195c3f0790b79162ec7257aa42278d92 100644
+index 86881ad7e6aa10910218ef4537c23800637ceaa4..0e9cb075e4b8205c99307d3cc8c5975951513cc7 100644
 --- a/net/minecraft/world/item/ItemStack.java
 +++ b/net/minecraft/world/item/ItemStack.java
-@@ -835,10 +835,16 @@ public final class ItemStack implements DataComponentHolder {
+@@ -811,10 +811,16 @@ public final class ItemStack implements DataComponentHolder {
      }
  
      public ItemStack copy() {
@@ -83,10 +83,10 @@ index faee242492f6f8275f5faba8150d541eb9dd92eb..de31f99f195c3f0790b79162ec7257aa
              return itemStack;
          }
 diff --git a/net/minecraft/world/level/block/entity/BlockEntity.java b/net/minecraft/world/level/block/entity/BlockEntity.java
-index 7783ff94e5183737d01c75c521b70b4fbd8c34a6..a1075c26d55cc01219acd94d0138f81aa9d34c48 100644
+index a77a8cc9d6f10bce54f9ad306dc01a1c5595b185..a1e66ee729056b30ad1de20065c062353cbb90fc 100644
 --- a/net/minecraft/world/level/block/entity/BlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/BlockEntity.java
-@@ -33,6 +33,7 @@ import net.minecraft.world.level.block.state.BlockState;
+@@ -35,6 +35,7 @@ import net.minecraft.world.level.storage.ValueOutput;
  import org.slf4j.Logger;
  
  public abstract class BlockEntity {
@@ -94,7 +94,7 @@ index 7783ff94e5183737d01c75c521b70b4fbd8c34a6..a1075c26d55cc01219acd94d0138f81a
      // CraftBukkit start - data containers
      private static final org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry();
      public final org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer persistentDataContainer;
-@@ -202,6 +203,7 @@ public abstract class BlockEntity {
+@@ -225,6 +226,7 @@ public abstract class BlockEntity {
  
      public void setChanged() {
          if (this.level != null) {
@@ -103,7 +103,7 @@ index 7783ff94e5183737d01c75c521b70b4fbd8c34a6..a1075c26d55cc01219acd94d0138f81a
          }
      }
 diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index 9a03934dd4d96184f37b9ff5661eb7bd76150464..15d4f60942c0cc612c1468b4c0fda886867a67cb 100644
+index 654da5293a48fe0b565a93fee5267fe6c544703d..fc5c5b7bbdc1d4c18c14008d44a2271efa3cae21 100644
 --- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 @@ -143,18 +143,56 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
@@ -669,7 +669,7 @@ index 9a03934dd4d96184f37b9ff5661eb7bd76150464..15d4f60942c0cc612c1468b4c0fda886
  
      @Override
 diff --git a/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java b/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
-index 1c98d003907feb16de8f26377fceedf728afe7fb..eed5f8f912544b79c8ed54dcdc5eeacb6dcfaccd 100644
+index 863e4bc7805049baa1a5e1c0241339cf4f8ef853..9c3638243e4b4ccac10491ce8c47904fe40852a9 100644
 --- a/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/RandomizableContainerBlockEntity.java
 @@ -54,7 +54,7 @@ public abstract class RandomizableContainerBlockEntity extends BaseContainerBloc

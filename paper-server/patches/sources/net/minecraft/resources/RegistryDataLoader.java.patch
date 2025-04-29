@@ -9,7 +9,7 @@
 +        io.papermc.paper.registry.data.util.Conversions conversions // Paper - pass conversions
      ) throws IOException {
          try (Reader reader = resource.openAsReader()) {
-             JsonElement jsonElement = JsonParser.parseReader(reader);
+             JsonElement jsonElement = StrictJsonParser.parse(reader);
              DataResult<E> dataResult = codec.parse(ops, jsonElement);
              E orThrow = dataResult.getOrThrow();
 -            registry.register(resourceKey, orThrow, registrationInfo);

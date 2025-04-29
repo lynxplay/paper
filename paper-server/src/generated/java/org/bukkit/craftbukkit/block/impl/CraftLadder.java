@@ -12,7 +12,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.Ladder;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("25w17a")
+@GeneratedFrom("25w18a")
 public class CraftLadder extends CraftBlockData implements Ladder {
     private static final EnumProperty<Direction> FACING = LadderBlock.FACING;
 

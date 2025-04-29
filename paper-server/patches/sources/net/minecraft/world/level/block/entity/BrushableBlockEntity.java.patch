@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/entity/BrushableBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/BrushableBlockEntity.java
-@@ -139,7 +_,12 @@
+@@ -141,7 +_,12 @@
              double d5 = blockPos.getZ() + 0.5 * d1 + d2;
              ItemEntity itemEntity = new ItemEntity(level, d3, d4, d5, this.item.split(level.random.nextInt(21) + 10));
              itemEntity.setDeltaMovement(Vec3.ZERO);
