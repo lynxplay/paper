@@ -210,7 +210,7 @@
          }
 @@ -288,9 +_,19 @@
              ItemStack itemStack = randomItemWith.get().itemStack();
-             int i = EnchantmentHelper.modifyDurabilityToRepairFromXp(player.serverLevel(), itemStack, value);
+             int i = EnchantmentHelper.modifyDurabilityToRepairFromXp(player.level(), itemStack, value);
              int min = Math.min(i, itemStack.getDamageValue());
 +            // CraftBukkit start
 +            // Paper start - mending event

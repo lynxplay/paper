@@ -1,0 +1,15 @@
+--- a/net/minecraft/world/entity/EntityReference.java
++++ b/net/minecraft/world/entity/EntityReference.java
+@@ -41,6 +_,12 @@
+         return this.entity.map(uuid -> (UUID)uuid, UniquelyIdentifyable::getUUID);
+     }
+ 
++    // Paper start - optional access direct entity reference
++    public Optional<StoredEntityType> rawEntityReferenceOrEmpty() {
++        return this.entity.right();
++    }
++    // Paper end - optional access direct entity reference
++
+     @Nullable
+     public StoredEntityType getEntity(UUIDLookup<? super StoredEntityType> uuidLookup, Class<StoredEntityType> entityClass) {
+         Optional<StoredEntityType> optional = this.entity.right();

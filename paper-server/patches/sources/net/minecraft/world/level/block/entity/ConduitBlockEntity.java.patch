@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/block/entity/ConduitBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/ConduitBlockEntity.java
-@@ -167,8 +_,20 @@
+@@ -165,8 +_,20 @@
      }
  
      private static void applyEffects(Level level, BlockPos pos, List<BlockPos> positions) {
@@ -21,7 +21,7 @@
          int x = pos.getX();
          int y = pos.getY();
          int z = pos.getZ();
-@@ -177,13 +_,19 @@
+@@ -175,7 +_,7 @@
          if (!entitiesOfClass.isEmpty()) {
              for (Player player : entitiesOfClass) {
                  if (pos.closerThan(player.blockPosition(), i) && player.isInWaterOrRain()) {
@@ -30,33 +30,27 @@
                  }
              }
          }
-     }
- 
-     private static void updateDestroyTarget(Level level, BlockPos pos, BlockState state, List<BlockPos> positions, ConduitBlockEntity blockEntity) {
-+        // CraftBukkit start - add "damageTarget" boolean
-+        ConduitBlockEntity.updateDestroyTarget(level, pos, state, positions, blockEntity, true);
+@@ -184,13 +_,21 @@
+     private static void updateAndAttackTarget(
+         ServerLevel serverLevel, BlockPos blockPos, BlockState blockState, ConduitBlockEntity conduitBlockEntity, boolean flag
+     ) {
++    // CraftBukkit start - add "damageTarget" boolean
++        ConduitBlockEntity.updateAndAttackTarget(serverLevel, blockPos, blockState, conduitBlockEntity, flag, true);
 +    }
 +
-+    public static void updateDestroyTarget(Level level, BlockPos pos, BlockState state, List<BlockPos> positions, ConduitBlockEntity blockEntity, boolean damageTarget) {
-+        // CraftBukkit end
-         LivingEntity livingEntity = blockEntity.destroyTarget;
-         int size = positions.size();
-         if (size < 42) {
-@@ -202,7 +_,8 @@
-             blockEntity.destroyTarget = null;
-         }
- 
--        if (blockEntity.destroyTarget != null) {
-+        if (damageTarget && blockEntity.destroyTarget != null) { // CraftBukkit
-+            if (blockEntity.destroyTarget.hurtServer((net.minecraft.server.level.ServerLevel) level, level.damageSources().magic().eventBlockDamager(level, pos), 4.0F)) // CraftBukkit
-             level.playSound(
-                 null,
-                 blockEntity.destroyTarget.getX(),
-@@ -213,7 +_,6 @@
-                 1.0F,
-                 1.0F
++    private static void updateAndAttackTarget(
++        ServerLevel serverLevel, BlockPos blockPos, BlockState blockState, ConduitBlockEntity conduitBlockEntity, boolean flag, boolean damageTarget
++    ) {
++    // CraftBukkit end - add "damageTarget" boolean
+         EntityReference<LivingEntity> entityReference = updateDestroyTarget(conduitBlockEntity.destroyTarget, serverLevel, blockPos, flag);
+         LivingEntity livingEntity = EntityReference.get(entityReference, serverLevel, LivingEntity.class);
+-        if (livingEntity != null) {
++        if (damageTarget && livingEntity != null) { // CraftBukkit
++            if (livingEntity.hurtServer(serverLevel, serverLevel.damageSources().magic(), 4.0F)) // CraftBukkit
+             serverLevel.playSound(
+                 null, livingEntity.getX(), livingEntity.getY(), livingEntity.getZ(), SoundEvents.CONDUIT_ATTACK_TARGET, SoundSource.BLOCKS, 1.0F, 1.0F
              );
--            blockEntity.destroyTarget.hurt(level.damageSources().magic(), 4.0F);
+-            livingEntity.hurtServer(serverLevel, serverLevel.damageSources().magic(), 4.0F);
          }
  
-         if (livingEntity != blockEntity.destroyTarget) {
+         if (!Objects.equals(entityReference, conduitBlockEntity.destroyTarget)) {

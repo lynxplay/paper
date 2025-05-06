@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/monster/Ghast.java
 +++ b/net/minecraft/world/entity/monster/Ghast.java
-@@ -73,6 +_,12 @@
+@@ -74,6 +_,12 @@
          return this.explosionPower;
      }
  
@@ -13,7 +13,7 @@
      @Override
      protected boolean shouldDespawnInPeaceful() {
          return true;
-@@ -370,6 +_,7 @@
+@@ -372,6 +_,7 @@
                          }
  
                          LargeFireball largeFireball = new LargeFireball(level, this.ghast, vec3.normalize(), this.ghast.getExplosionPower());

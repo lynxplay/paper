@@ -15,7 +15,7 @@
  public abstract class Mob extends LivingEntity implements EquipmentUser, Leashable, Targeting {
      private static final EntityDataAccessor<Byte> DATA_MOB_FLAGS_ID = SynchedEntityData.defineId(Mob.class, EntityDataSerializers.BYTE);
      private static final int MOB_FLAG_NO_AI = 1;
-@@ -111,6 +_,7 @@
+@@ -115,6 +_,7 @@
      private final BodyRotationControl bodyRotationControl;
      protected PathNavigation navigation;
      public GoalSelector goalSelector;
@@ -23,7 +23,7 @@
      public GoalSelector targetSelector;
      @Nullable
      private LivingEntity target;
-@@ -125,6 +_,7 @@
+@@ -129,6 +_,7 @@
      private Leashable.LeashData leashData;
      private BlockPos homePosition = BlockPos.ZERO;
      private int homeRadius = -1;
@@ -31,7 +31,7 @@
  
      protected Mob(EntityType<? extends Mob> entityType, Level level) {
          super(entityType, level);
-@@ -141,6 +_,12 @@
+@@ -145,6 +_,12 @@
          }
      }
  
@@ -44,7 +44,7 @@
      protected void registerGoals() {
      }
  
-@@ -221,7 +_,39 @@
+@@ -225,7 +_,39 @@
      }
  
      public void setTarget(@Nullable LivingEntity target) {
@@ -84,7 +84,7 @@
      }
  
      @Override
-@@ -361,11 +_,22 @@
+@@ -365,11 +_,22 @@
          if (this.isNoAi()) {
              valueOutput.putBoolean("NoAI", this.isNoAi());
          }
@@ -107,7 +107,7 @@
          this.setCanPickUpLoot(valueInput.getBooleanOr("CanPickUpLoot", false));
          this.persistenceRequired = valueInput.getBooleanOr("PersistenceRequired", false);
          this.dropChances = valueInput.read("drop_chances", DropChances.CODEC).orElse(DropChances.DEFAULT);
-@@ -379,6 +_,7 @@
+@@ -383,6 +_,7 @@
          this.lootTable = valueInput.read("DeathLootTable", LootTable.KEY_CODEC);
          this.lootTableSeed = valueInput.getLongOr("DeathLootTableSeed", 0L);
          this.setNoAi(valueInput.getBooleanOr("NoAI", false));
@@ -115,7 +115,7 @@
      }
  
      @Override
-@@ -441,6 +_,11 @@
+@@ -446,6 +_,11 @@
                      && !itemEntity.getItem().isEmpty()
                      && !itemEntity.hasPickUpDelay()
                      && this.wantsToPickUp(serverLevel, itemEntity.getItem())) {
@@ -127,7 +127,7 @@
                      this.pickUpItem(serverLevel, itemEntity);
                  }
              }
-@@ -455,18 +_,24 @@
+@@ -460,18 +_,24 @@
  
      protected void pickUpItem(ServerLevel level, ItemEntity entity) {
          ItemStack item = entity.getItem();
@@ -154,7 +154,7 @@
          EquipmentSlot equipmentSlotForItem = this.getEquipmentSlotForItem(stack);
          if (!this.isEquippableInSlot(stack, equipmentSlotForItem)) {
              return ItemStack.EMPTY;
-@@ -479,10 +_,18 @@
+@@ -484,10 +_,18 @@
                  canReplaceCurrentItem = itemBySlot.isEmpty();
              }
  
@@ -174,7 +174,7 @@
                  }
  
                  ItemStack itemStack = equipmentSlotForItem.limit(stack);
-@@ -599,22 +_,29 @@
+@@ -604,22 +_,29 @@
      @Override
      public void checkDespawn() {
          if (this.level().getDifficulty() == Difficulty.PEACEFUL && this.shouldDespawnInPeaceful()) {
@@ -217,7 +217,7 @@
                      this.noActionTime = 0;
                  }
              }
-@@ -626,6 +_,15 @@
+@@ -631,6 +_,15 @@
      @Override
      protected final void serverAiStep() {
          this.noActionTime++;
@@ -233,7 +233,7 @@
          ProfilerFiller profilerFiller = Profiler.get();
          profilerFiller.push("sensing");
          this.sensing.tick();
-@@ -805,14 +_,69 @@
+@@ -810,14 +_,69 @@
              public boolean stillValid(Player player) {
                  return player.getVehicle() == Mob.this || player.canInteractWithEntity(Mob.this, 4.0);
              }
@@ -303,7 +303,7 @@
              ItemStack itemBySlot = this.getItemBySlot(equipmentSlot);
              float f = this.dropChances.byEquipment(equipmentSlot);
              if (f != 0.0F) {
-@@ -832,7 +_,13 @@
+@@ -837,7 +_,13 @@
                      }
  
                      this.spawnAtLocation(level, itemBySlot);
@@ -317,7 +317,7 @@
                  }
              }
          }
-@@ -856,7 +_,9 @@
+@@ -861,7 +_,9 @@
                      set.add(equipmentSlot);
                  } else if (this.dropChances.isPreserved(equipmentSlot)) {
                      this.setItemSlot(equipmentSlot, ItemStack.EMPTY);
@@ -327,7 +327,7 @@
                  }
              }
          }
-@@ -1138,6 +_,21 @@
+@@ -1143,6 +_,21 @@
      public <T extends Mob> T convertTo(
          EntityType<T> entityType, ConversionParams conversionParams, EntitySpawnReason spawnReason, ConversionParams.AfterConversion<T> afterConversion
      ) {
@@ -349,7 +349,7 @@
          if (this.isRemoved()) {
              return null;
          } else {
-@@ -1146,13 +_,23 @@
+@@ -1151,13 +_,23 @@
                  return null;
              } else {
                  conversionParams.type().convert(this, mob, conversionParams);
@@ -376,7 +376,7 @@
                  }
  
                  return mob;
-@@ -1162,7 +_,18 @@
+@@ -1167,7 +_,18 @@
  
      @Nullable
      public <T extends Mob> T convertTo(EntityType<T> entityType, ConversionParams coversionParams, ConversionParams.AfterConversion<T> afterConversion) {
@@ -396,7 +396,7 @@
      }
  
      @Nullable
-@@ -1198,7 +_,17 @@
+@@ -1209,7 +_,17 @@
      public boolean startRiding(Entity entity, boolean force) {
          boolean flag = super.startRiding(entity, force);
          if (flag && this.isLeashed()) {
@@ -415,7 +415,7 @@
          }
  
          return flag;
-@@ -1281,7 +_,7 @@
+@@ -1292,7 +_,7 @@
              float knockback = this.getKnockback(source, damageSource);
              if (knockback > 0.0F && source instanceof LivingEntity livingEntity) {
                  livingEntity.knockback(

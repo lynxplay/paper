@@ -157,7 +157,7 @@
              for (Packet<?> packet : stopTrackingPackets) {
                  serverPlayer.connection.send(packet);
              }
-@@ -292,4 +_,14 @@
+@@ -295,4 +_,14 @@
                  .forEach(serverPlayer -> serverLevel.getWaypointManager().remakeConnections(serverPlayer));
          }
      }

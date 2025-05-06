@@ -98,15 +98,15 @@
      public void setStanding(boolean standing) {
          if (standing) {
              this.setEating(false);
-@@ -792,6 +_,7 @@
-         if (this.owner != null) {
-             this.owner.store(valueOutput, "Owner");
-         }
+@@ -790,6 +_,7 @@
+         valueOutput.putInt("Temper", this.getTemper());
+         valueOutput.putBoolean("Tame", this.isTamed());
+         EntityReference.store(this.owner, valueOutput, "Owner");
 +        valueOutput.putInt("Bukkit.MaxDomestication", this.maxDomestication); // Paper - max domestication
      }
  
      @Override
-@@ -802,6 +_,7 @@
+@@ -800,6 +_,7 @@
          this.setTemper(valueInput.getIntOr("Temper", 0));
          this.setTamed(valueInput.getBooleanOr("Tame", false));
          this.owner = EntityReference.readWithOldOwnerConversion(valueInput, "Owner", this.level());
@@ -114,7 +114,7 @@
      }
  
      @Override
-@@ -890,6 +_,17 @@
+@@ -888,6 +_,17 @@
  
      @Override
      public void handleStartJump(int jumpPower) {

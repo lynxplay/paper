@@ -78,10 +78,10 @@ index 1302be6a28e491ab98afd65b1fd2c4a37fdc11e8..bf644c1c139ac42fd01e1ac5f97ace9e
              profiler.popPush("tickSpawningChunks");
  
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index c874efe126516ccffd15d58319a6e7eab89abdb2..1ed96cc52bf9dde5de059598033cf94ce24f0ca6 100644
+index ffbf1bdc754e86730fdb8d2e233893039002ef93..c791f7ae303a4d205bfc3a1267c523b5f7a337e2 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
-@@ -410,6 +410,10 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+@@ -411,6 +411,10 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
      public boolean queueHealthUpdatePacket;
      public @Nullable net.minecraft.network.protocol.game.ClientboundSetHealthPacket queuedHealthUpdatePacket;
      // Paper end - cancellable death event

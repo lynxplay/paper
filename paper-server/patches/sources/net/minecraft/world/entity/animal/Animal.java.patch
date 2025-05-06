@@ -3,7 +3,7 @@
 @@ -42,6 +_,7 @@
      public int inLove = 0;
      @Nullable
-     public UUID loveCause;
+     public EntityReference<ServerPlayer> loveCause;
 +    public @Nullable ItemStack breedItem; // CraftBukkit - Add breedItem variable
  
      protected Animal(EntityType<? extends Animal> entityType, Level level) {
@@ -27,11 +27,11 @@
 @@ -139,8 +_,9 @@
          if (this.isFood(itemInHand)) {
              int age = this.getAge();
-             if (!this.level().isClientSide && age == 0 && this.canFallInLove()) {
+             if (player instanceof ServerPlayer serverPlayer && age == 0 && this.canFallInLove()) {
 +                final ItemStack breedCopy = itemInHand.copy(); // Paper - Fix EntityBreedEvent copying
                  this.usePlayerItem(player, hand, itemInHand);
--                this.setInLove(player);
-+                this.setInLove(player, breedCopy); // Paper - Fix EntityBreedEvent copying
+-                this.setInLove(serverPlayer);
++                this.setInLove(serverPlayer, breedCopy); // Paper - Fix EntityBreedEvent copying
                  this.playEatingSound();
                  return InteractionResult.SUCCESS_SERVER;
              }
@@ -57,10 +57,10 @@
 +        }
 +        this.inLove = entityEnterLoveModeEvent.getTicksInLove();
 +        // CraftBukkit end
-         if (player != null) {
-             this.loveCause = player.getUUID();
+         if (player instanceof ServerPlayer serverPlayer) {
+             this.loveCause = new EntityReference<>(serverPlayer);
          }
-@@ -221,23 +_,45 @@
+@@ -216,23 +_,45 @@
          if (breedOffspring != null) {
              breedOffspring.setBaby(true);
              breedOffspring.snapTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);

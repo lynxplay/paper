@@ -60,7 +60,7 @@ index 8b17e8d19a2e93608803293895ad1ddf2cbc7c60..f46572709781e077019745304a54ea0c
                  } else if (this.seenBy.remove(player.connection)) {
                      this.serverEntity.removePairing(player);
 diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
-index f8e10af41b3e7441c8edfe03959422d76b519354..a2394556dac0ab43d1a0e02e85972753f46a7e1b 100644
+index 5fe34e593fc2e7616e37f93161ce3902549d57c5..7548cf0be91b9b40816f2b9f3371b07be28f9ae4 100644
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
 @@ -103,6 +103,13 @@ public class ServerEntity {
@@ -95,7 +95,7 @@ index f8e10af41b3e7441c8edfe03959422d76b519354..a2394556dac0ab43d1a0e02e85972753
                      || flag5
                      || this.teleportDelay > 400
                      || this.wasRiding
-@@ -246,6 +253,7 @@ public class ServerEntity {
+@@ -245,6 +252,7 @@ public class ServerEntity {
              }
  
              this.entity.hasImpulse = false;

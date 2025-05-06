@@ -448,10 +448,10 @@ index ba686cb6ab81ed8ac515aa65ee5ce0071475e6fc..f9661e05ed08112b3f5d024dc316724e
      public void aiStep() {
          super.aiStep();
 diff --git a/net/minecraft/world/entity/AreaEffectCloud.java b/net/minecraft/world/entity/AreaEffectCloud.java
-index 1c99dcebb9e6d4e5e601984b5be6c91ddf1ce2aa..4177497ec0a668faf22e5023a2d10a5fba58947c 100644
+index 215f87bb6a758484df91d5c34ccac675287bb2db..425cf6ce530131e165c51b587896f3c90822c650 100644
 --- a/net/minecraft/world/entity/AreaEffectCloud.java
 +++ b/net/minecraft/world/entity/AreaEffectCloud.java
-@@ -146,6 +146,16 @@ public class AreaEffectCloud extends Entity implements TraceableEntity {
+@@ -142,6 +142,16 @@ public class AreaEffectCloud extends Entity implements TraceableEntity {
          this.duration = duration;
      }
  
@@ -469,10 +469,10 @@ index 1c99dcebb9e6d4e5e601984b5be6c91ddf1ce2aa..4177497ec0a668faf22e5023a2d10a5f
      public void tick() {
          super.tick();
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 49acb1d3bcb0cc8b98213f05873adbc4b6e9e619..f70e82184e01b851b577754b714cfd62a7716eab 100644
+index 8b3a94dd02d3e97dd492f91c3eb452367710439d..65c0320df7070e8cb6fe9f734a66ca1470d13465 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -392,6 +392,15 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -404,6 +404,15 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      private final int despawnTime; // Paper - entity despawn time limit
      public int totalEntityAge; // Paper - age-like counter for all entities
      public final io.papermc.paper.entity.activation.ActivationType activationType = io.papermc.paper.entity.activation.ActivationType.activationTypeFor(this); // Paper - EAR 2/tracking ranges
@@ -488,7 +488,7 @@ index 49acb1d3bcb0cc8b98213f05873adbc4b6e9e619..f70e82184e01b851b577754b714cfd62
      // CraftBukkit end
  
      // Paper start
-@@ -407,6 +416,13 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -419,6 +428,13 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
          this.position = Vec3.ZERO;
          this.blockPosition = BlockPos.ZERO;
          this.chunkPosition = ChunkPos.ZERO;
@@ -502,7 +502,7 @@ index 49acb1d3bcb0cc8b98213f05873adbc4b6e9e619..f70e82184e01b851b577754b714cfd62
          SynchedEntityData.Builder builder = new SynchedEntityData.Builder(this);
          builder.define(DATA_SHARED_FLAGS_ID, (byte)0);
          builder.define(DATA_AIR_SUPPLY_ID, this.getMaxAirSupply());
-@@ -970,6 +986,10 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -979,6 +995,10 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
              this.setPos(this.getX() + movement.x, this.getY() + movement.y, this.getZ() + movement.z);
          } else {
              if (type == MoverType.PISTON) {
@@ -513,7 +513,7 @@ index 49acb1d3bcb0cc8b98213f05873adbc4b6e9e619..f70e82184e01b851b577754b714cfd62
                  movement = this.limitPistonMovement(movement);
                  if (movement.equals(Vec3.ZERO)) {
                      return;
-@@ -983,6 +1003,13 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -992,6 +1012,13 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
                  this.stuckSpeedMultiplier = Vec3.ZERO;
                  this.setDeltaMovement(Vec3.ZERO);
              }
@@ -528,10 +528,10 @@ index 49acb1d3bcb0cc8b98213f05873adbc4b6e9e619..f70e82184e01b851b577754b714cfd62
              movement = this.maybeBackOffFromEdge(movement, type);
              Vec3 vec3 = this.collide(movement);
 diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
-index 7e3ac78e8f6de089d8f6a4a0750e5ccd79341e2b..2483777aeb5fcaf90aae0ce69511c8c19551f917 100644
+index ec47f25ac91ae26b547f42b80a5bdff88782b3e8..0e816eefb3d72d11af95fb12f5681f0f143b5e10 100644
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
-@@ -3206,6 +3206,14 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -3214,6 +3214,14 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
          return false;
      }
  
@@ -547,10 +547,10 @@ index 7e3ac78e8f6de089d8f6a4a0750e5ccd79341e2b..2483777aeb5fcaf90aae0ce69511c8c1
      public void tick() {
          super.tick();
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
-index 7773f87b2c3d0b18b8dc3340b071812438916ff0..8fdb767bbd59cb31e70a5e2acbb45a56558b3870 100644
+index 18923b1984380a1ec1a3b6870c6f95924d479884..d6ee8a078497616d8896211ac8d51ce6e4bf0d50 100644
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
-@@ -202,6 +202,19 @@ public abstract class Mob extends LivingEntity implements EquipmentUser, Leashab
+@@ -206,6 +206,19 @@ public abstract class Mob extends LivingEntity implements EquipmentUser, Leashab
          return this.lookControl;
      }
  
@@ -646,10 +646,10 @@ index 3f780276be6766ef253c50212e06fd93a96b0caa..7e70c7bee633c54497d1cd2854dd60f4
                          }
                      }
 diff --git a/net/minecraft/world/entity/item/ItemEntity.java b/net/minecraft/world/entity/item/ItemEntity.java
-index f03e4f52edb72c64404b674fc41d0923c12a6594..1c1c33796d81d7201a77e39f4ee02669f7fd49f6 100644
+index 5e1af258c4400db9b51f00a71b9df89902a8276c..56bed2327f09cd9c2ae87969c12e5d545a83de18 100644
 --- a/net/minecraft/world/entity/item/ItemEntity.java
 +++ b/net/minecraft/world/entity/item/ItemEntity.java
-@@ -129,6 +129,29 @@ public class ItemEntity extends Entity implements TraceableEntity {
+@@ -121,6 +121,29 @@ public class ItemEntity extends Entity implements TraceableEntity {
          return 0.04;
      }
  

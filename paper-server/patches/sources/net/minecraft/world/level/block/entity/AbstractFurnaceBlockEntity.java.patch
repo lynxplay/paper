@@ -210,9 +210,9 @@
      }
  
 -    public void awardUsedRecipesAndPopExperience(ServerPlayer player) {
--        List<RecipeHolder<?>> recipesToAwardAndPopExperience = this.getRecipesToAwardAndPopExperience(player.serverLevel(), player.position());
+-        List<RecipeHolder<?>> recipesToAwardAndPopExperience = this.getRecipesToAwardAndPopExperience(player.level(), player.position());
 +    public void awardUsedRecipesAndPopExperience(ServerPlayer player, ItemStack itemstack, int amount) { // CraftBukkit
-+        List<RecipeHolder<?>> recipesToAwardAndPopExperience = this.getRecipesToAwardAndPopExperience(player.serverLevel(), player.position(), this.worldPosition, player, itemstack, amount); // CraftBukkit - overload for exp spawn events
++        List<RecipeHolder<?>> recipesToAwardAndPopExperience = this.getRecipesToAwardAndPopExperience(player.level(), player.position(), this.worldPosition, player, itemstack, amount); // CraftBukkit - overload for exp spawn events
          player.awardRecipes(recipesToAwardAndPopExperience);
  
          for (RecipeHolder<?> recipeHolder : recipesToAwardAndPopExperience) {

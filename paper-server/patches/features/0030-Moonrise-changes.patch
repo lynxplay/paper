@@ -5,7 +5,7 @@ Subject: [PATCH] Moonrise changes
 
 
 diff --git a/ca/spottedleaf/moonrise/patches/chunk_system/entity/ChunkSystemEntity.java b/ca/spottedleaf/moonrise/patches/chunk_system/entity/ChunkSystemEntity.java
-index c7da23900228aab3a5673eb5adfada5091140319..15c1999623f8675a9099612747e9400157b4f2c1 100644
+index c7da23900228aab3a5673eb5adfada5091140319..10921a7702fa9a2f69d084b55a60359e93106a3b 100644
 --- a/ca/spottedleaf/moonrise/patches/chunk_system/entity/ChunkSystemEntity.java
 +++ b/ca/spottedleaf/moonrise/patches/chunk_system/entity/ChunkSystemEntity.java
 @@ -3,17 +3,35 @@ package ca.spottedleaf.moonrise.patches.chunk_system.entity;
@@ -31,7 +31,7 @@ index c7da23900228aab3a5673eb5adfada5091140319..15c1999623f8675a9099612747e94001
 +        return switch (this.moonrise$hardCollisionConstant()) {
 +            case ALWAYS -> true;
 +            case NEVER -> false;
-+            case SOMETIMES -> ((Entity)this).canBeCollidedWith();
++            case SOMETIMES -> ((Entity)this).canBeCollidedWith(null);
 +        };
 +    }
 +
@@ -43,7 +43,7 @@ index c7da23900228aab3a5673eb5adfada5091140319..15c1999623f8675a9099612747e94001
 +    public default HardColliding moonrise$computeHardCollisionConstant() {
 +        if (this instanceof Boat || this instanceof AbstractMinecart || this instanceof Shulker) return HardColliding.ALWAYS;
 +        if (this instanceof HappyGhast) return HardColliding.SOMETIMES;
-+        return ((Entity)this).canBeCollidedWith() ? HardColliding.ALWAYS : HardColliding.NEVER;
++        return ((Entity)this).canBeCollidedWith(null) ? HardColliding.ALWAYS : HardColliding.NEVER;
      }
  
      public FullChunkStatus moonrise$getChunkStatus();
@@ -144,10 +144,10 @@ index ba20e87d2105ce53cdaf4049de2388d05fcd1b56..77e88b2bff631d508ea875dcbdd8e2ad
  
      public void getEntities(final Entity except, final AABB box, final List<Entity> into, final Predicate<? super Entity> predicate) {
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 000ed66dd0c5f7e7de170d5e347b3bd2a981ce9a..497d98cf9769506d518f173f1bf710f9bba07242 100644
+index 21104ca24e73f998b127a318aeba3889f46db03a..471aa5ebc1a8782820f81fb4673a25f2655f1d96 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -366,7 +366,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -378,7 +378,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      }
      // Paper end
      // Paper start - rewrite chunk system
@@ -156,7 +156,7 @@ index 000ed66dd0c5f7e7de170d5e347b3bd2a981ce9a..497d98cf9769506d518f173f1bf710f9
      private net.minecraft.server.level.FullChunkStatus chunkStatus;
      private ca.spottedleaf.moonrise.patches.chunk_system.level.chunk.ChunkData chunkData;
      private int sectionX = Integer.MIN_VALUE;
-@@ -375,8 +375,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -387,8 +387,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      private boolean updatingSectionStatus;
  
      @Override

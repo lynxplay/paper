@@ -58,10 +58,10 @@
 +                // Paper end
                  advancement.value().rewards().grant(this.player);
                  advancement.value().display().ifPresent(displayInfo -> {
--                    if (displayInfo.shouldAnnounceChat() && this.player.serverLevel().getGameRules().getBoolean(GameRules.RULE_ANNOUNCE_ADVANCEMENTS)) {
+-                    if (displayInfo.shouldAnnounceChat() && this.player.level().getGameRules().getBoolean(GameRules.RULE_ANNOUNCE_ADVANCEMENTS)) {
 -                        this.playerList.broadcastSystemMessage(displayInfo.getType().createAnnouncement(advancement, this.player), false);
 +                    // Paper start - Add Adventure message to PlayerAdvancementDoneEvent
-+                    if (event.message() != null && this.player.serverLevel().getGameRules().getBoolean(GameRules.RULE_ANNOUNCE_ADVANCEMENTS)) {
++                    if (event.message() != null && this.player.level().getGameRules().getBoolean(GameRules.RULE_ANNOUNCE_ADVANCEMENTS)) {
 +                        this.playerList.broadcastSystemMessage(io.papermc.paper.adventure.PaperAdventure.asVanilla(event.message()), false);
 +                        // Paper end
                      }

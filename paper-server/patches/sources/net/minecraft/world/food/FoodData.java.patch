@@ -28,7 +28,7 @@
 +    // CraftBukkit end
 +
      public void tick(ServerPlayer player) {
-         ServerLevel serverLevel = player.serverLevel();
+         ServerLevel serverLevel = player.level();
          Difficulty difficulty = serverLevel.getDifficulty();
 @@ -37,29 +_,39 @@
              if (this.saturationLevel > 0.0F) {

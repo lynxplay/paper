@@ -355,7 +355,7 @@
 +    }
 +    public @Nullable net.kyori.adventure.text.Component remove(ServerPlayer player, net.kyori.adventure.text.Component leaveMessage) {
 +        // Paper end - Fix kick event leave message not being sent
-         ServerLevel serverLevel = player.serverLevel();
+         ServerLevel serverLevel = player.level();
          player.awardStat(Stats.LEAVE_GAME);
 +        // CraftBukkit start - Quitting must be before we do final save of data, in case plugins need to modify it
 +        // See SPIGOT-5799, SPIGOT-6145
@@ -612,7 +612,7 @@
 +        player.stopRiding(); // CraftBukkit
          this.players.remove(player);
 +        this.playersByName.remove(player.getScoreboardName().toLowerCase(java.util.Locale.ROOT)); // Spigot
-         player.serverLevel().removePlayerImmediately(player, reason);
+         player.level().removePlayerImmediately(player, reason);
 -        TeleportTransition teleportTransition = player.findRespawnPositionAndUseSpawnBlock(!keepInventory, TeleportTransition.DO_NOTHING);
 -        ServerLevel level = teleportTransition.newLevel();
 -        ServerPlayer serverPlayer = new ServerPlayer(this.server, level, player.getGameProfile(), player.clientInformation());
@@ -679,7 +679,7 @@
          }
  
          byte b = (byte)(keepInventory ? 1 : 0);
-         ServerLevel serverLevel = serverPlayer.serverLevel();
+         ServerLevel serverLevel = serverPlayer.level();
          LevelData levelData = serverLevel.getLevelData();
          serverPlayer.connection.send(new ClientboundRespawnPacket(serverPlayer.createCommonSpawnInfo(serverLevel), b));
 -        serverPlayer.connection.teleport(serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), serverPlayer.getYRot(), serverPlayer.getXRot());

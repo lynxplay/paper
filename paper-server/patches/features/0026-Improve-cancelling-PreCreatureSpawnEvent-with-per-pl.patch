@@ -60,10 +60,10 @@ index bf644c1c139ac42fd01e1ac5f97ace9e3b763603..33db0fc5f940e570ceb3d3d58b8e0702
              spawnState = NaturalSpawner.createState(naturalSpawnChunkCount, this.level.getAllEntities(), this::getFullChunk, null, true);
          } else {
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index 1ed96cc52bf9dde5de059598033cf94ce24f0ca6..95fa288e997e71053a6865f7cdb72980b098fe7b 100644
+index c791f7ae303a4d205bfc3a1267c523b5f7a337e2..5c96b0a692ebaf62787aa5417a37fc8f4e82477f 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
-@@ -414,6 +414,7 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+@@ -415,6 +415,7 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
      public static final int MOBCATEGORY_TOTAL_ENUMS = net.minecraft.world.entity.MobCategory.values().length;
      public final int[] mobCounts = new int[MOBCATEGORY_TOTAL_ENUMS];
      // Paper end - Optional per player mob spawns
