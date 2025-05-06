@@ -14,6 +14,7 @@ import io.papermc.generator.rewriter.types.simple.CraftBlockDataMapping;
 import io.papermc.generator.rewriter.types.simple.CraftBlockEntityStateMapping;
 import io.papermc.generator.rewriter.types.simple.CraftPotionUtilRewriter;
 import io.papermc.generator.rewriter.types.simple.EntityTypeRewriter;
+import io.papermc.generator.rewriter.types.simple.ItemTypeRewriter;
 import io.papermc.generator.rewriter.types.simple.MapPaletteRewriter;
 import io.papermc.generator.rewriter.types.simple.MaterialRewriter;
 import io.papermc.generator.rewriter.types.simple.MemoryKeyRewriter;
@@ -182,7 +183,7 @@ public final class Rewriters {
             .register("PigVariant", Pig.Variant.class, new RegistryFieldRewriter<>(Registries.PIG_VARIANT, "getVariant"))
             .register("MemoryKey", MemoryKey.class, new MemoryKeyRewriter())
             // .register("DataComponentTypes", DataComponentTypes.class, new DataComponentTypesRewriter()) - disable for now
-            // .register("ItemType", ItemType.class, new ItemTypeRewriter()) - disable for now, lynx want the generic type
+            .register("ItemType", ItemType.class, new ItemTypeRewriter())
             .register("BlockType", BlockType.class, new BlockTypeRewriter())
             .register("FeatureFlag", FeatureFlag.class, new FeatureFlagRewriter())
             .register("Tag", Tag.class, new TagRewriter())

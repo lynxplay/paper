@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 public interface Sound extends OldEnum<Sound>, Keyed, net.kyori.adventure.sound.Sound.Type { // Paper - implement Sound.Type
 
     // Start generate - Sound
-    // @GeneratedFrom 1.21.5
+    // @GeneratedFrom 25w15a
     Sound AMBIENT_BASALT_DELTAS_ADDITIONS = getSound("ambient.basalt_deltas.additions");
 
     Sound AMBIENT_BASALT_DELTAS_LOOP = getSound("ambient.basalt_deltas.loop");
@@ -569,6 +569,24 @@ public interface Sound extends OldEnum<Sound>, Keyed, net.kyori.adventure.sound.
 
     Sound BLOCK_DISPENSER_LAUNCH = getSound("block.dispenser.launch");
 
+    Sound BLOCK_DRIED_GHAST_AMBIENT = getSound("block.dried_ghast.ambient");
+
+    Sound BLOCK_DRIED_GHAST_AMBIENT_WATER = getSound("block.dried_ghast.ambient_water");
+
+    Sound BLOCK_DRIED_GHAST_BREAK = getSound("block.dried_ghast.break");
+
+    Sound BLOCK_DRIED_GHAST_FALL = getSound("block.dried_ghast.fall");
+
+    Sound BLOCK_DRIED_GHAST_HIT = getSound("block.dried_ghast.hit");
+
+    Sound BLOCK_DRIED_GHAST_PLACE = getSound("block.dried_ghast.place");
+
+    Sound BLOCK_DRIED_GHAST_PLACE_IN_WATER = getSound("block.dried_ghast.place_in_water");
+
+    Sound BLOCK_DRIED_GHAST_STEP = getSound("block.dried_ghast.step");
+
+    Sound BLOCK_DRIED_GHAST_TRANSITION = getSound("block.dried_ghast.transition");
+
     Sound BLOCK_DRIPSTONE_BLOCK_BREAK = getSound("block.dripstone_block.break");
 
     Sound BLOCK_DRIPSTONE_BLOCK_FALL = getSound("block.dripstone_block.fall");
@@ -578,6 +596,8 @@ public interface Sound extends OldEnum<Sound>, Keyed, net.kyori.adventure.sound.
     Sound BLOCK_DRIPSTONE_BLOCK_PLACE = getSound("block.dripstone_block.place");
 
     Sound BLOCK_DRIPSTONE_BLOCK_STEP = getSound("block.dripstone_block.step");
+
+    Sound BLOCK_DRY_GRASS_AMBIENT = getSound("block.dry_grass.ambient");
 
     Sound BLOCK_ENCHANTMENT_TABLE_USE = getSound("block.enchantment_table.use");
 
@@ -1192,8 +1212,6 @@ public interface Sound extends OldEnum<Sound>, Keyed, net.kyori.adventure.sound.
     Sound BLOCK_SAND_PLACE = getSound("block.sand.place");
 
     Sound BLOCK_SAND_STEP = getSound("block.sand.step");
-
-    Sound BLOCK_SAND_WIND = getSound("block.sand.wind");
 
     Sound BLOCK_SCAFFOLDING_BREAK = getSound("block.scaffolding.break");
 
@@ -2077,6 +2095,14 @@ public interface Sound extends OldEnum<Sound>, Keyed, net.kyori.adventure.sound.
 
     Sound ENTITY_GHAST_WARN = getSound("entity.ghast.warn");
 
+    Sound ENTITY_GHASTLING_AMBIENT = getSound("entity.ghastling.ambient");
+
+    Sound ENTITY_GHASTLING_DEATH = getSound("entity.ghastling.death");
+
+    Sound ENTITY_GHASTLING_HURT = getSound("entity.ghastling.hurt");
+
+    Sound ENTITY_GHASTLING_SPAWN = getSound("entity.ghastling.spawn");
+
     Sound ENTITY_GLOW_ITEM_FRAME_ADD_ITEM = getSound("entity.glow_item_frame.add_item");
 
     Sound ENTITY_GLOW_ITEM_FRAME_BREAK = getSound("entity.glow_item_frame.break");
@@ -2146,6 +2172,22 @@ public interface Sound extends OldEnum<Sound>, Keyed, net.kyori.adventure.sound.
     Sound ENTITY_GUARDIAN_HURT = getSound("entity.guardian.hurt");
 
     Sound ENTITY_GUARDIAN_HURT_LAND = getSound("entity.guardian.hurt_land");
+
+    Sound ENTITY_HAPPY_GHAST_AMBIENT = getSound("entity.happy_ghast.ambient");
+
+    Sound ENTITY_HAPPY_GHAST_DEATH = getSound("entity.happy_ghast.death");
+
+    Sound ENTITY_HAPPY_GHAST_EQUIP = getSound("entity.happy_ghast.equip");
+
+    Sound ENTITY_HAPPY_GHAST_HARNESS_GOGGLES_DOWN = getSound("entity.happy_ghast.harness_goggles_down");
+
+    Sound ENTITY_HAPPY_GHAST_HARNESS_GOGGLES_UP = getSound("entity.happy_ghast.harness_goggles_up");
+
+    Sound ENTITY_HAPPY_GHAST_HURT = getSound("entity.happy_ghast.hurt");
+
+    Sound ENTITY_HAPPY_GHAST_RIDING = getSound("entity.happy_ghast.riding");
+
+    Sound ENTITY_HAPPY_GHAST_UNEQUIP = getSound("entity.happy_ghast.unequip");
 
     Sound ENTITY_HOGLIN_AMBIENT = getSound("entity.hoglin.ambient");
 

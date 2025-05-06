@@ -97,24 +97,6 @@
          }
      }
  
-@@ -770,7 +_,7 @@
-     @VisibleForDebug
-     public class BeeGoToHiveGoal extends Bee.BaseBeeGoal {
-         public static final int MAX_TRAVELLING_TICKS = 2400;
--        int travellingTicks = Bee.this.level().random.nextInt(10);
-+        int travellingTicks = Bee.this.random.nextInt(10); // CraftBukkit - SPIGOT-7495: Give Bees another chance and let them use their own random, avoid concurrency issues
-         private static final int MAX_BLACKLISTED_TARGETS = 3;
-         final List<BlockPos> blacklistedTargets = Lists.newArrayList();
-         @Nullable
-@@ -886,7 +_,7 @@
- 
-     public class BeeGoToKnownFlowerGoal extends Bee.BaseBeeGoal {
-         private static final int MAX_TRAVELLING_TICKS = 2400;
--        int travellingTicks = Bee.this.level().random.nextInt(10);
-+        int travellingTicks = Bee.this.random.nextInt(10); // CraftBukkit - SPIGOT-7495: Give Bees another chance and let them use their own random, avoid concurrency issues
- 
-         BeeGoToKnownFlowerGoal() {
-             this.setFlags(EnumSet.of(Goal.Flag.MOVE));
 @@ -983,7 +_,7 @@
                              }
                          }

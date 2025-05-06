@@ -1,0 +1,20 @@
+--- a/net/minecraft/world/entity/animal/HappyGhast.java
++++ b/net/minecraft/world/entity/animal/HappyGhast.java
+@@ -279,11 +_,14 @@
+     }
+ 
+     @Override
+-    protected void removePassenger(Entity passenger) {
+-        super.removePassenger(passenger);
+-        if (!this.isVehicle()) {
++    // Paper start - Force entity dismount during teleportation
++    protected boolean removePassenger(Entity passenger, boolean suppressCancellation) {
++        final boolean removed = super.removePassenger(passenger, suppressCancellation);
++        if (removed && !this.isVehicle()) {
++    // Paper end - Force entity dismount during teleportation
+             this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.HARNESS_GOGGLES_UP, this.getSoundSource(), 1.0F, 1.0F);
+         }
++        return removed; // Paper - Force entity dismount during teleportation
+     }
+ 
+     @Override

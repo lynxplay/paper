@@ -14,7 +14,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.type.CalibratedSculkSensor;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
 
-@GeneratedFrom("1.21.5")
+@GeneratedFrom("25w15a")
 public class CraftCalibratedSculkSensor extends CraftBlockData implements CalibratedSculkSensor {
     private static final EnumProperty<Direction> FACING = CalibratedSculkSensorBlock.FACING;
 
