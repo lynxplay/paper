@@ -1192,7 +1192,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
             return java.util.Collections.emptySet();
         }
 
-        Set<org.bukkit.entity.Player> set = new java.util.HashSet<>(tracker.seenBy.size());
+        Set<org.bukkit.entity.Player> set = new java.util.HashSet<>(tracker.seenBy.nonHiddenEntriesCount());
         for (net.minecraft.server.network.ServerPlayerConnection connection : tracker.seenBy) {
             set.add(connection.getPlayer().getBukkitEntity().getPlayer());
         }

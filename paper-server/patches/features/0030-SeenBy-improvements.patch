@@ -1,0 +1,118 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Wed, 7 May 2025 22:27:52 +0200
+Subject: [PATCH] SeenBy improvements
+
+
+diff --git a/net/minecraft/server/level/ChunkMap.java b/net/minecraft/server/level/ChunkMap.java
+index 0d8aefe8c886eaa4c33cbab53b0ad1c016f0531f..825938b8d6a1f1a70c601be85ef8fc5e69c31aa7 100644
+--- a/net/minecraft/server/level/ChunkMap.java
++++ b/net/minecraft/server/level/ChunkMap.java
+@@ -1142,7 +1142,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+         final Entity entity;
+         private final int range;
+         SectionPos lastSectionPos;
+-        public final Set<ServerPlayerConnection> seenBy = new it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet<>(); // Paper - Perf: optimise map impl
++        public final io.papermc.paper.network.SeenByTracker seenBy = new io.papermc.paper.network.SeenByTracker(); // Paper - improve seen by logic
+ 
+         // Paper start - optimise entity tracker
+         private long lastChunkUpdate = -1L;
+@@ -1177,7 +1177,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+ 
+             if (lastChunkUpdate != currChunkUpdate || lastTrackedChunk != chunk) {
+                 // need to purge any players possible not in the chunk list
+-                for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy)) {
++                for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy.allServerSide())) {
+                     final ServerPlayer player = conn.getPlayer();
+                     if (!players.contains(player)) {
+                         this.removePlayer(player);
+@@ -1200,7 +1200,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+                 return;
+             }
+ 
+-            for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy)) {
++            for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy.allServerSide())) {
+                 ServerPlayer player = conn.getPlayer();
+                 if (!ca.spottedleaf.moonrise.common.util.TickThread.isTickThreadFor(player)) {
+                     this.removePlayer(player);
+@@ -1212,10 +1212,10 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+         public final void moonrise$clearPlayers() {
+             this.lastChunkUpdate = -1;
+             this.lastTrackedChunk = null;
+-            if (this.seenBy.isEmpty()) {
++            if (this.seenBy.hasNonHiddenEntries()) {
+                 return;
+             }
+-            for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy)) {
++            for (final ServerPlayerConnection conn : new java.util.ArrayList<>(this.seenBy.allServerSide())) {
+                 ServerPlayer player = conn.getPlayer();
+                 this.removePlayer(player);
+             }
+@@ -1223,7 +1223,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+ 
+         @Override
+         public final boolean moonrise$hasPlayers() {
+-            return !this.seenBy.isEmpty();
++            return !this.seenBy.hasNonHiddenEntries();
+         }
+         // Paper end - optimise entity tracker
+ 
+@@ -1301,13 +1301,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+                 }
+                 flag = flag && this.entity.broadcastToPlayer(player) && ChunkMap.this.isChunkTracked(player, this.entity.chunkPosition().x, this.entity.chunkPosition().z);
+                 // Paper end - Configurable entity tracking range by Y
+-                // CraftBukkit start - respect vanish API
+-                if (flag && !player.getBukkitEntity().canSee(this.entity.getBukkitEntity())) { // Paper - only consider hits
+-                    flag = false;
+-                }
+-                // CraftBukkit end
+                 if (flag) {
+-                    if (this.seenBy.add(player.connection)) {
++                    if (this.seenBy.addAndNeedsPairing(player.connection, t -> t.hide(!player.getBukkitEntity().canSee(this.entity.getBukkitEntity())))) { // Paper - optimise
+                         // Paper start - entity tracking events
+                         if (io.papermc.paper.event.player.PlayerTrackEntityEvent.getHandlerList().getRegisteredListeners().length == 0 || new io.papermc.paper.event.player.PlayerTrackEntityEvent(player.getBukkitEntity(), this.entity.getBukkitEntity()).callEvent()) {
+                         this.serverEntity.addPairing(player);
+diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
+index b118e91f1e0b5a8b8c0b2a4a32faabc5a34a5954..076b65bb076904deb19db33e8609e4d67af94076 100644
+--- a/net/minecraft/server/level/ServerEntity.java
++++ b/net/minecraft/server/level/ServerEntity.java
+@@ -74,7 +74,7 @@ public class ServerEntity {
+     private boolean wasOnGround;
+     @Nullable
+     private List<SynchedEntityData.DataValue<?>> trackedDataValues;
+-    private final Set<net.minecraft.server.network.ServerPlayerConnection> trackedPlayers; // Paper
++    private final io.papermc.paper.network.SeenByTracker trackedPlayers; // Paper
+ 
+     public ServerEntity(
+         ServerLevel level,
+@@ -84,7 +84,7 @@ public class ServerEntity {
+         Consumer<Packet<?>> broadcast,
+         // Paper start
+         BiConsumer<Packet<?>, List<UUID>> broadcastWithIgnore,
+-        final Set<net.minecraft.server.network.ServerPlayerConnection> trackedPlayers
++        final io.papermc.paper.network.SeenByTracker trackedPlayers
+         // Paper end
+     ) {
+         this.trackedPlayers = trackedPlayers; // Paper
+@@ -128,7 +128,7 @@ public class ServerEntity {
+             this.lastPassengers = passengers;
+         }
+ 
+-        if (!this.trackedPlayers.isEmpty() && this.entity instanceof ItemFrame itemFrame /*&& this.tickCount % 10 == 0*/) { // CraftBukkit - moved tickCount below // Paper - Perf: Only tick item frames if players can see it
++        if (!this.trackedPlayers.hasNonHiddenEntries() && this.entity instanceof ItemFrame itemFrame /*&& this.tickCount % 10 == 0*/) { // CraftBukkit - moved tickCount below // Paper - Perf: Only tick item frames if players can see it
+             ItemStack item = itemFrame.getItem();
+             if (this.level.paperConfig().maps.itemFrameCursorUpdateInterval > 0 && this.tickCount % this.level.paperConfig().maps.itemFrameCursorUpdateInterval == 0 && item.getItem() instanceof MapItem) { // CraftBukkit - Moved this.tickCounter % 10 logic here so item frames do not enter the other blocks // Paper - Make item frame map cursor update interval configurable
+                 MapId mapId = itemFrame.cachedMapId; // Paper - Perf: Cache map ids on item frames
+diff --git a/net/minecraft/world/entity/item/PrimedTnt.java b/net/minecraft/world/entity/item/PrimedTnt.java
+index 5d23d8754b304d5e2fd54400cc81c7fe5c14a804..ca25030b0fb08d5fdd5306a0e2c26fea726bc56b 100644
+--- a/net/minecraft/world/entity/item/PrimedTnt.java
++++ b/net/minecraft/world/entity/item/PrimedTnt.java
+@@ -145,7 +145,7 @@ public class PrimedTnt extends Entity implements TraceableEntity {
+                 net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket velocityPacket = new net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket(this);
+                 net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket positionPacket = net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket.teleport(this.getId(), net.minecraft.world.entity.PositionMoveRotation.of(this), java.util.Set.of(), this.onGround);
+ 
+-                ete.seenBy.stream()
++                ete.seenBy.streamNonHiddenEntries()
+                     .filter(viewer -> (viewer.getPlayer().getX() - this.getX()) * (viewer.getPlayer().getY() - this.getY()) * (viewer.getPlayer().getZ() - this.getZ()) < 16 * 16)
+                     .forEach(viewer -> {
+                         viewer.send(velocityPacket);

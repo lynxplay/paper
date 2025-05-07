@@ -2075,7 +2075,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         ChunkMap tracker = ((ServerLevel) this.getHandle().level()).getChunkSource().chunkMap;
         ChunkMap.TrackedEntity entry = tracker.entityMap.get(other.getId());
         if (entry != null) {
-            entry.removePlayer(this.getHandle());
+            entry.seenBy.updateIfPresent(this.getHandle().connection, t -> {
+                t.hide(true);
+                entry.serverEntity.removePairing(this.getHandle());
+            });
         }
 
         // Remove the hidden entity from this player user list, if they're on it
@@ -2171,7 +2174,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         }
 
         ChunkMap.TrackedEntity entry = tracker.entityMap.get(other.getId());
-        if (entry != null && !entry.seenBy.contains(this.getHandle().connection)) {
+        if (entry != null) {
+            entry.seenBy.updateIfPresent(this.getHandle().connection, t -> {
+                t.hide(false);
+                // TODO
+            });
             entry.updatePlayer(this.getHandle());
         }
 
