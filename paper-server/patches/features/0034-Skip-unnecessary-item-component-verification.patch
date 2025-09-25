@@ -1,0 +1,100 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Thu, 25 Sep 2025 13:24:31 +0200
+Subject: [PATCH] Skip unnecessary item component verification
+
+Skip unnecessary item component verification for complex items as we can
+simply validate them later, saving time in the netty threads.
+
+diff --git a/net/minecraft/network/protocol/game/ServerboundSetCreativeModeSlotPacket.java b/net/minecraft/network/protocol/game/ServerboundSetCreativeModeSlotPacket.java
+index 83a5f53d4dfe27a40ad510037106b61a02c938ad..2139b2c27f097f23d58a71dca304e65e60da3a6a 100644
+--- a/net/minecraft/network/protocol/game/ServerboundSetCreativeModeSlotPacket.java
++++ b/net/minecraft/network/protocol/game/ServerboundSetCreativeModeSlotPacket.java
+@@ -11,7 +11,7 @@ public record ServerboundSetCreativeModeSlotPacket(short slotNum, ItemStack item
+     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundSetCreativeModeSlotPacket> STREAM_CODEC = StreamCodec.composite(
+         ByteBufCodecs.SHORT,
+         ServerboundSetCreativeModeSlotPacket::slotNum,
+-        ItemStack.validatedStreamCodec(ItemStack.OPTIONAL_UNTRUSTED_STREAM_CODEC).apply(ByteBufCodecs::trackDepth), // Paper - Track codec depth
++        ItemStack.validatedStreamCodec(ItemStack.OPTIONAL_UNTRUSTED_STREAM_CODEC_SKIP_COMPONENT_VERIFICATION).apply(ByteBufCodecs::trackDepth), // Paper - Track codec depth // Paper - skip unnecessary component validation
+         ServerboundSetCreativeModeSlotPacket::itemStack,
+         ServerboundSetCreativeModeSlotPacket::new
+     );
+diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index ca13dd72f173be6714965c506f2d48dcd3c9e569..d5ceb3c75b7fb274fb39a5d23c058910e8e88822 100644
+--- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -3343,6 +3343,7 @@ public class ServerGamePacketListenerImpl
+             if (!itemStack.isItemEnabled(this.player.level().enabledFeatures())) {
+                 return;
+             }
++            itemStack.getItem().verifyComponentsAfterLoad(itemStack); // Paper - skip unnecessary component validation
+ 
+             boolean flag1 = packet.slotNum() >= 1 && packet.slotNum() <= 45;
+             boolean flag2 = itemStack.isEmpty() || itemStack.getCount() <= itemStack.getMaxStackSize();
+diff --git a/net/minecraft/world/item/ItemStack.java b/net/minecraft/world/item/ItemStack.java
+index da16f4831c875e07c25d7ed041bed493db614658..a81d1e7bae37f74e6ea92c8b406e401eb570a99d 100644
+--- a/net/minecraft/world/item/ItemStack.java
++++ b/net/minecraft/world/item/ItemStack.java
+@@ -131,6 +131,7 @@ public final class ItemStack implements DataComponentHolder {
+     public static final StreamCodec<RegistryFriendlyByteBuf, ItemStack> OPTIONAL_UNTRUSTED_STREAM_CODEC = createOptionalStreamCodec(
+         DataComponentPatch.DELIMITED_STREAM_CODEC
+     );
++    public static final StreamCodec<RegistryFriendlyByteBuf, ItemStack> OPTIONAL_UNTRUSTED_STREAM_CODEC_SKIP_COMPONENT_VERIFICATION = createOptionalStreamCodec(DataComponentPatch.DELIMITED_STREAM_CODEC, false);  // Paper - skip unnecessary component validation
+     public static final StreamCodec<RegistryFriendlyByteBuf, ItemStack> STREAM_CODEC = new StreamCodec<RegistryFriendlyByteBuf, ItemStack>() {
+         @Override
+         public ItemStack decode(RegistryFriendlyByteBuf buffer) {
+@@ -180,6 +181,14 @@ public final class ItemStack implements DataComponentHolder {
+     private static StreamCodec<RegistryFriendlyByteBuf, ItemStack> createOptionalStreamCodec(
+         final StreamCodec<RegistryFriendlyByteBuf, DataComponentPatch> codec
+     ) {
++        // Paper start - skip unnecessary component validation - overload for bool param
++        return createOptionalStreamCodec(codec, true);
++    }
++    private static StreamCodec<RegistryFriendlyByteBuf, ItemStack> createOptionalStreamCodec(
++        final StreamCodec<RegistryFriendlyByteBuf, DataComponentPatch> codec,
++        final boolean verifyComponentsAfterLoad
++    ) {
++        // Paper end - skip unnecessary component validation - overload for bool param
+         return new StreamCodec<RegistryFriendlyByteBuf, ItemStack>() {
+             @Override
+             public ItemStack decode(RegistryFriendlyByteBuf buffer) {
+@@ -189,7 +198,7 @@ public final class ItemStack implements DataComponentHolder {
+                 } else {
+                     Holder<Item> holder = Item.STREAM_CODEC.decode(buffer);
+                     DataComponentPatch dataComponentPatch = codec.decode(buffer);
+-                    return new ItemStack(holder, varInt, dataComponentPatch);
++                    return new ItemStack(holder, varInt, dataComponentPatch, verifyComponentsAfterLoad); // Paper - skip unnecessary component validation
+                 }
+             }
+ 
+@@ -268,7 +277,12 @@ public final class ItemStack implements DataComponentHolder {
+     }
+ 
+     public ItemStack(Holder<Item> tag, int count, DataComponentPatch components) {
+-        this(tag.value(), count, PatchedDataComponentMap.fromPatch(tag.value().components(), components));
++        // Paper start - skip unnecessary component validation - overload for bool param & call overloaded ctor
++        this(tag, count, components, true);
++    }
++    public ItemStack(Holder<Item> tag, int count, DataComponentPatch components, final boolean verifyComponentsAfterLoad) {
++        this(tag.value(), count, PatchedDataComponentMap.fromPatch(tag.value().components(), components), verifyComponentsAfterLoad);
++        // Paper end - skip unnecessary component validation - overload for bool param & call overloaded ctor
+     }
+ 
+     public ItemStack(Holder<Item> item, int count) {
+@@ -280,10 +294,15 @@ public final class ItemStack implements DataComponentHolder {
+     }
+ 
+     private ItemStack(ItemLike item, int count, PatchedDataComponentMap components) {
++        // Paper start - skip unnecessary component validation - overload for bool param
++        this(item, count, components, true);
++    }
++    private ItemStack(ItemLike item, int count, PatchedDataComponentMap components, final boolean verifyComponentsAfterLoad) {
++        // Paper end - skip unnecessary component validation - overload for bool param
+         this.item = item.asItem();
+         this.count = count;
+         this.components = components;
+-        this.getItem().verifyComponentsAfterLoad(this);
++        if (verifyComponentsAfterLoad) this.getItem().verifyComponentsAfterLoad(this); // Paper - skip unnecessary component validation
+     }
+ 
+     private ItemStack(@Nullable Void unused) {
