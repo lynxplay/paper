@@ -158,7 +158,7 @@
  
              WorldStem worldStem;
              try {
-@@ -169,17 +_,31 @@
+@@ -169,17 +_,30 @@
                          executor -> WorldLoader.load(
                              worldLoadConfig,
                              context -> {
@@ -169,7 +169,6 @@
 +                                    try {
 +                                        io.papermc.paper.world.migration.WorldFolderMigration.migrateStartupWorld(
 +                                            access,
-+                                            context.datapackWorldgen(),
 +                                            levelName,
 +                                            LevelStem.OVERWORLD,
 +                                            Registries.levelStemToLevel(LevelStem.OVERWORLD)

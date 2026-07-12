@@ -18,3 +18,12 @@
                              .toArray(CompletableFuture[]::new)
                      )
                  );
+@@ -195,7 +_,7 @@
+         return tagsToSave;
+     }
+ 
+-    private <T extends SavedData> CompoundTag encodeUnchecked(final SavedDataType<T> type, final SavedData data, final RegistryOps<Tag> ops) {
++    public static <T extends SavedData> CompoundTag encodeUnchecked(final SavedDataType<T> type, final SavedData data, final com.mojang.serialization.DynamicOps<Tag> ops) { // Paper - expose to outside callers and allow plain dynamic ops
+         Codec<T> codec = type.codec();
+         CompoundTag tag = new CompoundTag();
+         tag.put("data", codec.encodeStart(ops, (T)data).getOrThrow());

@@ -12,7 +12,6 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 record WorldMigrationContext(
     LevelStorageSource.LevelStorageAccess rootAccess,
-    HolderLookup.Provider registryAccess,
     String worldName,
     ResourceKey<LevelStem> stemKey,
     ResourceKey<Level> dimensionKey

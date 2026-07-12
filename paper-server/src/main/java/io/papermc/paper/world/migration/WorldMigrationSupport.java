@@ -10,16 +10,22 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
-import net.minecraft.core.HolderLookup;
+import java.util.concurrent.CompletableFuture;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtException;
+import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.ReportedNbtException;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.FileUtil;
+import net.minecraft.util.Util;
 import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.util.worldupdate.UpgradeProgress;
+import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
+import net.minecraft.world.level.storage.SavedDataStorage;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -34,14 +40,14 @@ final class WorldMigrationSupport {
     private WorldMigrationSupport() {
     }
 
-    static @Nullable PaperWorldPDC readLegacyPdc(final @Nullable Dynamic<?> levelData, final HolderLookup.Provider registryAccess) {
+    static @Nullable PaperWorldPDC readLegacyPdc(final @Nullable Dynamic<?> levelData) {
         if (levelData == null) {
             return null;
         }
 
         return levelData.get("BukkitValues")
             .result()
-            .flatMap(dynamic -> PaperWorldPDC.CODEC.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), dynamic.convert(NbtOps.INSTANCE).getValue()).result())
+            .flatMap(dynamic -> PaperWorldPDC.CODEC.parse(NbtOps.INSTANCE, dynamic.convert(NbtOps.INSTANCE).getValue()).result())
             .orElse(null);
     }
 
@@ -199,6 +205,21 @@ final class WorldMigrationSupport {
             }
         }
         return null;
+    }
+
+    static <T extends SavedData> CompletableFuture<Void> writeSaveData(final Path dataRoot,
+                                                                       final SavedDataType<T> savedDataType,
+                                                                       final T value
+    ) {
+        return CompletableFuture.runAsync(() -> {
+            final Path path = savedDataPath(dataRoot, savedDataType);
+            try {
+                FileUtil.createDirectoriesSafe(path.getParent());
+                NbtIo.writeCompressed(SavedDataStorage.encodeUnchecked(savedDataType, value, NbtOps.INSTANCE), path);
+            } catch (final IOException e) {
+                LOGGER.error("Could not save data to {}", path.getFileName(), e);
+            }
+        }, Util.DIMENSION_DATA_IO_POOL);
     }
 
 }

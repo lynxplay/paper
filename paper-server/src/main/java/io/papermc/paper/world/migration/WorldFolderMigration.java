@@ -34,12 +34,11 @@ public final class WorldFolderMigration {
 
     public static void migrateStartupWorld(
         final LevelStorageSource.LevelStorageAccess rootAccess,
-        final HolderLookup.Provider registryAccess,
         final String worldName,
         final ResourceKey<LevelStem> stemKey,
         final ResourceKey<Level> dimensionKey
     ) throws IOException {
-        final WorldMigrationContext context = new WorldMigrationContext(rootAccess, registryAccess, worldName, stemKey, dimensionKey);
+        final WorldMigrationContext context = new WorldMigrationContext(rootAccess, worldName, stemKey, dimensionKey);
         final MigrationMode mode = classifyStartupMigration(context);
         if (mode != MigrationMode.NO_OP) {
             warnAndDelayStartupMigration();
@@ -53,12 +52,11 @@ public final class WorldFolderMigration {
 
     public static void migrateApiWorld(
         final LevelStorageSource.LevelStorageAccess rootAccess,
-        final HolderLookup.Provider registryAccess,
         final String worldName,
         final ResourceKey<LevelStem> stemKey,
         final ResourceKey<Level> dimensionKey
     ) throws IOException {
-        LegacyCraftBukkitWorldMigration.migrateApiWorld(new WorldMigrationContext(rootAccess, registryAccess, worldName, stemKey, dimensionKey));
+        LegacyCraftBukkitWorldMigration.migrateApiWorld(new WorldMigrationContext(rootAccess, worldName, stemKey, dimensionKey));
     }
 
     public static synchronized void warnAndDelayStartupMigration() {

@@ -1207,7 +1207,6 @@ public final class CraftServer implements Server {
         try {
             WorldFolderMigration.migrateApiWorld(
                 this.console.storageSource,
-                registryAccess,
                 name,
                 actualDimension,
                 dimensionKey

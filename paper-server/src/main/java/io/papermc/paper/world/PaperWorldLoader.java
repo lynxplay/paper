@@ -58,7 +58,7 @@ public record PaperWorldLoader(MinecraftServer server, String levelId) {
         final String defaultName = defaultWorldName(this.levelId, info.stemKey());
 
         try {
-            WorldFolderMigration.migrateStartupWorld(this.server.storageSource, this.server.registryAccess(), defaultName, info.stemKey(), info.dimensionKey());
+            WorldFolderMigration.migrateStartupWorld(this.server.storageSource, defaultName, info.stemKey(), info.dimensionKey());
         } catch (final IOException ex) {
             throw new RuntimeException("Failed to migrate world storage for " + defaultName, ex);
         }

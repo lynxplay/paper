@@ -104,9 +104,7 @@ final class VanillaWorldMigration {
             levelOverrides.setInitialized(false);
         }
 
-        final SavedDataStorage targetStorage = new SavedDataStorage(context.targetDataRoot(), DataFixers.getDataFixer(), context.registryAccess());
-        targetStorage.set(PaperLevelOverrides.TYPE, levelOverrides);
-        targetStorage.saveAndJoin();
+        WorldMigrationSupport.writeSaveData(context.targetDataRoot(), PaperLevelOverrides.TYPE, levelOverrides).join();
     }
 
     private static void migrateLegacyPdc(
@@ -118,11 +116,9 @@ final class VanillaWorldMigration {
             return;
         }
 
-        final PaperWorldPDC pdc = WorldMigrationSupport.readLegacyPdc(levelData, context.registryAccess());
+        final PaperWorldPDC pdc = WorldMigrationSupport.readLegacyPdc(levelData);
         if (pdc != null) {
-            final SavedDataStorage targetStorage = new SavedDataStorage(context.targetDataRoot(), DataFixers.getDataFixer(), context.registryAccess());
-            targetStorage.set(PaperWorldPDC.TYPE, pdc);
-            targetStorage.saveAndJoin();
+            WorldMigrationSupport.writeSaveData(context.targetDataRoot(), PaperWorldPDC.TYPE, pdc).join();
 
             WorldMigrationSupport.clearLegacyPdc(levelData);
             context.rootAccess().saveLevelData(levelData);
@@ -136,9 +132,7 @@ final class VanillaWorldMigration {
         }
 
         final UUID legacyUuid = WorldMigrationSupport.readLegacyUuid(context.baseRoot());
-        final SavedDataStorage targetStorage = new SavedDataStorage(context.targetDataRoot(), DataFixers.getDataFixer(), context.registryAccess());
-        targetStorage.set(PaperWorldMetadata.TYPE, new PaperWorldMetadata(legacyUuid == null ? UUID.randomUUID() : legacyUuid));
-        targetStorage.saveAndJoin();
+        WorldMigrationSupport.writeSaveData(context.targetDataRoot(), PaperWorldMetadata.TYPE, new PaperWorldMetadata(legacyUuid == null ? UUID.randomUUID() : legacyUuid));
         Files.deleteIfExists(context.baseRoot().resolve(WorldMigrationSupport.LEGACY_UID_FILE_NAME));
     }
 

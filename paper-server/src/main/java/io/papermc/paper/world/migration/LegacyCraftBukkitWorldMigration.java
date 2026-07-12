@@ -11,9 +11,7 @@ import java.nio.file.Path;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.UUID;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.datafix.DataFixers;
 import net.minecraft.world.clock.ServerClockManager;
 import net.minecraft.world.entity.raid.Raids;
 import net.minecraft.world.level.TicketStorage;
@@ -27,7 +25,6 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 import net.minecraft.world.level.saveddata.WanderingTraderData;
 import net.minecraft.world.level.saveddata.WeatherData;
 import net.minecraft.world.level.storage.LevelResource;
-import net.minecraft.world.level.storage.SavedDataStorage;
 import net.minecraft.world.level.timers.TimerQueue;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -44,7 +41,6 @@ final class LegacyCraftBukkitWorldMigration {
     private final Path sourceRoot;
     private final Path targetDataRoot;
     private final Path targetDimensionPath;
-    private final HolderLookup.Provider registryAccess;
     private @Nullable Path initialExplicitWorldBorder;
     private List<Path> sourceDataRoots = List.of();
 
@@ -68,7 +64,6 @@ final class LegacyCraftBukkitWorldMigration {
         this.sourceRoot = context.rootAccess().parent().getLevelPath(context.worldName());
         this.targetDataRoot = context.targetDataRoot();
         this.targetDimensionPath = context.targetDimensionPath();
-        this.registryAccess = context.registryAccess();
     }
 
     private void run() throws IOException {
@@ -91,10 +86,8 @@ final class LegacyCraftBukkitWorldMigration {
 
             this.sourceDataRoots = this.locateSavedDataRoots();
 
-            final SavedDataStorage tempStorage = new SavedDataStorage(this.targetDataRoot, DataFixers.getDataFixer(), this.registryAccess);
             this.migrateSharedSavedData();
-            this.migrateLegacyCraftBukkitPaperData(tempStorage, levelDataResult.dataTag());
-            tempStorage.saveAndJoin();
+            this.migrateLegacyCraftBukkitPaperData(levelDataResult.dataTag());
         }
         deleteMigratedSeparateRoot(this.sourceRoot);
         LOGGER.info("Completed legacy CraftBukkit import for world '{}' ({})", this.context.worldName(), this.context.dimensionKey().identifier());
@@ -215,15 +208,22 @@ final class LegacyCraftBukkitWorldMigration {
     }
 
     private void migrateLegacyCraftBukkitPaperData(
-        final SavedDataStorage targetStorage,
         final @Nullable Dynamic<?> levelData
     ) {
-        targetStorage.set(PaperWorldMetadata.TYPE, new PaperWorldMetadata(requireNonNullElseGet(WorldMigrationSupport.readLegacyUuid(this.sourceRoot), UUID::randomUUID)));
-        final PaperWorldPDC preservedPdc = WorldMigrationSupport.readLegacyPdc(levelData, this.registryAccess);
+        WorldMigrationSupport.writeSaveData(
+            this.targetDataRoot,
+            PaperWorldMetadata.TYPE,
+            new PaperWorldMetadata(requireNonNullElseGet(WorldMigrationSupport.readLegacyUuid(this.sourceRoot), UUID::randomUUID))
+        ).join();
+        final PaperWorldPDC preservedPdc = WorldMigrationSupport.readLegacyPdc(levelData);
         if (preservedPdc != null) {
-            targetStorage.set(PaperWorldPDC.TYPE, preservedPdc);
+            WorldMigrationSupport.writeSaveData(this.targetDataRoot, PaperWorldPDC.TYPE, preservedPdc).join();
         }
-        targetStorage.set(PaperLevelOverrides.TYPE, PaperLevelOverrides.createFromRawLevelData(levelData));
+        WorldMigrationSupport.writeSaveData(
+            this.targetDataRoot,
+            PaperLevelOverrides.TYPE,
+            PaperLevelOverrides.createFromRawLevelData(levelData)
+        ).join();
     }
 
     private List<Path> explicitDataRoots(final List<Path> dimensionRoots) {
