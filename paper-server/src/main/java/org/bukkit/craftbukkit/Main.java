@@ -22,6 +22,7 @@ public class Main {
     // Paper end - Reset loggers after shutdown
 
     public static void main(String[] args) {
+        io.papermc.paper.shelfback.ShelfbackHook.INSTANCE.craftbukkitMain();
         if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) System.setProperty("jdk.nio.maxCachedBufferSize", "262144"); // Paper - cap per-thread NIO cache size; https://www.evanjones.ca/java-bytebuffer-leak.html
 
         if (System.getProperty("joml.nounsafe") == null) {

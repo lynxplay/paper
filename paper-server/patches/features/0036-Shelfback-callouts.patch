@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Bjarne Koll <git@lynxplay.dev>
+Date: Sun, 11 Oct 2026 13:42:52 +0100
+Subject: [PATCH] Shelfback callouts
+
+
+diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
+index a6d9b95c42926754acd2e54e7af7ade3f7d2c322..b7450206d2554f8d191ce92880ba3aff8aa492f4 100644
+--- a/net/minecraft/server/Main.java
++++ b/net/minecraft/server/Main.java
+@@ -110,6 +110,7 @@ public class Main {
+                 JvmProfiler.INSTANCE.start(Environment.SERVER);
+             }
+ 
++            io.papermc.paper.shelfback.ShelfbackHook.INSTANCE.preBootstrap(); // Paper - shelfback
+             io.papermc.paper.plugin.PluginInitializerManager.load(options); // Paper
+             Bootstrap.bootStrap();
+             Bootstrap.validate();
+@@ -344,6 +345,7 @@ public class Main {
+                     }
+                     // Paper end
+ 
++                    io.papermc.paper.shelfback.ShelfbackHook.INSTANCE.postMinecraftServerSpin(server);
+                     return server;
+                 }
+             );
+diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
+index 7517b872794f3bbe556f3abbeb294f426c8da899..0711544c0d553c0e6d05e4e6ad81c1efc407f2c1 100644
+--- a/net/minecraft/server/MinecraftServer.java
++++ b/net/minecraft/server/MinecraftServer.java
+@@ -1657,6 +1657,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         ProfilerFiller profiler = Profiler.get();
+         profiler.push("tick");
+         this.tickFrame.start();
++        io.papermc.paper.shelfback.ShelfbackHook.INSTANCE.tickStart(this);
+         // Paper - improve tick loop - moved into runAllTasksAtTickStart
+         this.runAllTasksAtTickStart(); // Paper - improve tick loop
+         this.tickServer(sprinting ? () -> false : this::haveTime);
+@@ -1667,6 +1668,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+             throw new RuntimeException("Chunk system crash propagated to tick()", crash);
+         }
+         // Paper end - rewrite chunk system
++        io.papermc.paper.shelfback.ShelfbackHook.INSTANCE.tickEnd(this);
+         this.tickFrame.end();
+         this.recordEndOfTick(); // Paper - improve tick loop
+         profiler.pop();
