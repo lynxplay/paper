@@ -5,18 +5,60 @@ Subject: [PATCH] Shelfback callouts
 
 
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index a6d9b95c42926754acd2e54e7af7ade3f7d2c322..b7450206d2554f8d191ce92880ba3aff8aa492f4 100644
+index a6d9b95c42926754acd2e54e7af7ade3f7d2c322..92d93158e6e75f8310dd81a89c89186b5fb9bbf2 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
-@@ -110,6 +110,7 @@ public class Main {
-                 JvmProfiler.INSTANCE.start(Environment.SERVER);
-             }
+@@ -1,6 +1,5 @@
+ package net.minecraft.server;
  
-+            io.papermc.paper.shelfback.ShelfbackHook.INSTANCE.preBootstrap(); // Paper - shelfback
-             io.papermc.paper.plugin.PluginInitializerManager.load(options); // Paper
-             Bootstrap.bootStrap();
-             Bootstrap.validate();
-@@ -344,6 +345,7 @@ public class Main {
+-import com.mojang.authlib.services.MinecraftServicesDiscoveryService;
+ import com.mojang.datafixers.DataFixer;
+ import com.mojang.logging.LogUtils;
+ import com.mojang.serialization.Dynamic;
+@@ -15,12 +14,8 @@ import java.nio.file.Path;
+ import java.nio.file.Paths;
+ import java.util.Optional;
+ import java.util.function.BooleanSupplier;
+-import joptsimple.OptionParser;
+ import joptsimple.OptionSet;
+-import joptsimple.OptionSpec;
+-import joptsimple.util.PathConverter;
+ import net.minecraft.CrashReport;
+-import net.minecraft.DefaultUncaughtExceptionHandler;
+ import net.minecraft.SharedConstants;
+ import net.minecraft.SuppressForbidden;
+ import net.minecraft.commands.Commands;
+@@ -29,7 +24,6 @@ import net.minecraft.core.RegistryAccess;
+ import net.minecraft.core.registries.Registries;
+ import net.minecraft.nbt.NbtException;
+ import net.minecraft.nbt.ReportedNbtException;
+-import net.minecraft.network.chat.Component;
+ import net.minecraft.server.dedicated.DedicatedServer;
+ import net.minecraft.server.dedicated.DedicatedServerProperties;
+ import net.minecraft.server.dedicated.DedicatedServerSettings;
+@@ -38,13 +32,11 @@ import net.minecraft.server.jsonrpc.ManagementServer;
+ import net.minecraft.server.notifications.NotificationManager;
+ import net.minecraft.server.packs.repository.PackRepository;
+ import net.minecraft.server.packs.repository.ServerPacksSource;
+-import net.minecraft.util.Mth;
+ import net.minecraft.util.Util;
+ import net.minecraft.util.datafix.DataFixers;
+ import net.minecraft.util.profiling.jfr.Environment;
+ import net.minecraft.util.profiling.jfr.JvmProfiler;
+ import net.minecraft.util.worldupdate.UpgradeProgress;
+-import net.minecraft.util.worldupdate.WorldUpgrader;
+ import net.minecraft.world.flag.FeatureFlags;
+ import net.minecraft.world.level.LevelSettings;
+ import net.minecraft.world.level.WorldDataConfiguration;
+@@ -58,7 +50,6 @@ import net.minecraft.world.level.storage.LevelDataAndDimensions;
+ import net.minecraft.world.level.storage.LevelStorageSource;
+ import net.minecraft.world.level.storage.LevelSummary;
+ import net.minecraft.world.level.storage.PrimaryLevelData;
+-import net.minecraft.world.level.storage.WorldData;
+ import org.jspecify.annotations.Nullable;
+ import org.slf4j.Logger;
+ 
+@@ -344,6 +335,7 @@ public class Main {
                      }
                      // Paper end
  

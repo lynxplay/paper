@@ -112,6 +112,8 @@ public class PluginInitializerManager {
         java.util.List<Path> dirs = ((java.util.List<File>) optionSet.valuesOf("add-plugin-dir")).stream().map(File::toPath).toList();
         dirs.forEach(pluginDir -> io.papermc.paper.plugin.util.EntrypointUtil.registerProvidersFromSource(io.papermc.paper.plugin.provider.source.DirectoryProviderSource.INSTANCE_NO_CREATE, pluginDir));
 
+        io.papermc.paper.shelfback.ShelfbackHook.INSTANCE.pluginRegistrationHook(); // Paper - shelfback
+
         final Set<String> paperPluginNames = new TreeSet<>();
         final Set<String> legacyPluginNames = new TreeSet<>();
         LaunchEntryPointHandler.INSTANCE.getStorage().forEach((entrypoint, providerStorage) -> {
